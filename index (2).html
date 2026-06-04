@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RapidLocal - Servicii Locale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+            color: #111827;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.2s ease-out;
+        }
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-content {
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .nav-item.active {
+            color: #2563eb;
+        }
+        
+        .premium-shadow {
+            box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .img-cover { object-fit: cover; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb', // Premium Blue
+                        accent: '#06c167', // Success Green
+                        bglight: '#f7f7f7'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="pb-16 md:pb-0 min-h-screen relative text-[15px]">
+
+    <!-- Top Header -->
+    <header id="mainHeader" class="bg-white sticky top-0 z-40 border-b border-gray-100 premium-shadow min-h-[50px]">
+        <!-- Populated dynamically by JS for Back Buttons logic -->
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-3xl mx-auto md:pb-10">
+        
+        <!-- ================= VIEW: HOME ================= -->
+        <div id="view-home" class="view active px-3 py-3 space-y-5">
+            <!-- Search -->
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"></i>
+                <input type="text" id="searchInput" placeholder="Caută servicii, oraș, categorie..." 
+                       class="w-full text-sm bg-white border border-gray-200 rounded-xl py-2.5 pl-9 pr-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-sm transition">
+            </div>
+
+            <!-- Promo Card -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 flex items-center justify-between cursor-pointer shadow-sm" onclick="switchTab('publish')">
+                <div>
+                    <h3 class="font-bold text-sm text-gray-900">Postează primul anunț gratuit!</h3>
+                    <p class="text-xs text-gray-600 mt-0.5">Găsește clienți noi în orașul tău.</p>
+                </div>
+                <div class="bg-primary text-white p-1.5 rounded-full shadow-md shrink-0">
+                    <i data-lucide="plus" class="w-5 h-5"></i>
+                </div>
+            </div>
+
+            <!-- Categories Quick -->
+            <div>
+                <div class="flex justify-between items-end mb-2">
+                    <h2 class="font-bold text-base text-gray-900">Categorii</h2>
+                    <button class="text-xs text-primary font-medium" onclick="switchTab('categories')">Vezi toate</button>
+                </div>
+                <div class="flex gap-2.5 overflow-x-auto no-scrollbar pb-1" id="quickCategories">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Promoted & Recent Ads -->
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h2 id="homeAdsTitle" class="font-bold text-base text-gray-900 flex items-center">Toate anunțurile</h2>
+                    <select id="sortSelect" class="text-xs bg-transparent border-none text-gray-500 focus:ring-0 cursor-pointer p-0">
+                        <option value="recent">Recente</option>
+                        <option value="priceAsc">Preț mic</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 md:gap-4" id="adsGrid">
+                    <!-- Ads populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW: CATEGORIES ================= -->
+        <div id="view-categories" class="view px-3 py-4">
+            <h2 class="font-bold text-xl text-gray-900 mb-4">Alege o categorie</h2>
+            <div class="grid grid-cols-2 gap-2.5" id="allCategoriesGrid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- ================= VIEW: PUBLISH ================= -->
+        <div id="view-publish" class="view px-3 py-4">
+            <h2 class="font-bold text-xl text-gray-900 mb-4">Publică un anunț</h2>
+            
+            <div id="publishFreeStatus" class="bg-green-50 border border-green-100 text-green-800 p-3 rounded-xl mb-4 flex items-start gap-2 text-xs hidden">
+                <i data-lucide="check-circle" class="w-4 h-4 text-green-600 shrink-0 mt-0.5"></i>
+                <p>Acesta este <b>primul tău anunț gratuit</b>! După acesta, publicarea necesită credite.</p>
+            </div>
+
+            <form id="publishForm" class="space-y-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <!-- Image Upload -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1.5">Fotografii</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition relative overflow-hidden" id="imageUploadBox" onclick="document.getElementById('adImage').click()">
+                        <i data-lucide="camera" class="w-6 h-6 text-gray-400 mb-1"></i>
+                        <span class="text-xs text-primary font-medium">Adaugă o poză</span>
+                        <input type="file" id="adImage" accept="image/*" class="hidden">
+                        <img id="adImagePreview" src="" class="absolute inset-0 w-full h-full object-cover hidden">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Titlu anunț *</label>
+                    <input type="text" id="adTitle" required placeholder="ex. Instalator autorizat" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Categorie *</label>
+                        <select id="adCategory" required class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition appearance-none">
+                            <option value="">Alege...</option>
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Oraș *</label>
+                        <input type="text" id="adCity" required placeholder="București" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Preț (Lei) - Opțional</label>
+                    <input type="number" id="adPrice" placeholder="ex. 150" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Descriere *</label>
+                    <textarea id="adDesc" required rows="3" placeholder="Descrie serviciile..." class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Telefon *</label>
+                        <input type="tel" id="adPhone" required placeholder="07xx" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition">
+                    </div>
+                    <div class="flex items-center mt-5">
+                        <label class="flex items-center cursor-pointer gap-2">
+                            <input type="checkbox" id="adWhatsapp" class="w-4 h-4 rounded border-gray-300 text-green-500 focus:ring-green-500">
+                            <span class="text-xs font-medium text-gray-700">Are WhatsApp</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-100 p-3 rounded-xl mt-2">
+                    <label class="flex items-start cursor-pointer gap-2.5">
+                        <input type="checkbox" id="adPromote" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mt-0.5">
+                        <div>
+                            <span class="text-xs font-bold text-gray-900 block">Vreau promovare VIP</span>
+                            <span class="text-[10px] text-gray-600 mt-0.5 block leading-tight">Anunțul tău va apărea mereu primul în categorie. (Simulare Demo)</span>
+                        </div>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-sm transition text-sm mt-2">
+                    Publică anunțul
+                </button>
+            </form>
+        </div>
+
+        <!-- ================= VIEW: MY ADS ================= -->
+        <div id="view-myAds" class="view px-3 py-4">
+            <div id="myAdsList" class="space-y-3">
+                <!-- Populated by JS -->
+            </div>
+            <div id="emptyMyAds" class="hidden text-center py-8">
+                <div class="bg-gray-100 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="inbox" class="w-6 h-6 text-gray-400"></i>
+                </div>
+                <h3 class="font-bold text-sm text-gray-900">Nu ai niciun anunț activ</h3>
+                <p class="text-gray-500 text-xs mt-1 mb-4">Începe să oferi servicii adăugând un anunț.</p>
+                <button onclick="switchTab('publish')" class="bg-primary text-white text-sm px-5 py-2 rounded-lg font-medium shadow-sm">Adaugă un anunț</button>
+            </div>
+        </div>
+
+        <!-- ================= VIEW: PROFILE ================= -->
+        <div id="view-profile" class="view px-3 py-4 space-y-5">
+            <!-- User Info Card -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3">
+                <div class="relative w-16 h-16 shrink-0">
+                    <img id="profilePic" src="https://ui-avatars.com/api/?name=User&background=EBF4FF&color=2563EB" class="w-full h-full rounded-full object-cover border border-gray-200">
+                    <button onclick="changeProfilePic()" class="absolute -bottom-1 -right-1 bg-white border border-gray-200 p-1 rounded-full shadow-sm text-gray-600 hover:text-primary transition">
+                        <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h2 class="font-bold text-lg text-gray-900 truncate" id="profileName">Utilizator Demo</h2>
+                    <p class="text-xs text-gray-500 flex items-center gap-1 mt-0.5 truncate"><i data-lucide="map-pin" class="w-3 h-3"></i> <span id="profileCity">România</span></p>
+                    <button class="text-[11px] text-primary font-medium mt-1.5 bg-blue-50 px-2 py-1 rounded-md" onclick="editProfile()">Editează profilul tău</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-2.5">
+                <div class="bg-white rounded-xl p-2.5 shadow-sm border border-gray-100 text-center">
+                    <div class="text-base font-bold text-gray-900" id="statActiveAds">0</div>
+                    <div class="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">Active</div>
+                </div>
+                <div class="bg-white rounded-xl p-2.5 shadow-sm border border-gray-100 text-center">
+                    <div class="text-base font-bold text-primary" id="statPromoted">0</div>
+                    <div class="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">Promovate</div>
+                </div>
+                <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-2.5 shadow-sm text-center cursor-pointer hover:opacity-90 transition" onclick="buyCreditsModal()">
+                    <div class="text-base font-bold text-white flex items-center justify-center gap-1">
+                        <span id="statCredits">0</span> <i data-lucide="coins" class="w-3.5 h-3.5 text-yellow-400"></i>
+                    </div>
+                    <div class="text-[10px] text-gray-300 uppercase tracking-wide mt-0.5">Credite</div>
+                </div>
+            </div>
+
+            <!-- Settings List -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden text-sm">
+                <div class="px-4 py-1.5 bg-gray-50 border-b border-gray-100">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Activitatea mea</span>
+                </div>
+                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="switchTab('myAds')">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-blue-50 p-1.5 rounded-lg text-primary"><i data-lucide="list" class="w-4 h-4"></i></div>
+                        <span class="font-medium text-gray-800">Anunțurile mele</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="switchTab('favorites')">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-red-50 p-1.5 rounded-lg text-red-500"><i data-lucide="heart" class="w-4 h-4"></i></div>
+                        <span class="font-medium text-gray-800">Favorite</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+
+                <div class="px-4 py-1.5 bg-gray-50 border-y border-gray-100">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Setări cont</span>
+                </div>
+                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="editProfile()">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-orange-50 p-1.5 rounded-lg text-orange-500"><i data-lucide="settings" class="w-4 h-4"></i></div>
+                        <span class="font-medium text-gray-800">Informații personale</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="showModal('Notificări', 'Setările de notificări sunt salvate pe acest dispozitiv.')">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-gray-100 p-1.5 rounded-lg text-gray-600"><i data-lucide="bell" class="w-4 h-4"></i></div>
+                        <span class="font-medium text-gray-800">Notificări</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+
+                <div class="px-4 py-1.5 bg-gray-50 border-y border-gray-100">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Suport & Info</span>
+                </div>
+                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="showStaticPage('terms')">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-teal-50 p-1.5 rounded-lg text-teal-600"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+                        <span class="font-medium text-gray-800">Termeni și condiții</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="showStaticPage('about')">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-indigo-50 p-1.5 rounded-lg text-indigo-500"><i data-lucide="info" class="w-4 h-4"></i></div>
+                        <span class="font-medium text-gray-800">Despre noi</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="showStaticPage('contact')">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-yellow-50 p-1.5 rounded-lg text-yellow-600"><i data-lucide="help-circle" class="w-4 h-4"></i></div>
+                        <span class="font-medium text-gray-800">Contact suport</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+
+                <div class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="switchTab('admin')">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-purple-50 p-1.5 rounded-lg text-purple-600"><i data-lucide="shield" class="w-4 h-4"></i></div>
+                        <span class="font-medium text-gray-800">Admin Demo (Ascuns)</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+            </div>
+            
+            <button class="w-full py-3 text-gray-400 font-medium text-xs" onclick="resetDemo()">Deconectare / Resetare Date Demo</button>
+        </div>
+
+        <!-- ================= VIEW: STATIC PAGE ================= -->
+        <div id="view-page" class="view px-4 py-5 bg-white min-h-screen">
+            <div id="pageContent" class="prose prose-sm text-gray-700 leading-relaxed whitespace-pre-line pb-10 text-sm">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+
+        <!-- ================= VIEW: FAVORITES ================= -->
+        <div id="view-favorites" class="view px-3 py-4">
+            <h2 class="font-bold text-xl text-gray-900 mb-4">Anunțuri Favorite</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 md:gap-4" id="favAdsGrid">
+                <!-- Populated by JS -->
+            </div>
+            <div id="emptyFavs" class="hidden text-center py-8">
+                <i data-lucide="heart" class="w-10 h-10 text-gray-300 mx-auto mb-2"></i>
+                <h3 class="font-medium text-sm text-gray-600">Nu ai niciun anunț salvat.</h3>
+            </div>
+        </div>
+
+        <!-- ================= VIEW: AD DETAILS ================= -->
+        <div id="view-details" class="view">
+            <!-- Full page overlay style -->
+            <div class="bg-white min-h-screen pb-16 md:pb-0">
+                <div class="relative h-56 w-full bg-gray-100">
+                    <img id="detailImage" src="" class="w-full h-full object-cover">
+                    <button class="absolute top-3 left-3 bg-white/90 p-1.5 rounded-full shadow-md backdrop-blur-sm" onclick="goBack()">
+                        <i data-lucide="arrow-left" class="w-5 h-5 text-gray-800"></i>
+                    </button>
+                    <button id="detailFavBtn" class="absolute top-3 right-3 bg-white/90 p-1.5 rounded-full shadow-md backdrop-blur-sm" onclick="toggleFavoriteFromDetail()">
+                        <i data-lucide="heart" class="w-5 h-5 text-gray-800" id="detailFavIcon"></i>
+                    </button>
+                    <div id="detailPromotedBadge" class="absolute bottom-3 left-3 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md hidden flex items-center gap-1">
+                        <i data-lucide="arrow-up" class="w-3 h-3"></i> Promovat
+                    </div>
+                </div>
+
+                <div class="p-4 border-b border-gray-100">
+                    <div class="flex justify-between items-start gap-3">
+                        <div>
+                            <h1 id="detailTitle" class="text-lg font-bold text-gray-900 leading-tight">Titlu</h1>
+                            <p class="text-xs text-gray-500 mt-1.5 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span id="detailLocation">Locatie</span></p>
+                        </div>
+                        <div id="detailPriceBox" class="bg-green-50 text-green-700 px-2.5 py-1 rounded-lg font-bold text-base hidden whitespace-nowrap">
+                            <span id="detailPrice"></span> Lei
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <img id="detailUserAvatar" src="" class="w-10 h-10 rounded-full bg-gray-100">
+                        <div>
+                            <p class="font-bold text-sm text-gray-900" id="detailUserName">User</p>
+                            <div class="flex gap-1 mt-0.5">
+                                <span class="bg-blue-50 text-primary text-[9px] font-bold px-1.5 py-0.5 rounded">Verificat</span>
+                                <span class="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded">Răspuns rapid</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <h3 class="font-bold text-sm text-gray-900 mb-1.5">Descriere</h3>
+                    <p id="detailDesc" class="text-gray-700 text-xs leading-relaxed whitespace-pre-line"></p>
+                </div>
+
+                <!-- Action Buttons fixed bottom on mobile -->
+                <div class="fixed bottom-[56px] md:bottom-0 md:sticky left-0 right-0 p-3 bg-white border-t border-gray-100 flex gap-2 z-30">
+                    <button id="btnCall" class="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-sm transition text-sm">
+                        <i data-lucide="phone" class="w-4 h-4"></i> Sună
+                    </button>
+                    <button id="btnWhatsApp" class="flex-1 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-sm transition hidden text-sm">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW: ADMIN ================= -->
+        <div id="view-admin" class="view px-3 py-4">
+            <h2 class="font-bold text-xl text-red-600 mb-4 flex items-center gap-2"><i data-lucide="shield-alert" class="w-5 h-5"></i> Admin Demo</h2>
+            
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="text-xs text-gray-500">Total Anunțuri</div>
+                    <div class="text-xl font-bold" id="adminTotalAds">0</div>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="text-xs text-gray-500">Venit Simulat (Lei)</div>
+                    <div class="text-xl font-bold text-green-600" id="adminRevenue">0</div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto text-xs">
+                <table class="w-full text-left">
+                    <thead class="text-gray-700 bg-gray-50 border-b">
+                        <tr>
+                            <th class="px-3 py-2">ID / Titlu</th>
+                            <th class="px-3 py-2">Status</th>
+                            <th class="px-3 py-2">Acțiuni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminAdsList">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation (Compact 3 buttons) -->
+    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-100 z-50 md:hidden pb-safe">
+        <div class="flex justify-around items-center h-14 px-4">
+            <button onclick="switchTab('home')" class="nav-item flex flex-col items-center justify-center w-full h-full text-gray-400 active">
+                <i data-lucide="home" class="w-5 h-5 mb-0.5"></i>
+                <span class="text-[9px] font-medium">Acasă</span>
+            </button>
+            <button onclick="switchTab('publish')" class="nav-item flex flex-col items-center justify-center w-full h-full text-gray-400 relative">
+                <div class="bg-primary text-white p-3 rounded-full absolute -top-4 shadow-lg border-[3px] border-white premium-shadow transition hover:scale-105">
+                    <i data-lucide="plus" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[9px] font-medium mt-6">Publică</span>
+            </button>
+            <button onclick="switchTab('profile')" class="nav-item flex flex-col items-center justify-center w-full h-full text-gray-400">
+                <i data-lucide="user" class="w-5 h-5 mb-0.5"></i>
+                <span class="text-[9px] font-medium">Profil</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Global Modal Overlay -->
+    <div id="globalModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm">
+        <div class="modal-content w-full sm:w-[350px] bg-white rounded-t-2xl sm:rounded-2xl p-5 relative">
+            <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-800 bg-gray-100 rounded-full p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <h3 id="modalTitle" class="text-lg font-bold text-gray-900 mb-1 mt-1">Titlu Modal</h3>
+            <p id="modalBody" class="text-sm text-gray-600 mb-5">Continut modal...</p>
+            <div id="modalActions" class="space-y-2">
+                <!-- Actions populated dynamically -->
+                <button onclick="closeModal()" class="w-full bg-gray-100 text-gray-800 font-bold py-2.5 rounded-xl text-sm">Închide</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm">
+        <div class="modal-content w-full sm:w-[380px] bg-white rounded-t-2xl sm:rounded-2xl p-5 relative">
+            <h3 class="text-lg font-bold text-gray-900 mb-3">Informații Personale</h3>
+            <div class="space-y-3 max-h-[60vh] overflow-y-auto no-scrollbar pr-1 pb-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Nume complet</label>
+                    <input type="text" id="editName" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="editEmail" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Telefon</label>
+                    <input type="tel" id="editPhone" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Data nașterii</label>
+                        <input type="date" id="editDob" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Oraș</label>
+                        <input type="text" id="editCity" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Scurtă descriere (Bio)</label>
+                    <textarea id="editBio" rows="2" placeholder="Ceva despre tine și serviciile oferite..." class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition"></textarea>
+                </div>
+            </div>
+            <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                <button onclick="document.getElementById('editProfileModal').classList.add('hidden')" class="flex-1 bg-gray-100 text-gray-800 text-sm font-bold py-2.5 rounded-xl hover:bg-gray-200 transition">Anulare</button>
+                <button onclick="saveProfile()" class="flex-1 bg-primary text-white text-sm font-bold py-2.5 rounded-xl hover:bg-blue-700 transition">Salvează</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic JS -->
+    <script>
+        // ================= CONFIG & DATA STRUCTURE =================
+        const USER_ID = 'demo_user_1';
+        
+        const defaultCategories = [
+            { id: 'tractari', name: 'Tractări', icon: 'truck' },
+            { id: 'vulcanizare', name: 'Vulcanizare', icon: 'settings' },
+            { id: 'service', name: 'Service auto', icon: 'wrench' },
+            { id: 'instalatii', name: 'Instalații', icon: 'droplet' },
+            { id: 'electricieni', name: 'Electricieni', icon: 'zap' },
+            { id: 'curatenie', name: 'Curățenie', icon: 'sparkles' },
+            { id: 'mutari', name: 'Mutări', icon: 'box' },
+            { id: 'telefoane', name: 'Telefoane', icon: 'smartphone' },
+            { id: 'laptop', name: 'Laptop/PC', icon: 'monitor' },
+            { id: 'foto', name: 'Foto/Video', icon: 'camera' },
+            { id: 'beauty', name: 'Beauty', icon: 'scissors' },
+            { id: 'altele', name: 'Altele', icon: 'more-horizontal' }
+        ];
+
+        const defaultAds = [
+            { id: 'ad1', title: 'Tractări Auto București 24/7 Platformă', category: 'tractari', city: 'București', price: '150', description: 'Servicii de tractare auto pe platformă intern și internațional. Intervenție rapidă 24/7. Seriozitate maximă.', phone: '0700000000', whatsapp: true, photo: 'https://images.unsplash.com/photo-1605348532723-67c48f22fa10?w=500&q=80', isPromoted: true, date: Date.now() - 100000, userId: 'other', badges: ['24/7'] },
+            { id: 'ad2', title: 'Vulcanizare mobilă Sibiu NON-STOP', category: 'vulcanizare', city: 'Sibiu', price: '', description: 'Vulcanizare mobilă. Venim la locația ta pentru reparații anvelope, echilibrare, schimb.', phone: '0711111111', whatsapp: false, photo: 'https://images.unsplash.com/photo-1626025219929-1662dddb8a0e?w=500&q=80', isPromoted: true, date: Date.now() - 200000, userId: 'other', badges: ['Rapid'] },
+            { id: 'ad3', title: 'Electrician Autorizat Intervenții Rapide', category: 'electricieni', city: 'București', price: '100', description: 'Electrician autorizat, execut instalații electrice, reparații, tablouri electrice. Garanție pentru lucrări.', phone: '0722222222', whatsapp: true, photo: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80', isPromoted: false, date: Date.now() - 300000, userId: 'other', badges: ['Verificat'] },
+            { id: 'ad4', title: 'Curățenie profesională la domiciliu', category: 'curatenie', city: 'Brașov', price: '250', description: 'Ofert servicii curățenie generală, de întreținere sau după constructor. Folosim soluții profesionale.', phone: '0733333333', whatsapp: true, photo: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80', isPromoted: false, date: Date.now() - 400000, userId: 'other', badges: [] },
+            { id: 'ad5', title: 'Service Telefoane / Înlocuire sticlă', category: 'telefoane', city: 'Cluj-Napoca', price: '', description: 'Reparații telefoane orice marcă. Înlocuire display, baterie, sticlă. Piese originale.', phone: '0744444444', whatsapp: true, photo: 'https://images.unsplash.com/photo-1597740985671-2a8a3b80502e?w=500&q=80', isPromoted: true, date: Date.now() - 500000, userId: 'other', badges: [] },
+            { id: 'ad6', title: 'Mutări Mobilă / Transport marfă', category: 'mutari', city: 'Timișoara', price: '200', description: 'Asigurăm transport marfă și mutări mobilă cu dube de 3.5t. Manipulare inclusă la cerere.', phone: '0755555555', whatsapp: false, photo: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&q=80', isPromoted: false, date: Date.now() - 600000, userId: 'other', badges: [] },
+        ];
+
+        let state = {
+            user: {
+                name: 'Utilizator Demo',
+                city: 'București',
+                email: 'demo@rapidlocal.ro',
+                phone: '0700000000',
+                dob: '',
+                bio: 'Sunt profesionist și ofer servicii de înaltă calitate.',
+                photo: 'https://ui-avatars.com/api/?name=Utilizator+Demo&background=EBF4FF&color=2563EB',
+                credits: 0,
+                favorites: []
+            },
+            ads: [],
+            admin: { revenue: 0 },
+            currentFilter: { category: null, search: '' }
+        };
+
+        // ================= ROUTING & NAVIGATION =================
+        let viewHistory = ['home'];
+
+        function updateHeader(tabId) {
+            const header = document.getElementById('mainHeader');
+            if (!header) return;
+
+            // Ascundem pe Details pentru că are propriul buton plutitor Back
+            if (tabId === 'details') {
+                header.classList.add('hidden');
+                return;
+            } else {
+                header.classList.remove('hidden');
+            }
+
+            if (tabId === 'home') {
+                header.innerHTML = `
+                    <div class="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
+                        <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('home')">
+                            <div class="bg-primary text-white p-1.5 rounded-lg">
+                                <i data-lucide="zap" class="w-4 h-4"></i>
+                            </div>
+                            <h1 class="text-lg font-bold tracking-tight text-gray-900">RapidLocal</h1>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition" onclick="switchTab('favorites')">
+                                <i data-lucide="heart" class="w-5 h-5"></i>
+                            </button>
+                            <button class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition relative" onclick="showModal('Notificări', 'Nu ai notificări noi momentan.')">
+                                <i data-lucide="bell" class="w-5 h-5"></i>
+                                <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const titles = {
+                    'categories': 'Categorii',
+                    'publish': 'Publică un anunț',
+                    'myAds': 'Anunțurile mele',
+                    'profile': 'Profilul meu',
+                    'favorites': 'Favorite',
+                    'admin': 'Admin Demo',
+                    'page': document.getElementById('pageTitle') ? document.getElementById('pageTitle').textContent : 'Informații'
+                };
+                header.innerHTML = `
+                    <div class="max-w-3xl mx-auto px-3 py-2 flex items-center gap-2">
+                        <button class="p-1.5 -ml-1 text-gray-600 hover:bg-gray-100 rounded-full transition" onclick="goBack()">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <h1 class="text-base font-bold text-gray-900 truncate flex-1">${titles[tabId] || ''}</h1>
+                    </div>
+                `;
+            }
+            lucide.createIcons();
+        }
+
+        function goBack() {
+            if (viewHistory.length > 1) {
+                viewHistory.pop(); // Remove current view
+                const prevView = viewHistory[viewHistory.length - 1];
+                switchTabCore(prevView, true);
+            } else {
+                switchTabCore('home', true);
+            }
+        }
+
+        function switchTab(tabId) {
+            switchTabCore(tabId, false);
+        }
+
+        function switchTabCore(tabId, isBack = false) {
+            if (!isBack) {
+                if (viewHistory[viewHistory.length - 1] !== tabId) {
+                    viewHistory.push(tabId);
+                }
+            }
+
+            // Hide all views
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            // Remove active from nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            // Show target
+            const viewEl = document.getElementById(`view-${tabId}`);
+            if(viewEl) viewEl.classList.add('active');
+            
+            // Activate nav item for the 3 main buttons
+            const navItems = document.querySelectorAll('.nav-item');
+            if(tabId === 'home' && navItems[0]) navItems[0].classList.add('active');
+            if(tabId === 'publish' && navItems[1]) navItems[1].classList.add('active');
+            if(tabId === 'profile' && navItems[2]) navItems[2].classList.add('active');
+
+            window.scrollTo(0,0);
+            updateHeader(tabId);
+
+            // Tab specific logic
+            if(tabId === 'home') {
+                renderHomeAds(); // Do NOT reset filter here, keep the filter active if they come back to home
+            }
+            if(tabId === 'myAds') renderMyAds();
+            if(tabId === 'favorites') renderFavorites();
+            if(tabId === 'admin') renderAdmin();
+            if(tabId === 'publish') checkFreeAdStatus();
+
+            lucide.createIcons();
+        }
+
+        function filterByCategory(catId) {
+            if (catId === 'all') {
+                state.currentFilter.category = null;
+            } else {
+                state.currentFilter.category = catId;
+            }
+            // If we are not on home, go to home
+            if (viewHistory[viewHistory.length - 1] !== 'home') {
+                switchTabCore('home', false);
+            }
+            renderHomeAds();
+            window.scrollTo(0,0);
+        }
+
+        // ================= INIT & LOCALSTORAGE =================
+        function initApp() {
+            // Load state from localStorage
+            const savedUser = localStorage.getItem('rl_user');
+            const savedAds = localStorage.getItem('rl_ads');
+            const savedAdmin = localStorage.getItem('rl_admin');
+
+            if (savedUser) state.user = { ...state.user, ...JSON.parse(savedUser) };
+            if (savedAdmin) state.admin = JSON.parse(savedAdmin);
+            
+            if (savedAds) {
+                state.ads = JSON.parse(savedAds);
+            } else {
+                state.ads = [...defaultAds];
+                saveState();
+            }
+
+            renderCategories();
+            renderCategoriesGrid();
+            populateCategoryDropdown();
+            renderHomeAds();
+            updateProfileView();
+            updateHeader('home');
+            lucide.createIcons();
+
+            // Setup listeners
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                state.currentFilter.search = e.target.value.toLowerCase();
+                renderHomeAds();
+            });
+
+            document.getElementById('sortSelect').addEventListener('change', () => {
+                renderHomeAds();
+            });
+
+            document.getElementById('publishForm').addEventListener('submit', handlePublish);
+
+            // Image Preview handler
+            document.getElementById('adImage').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        const preview = document.getElementById('adImagePreview');
+                        preview.src = evt.target.result;
+                        preview.classList.remove('hidden');
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function saveState() {
+            localStorage.setItem('rl_user', JSON.stringify(state.user));
+            localStorage.setItem('rl_ads', JSON.stringify(state.ads));
+            localStorage.setItem('rl_admin', JSON.stringify(state.admin));
+            updateProfileView();
+        }
+
+        function resetDemo() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        // ================= RENDERING =================
+        function renderCategories() {
+            const container = document.getElementById('quickCategories');
+            let html = `
+                <div class="flex flex-col items-center gap-1 cursor-pointer min-w-[60px]" onclick="filterByCategory('all')">
+                    <div class="bg-gray-100 border border-gray-200 shadow-sm w-12 h-12 rounded-xl flex items-center justify-center text-gray-700 hover:text-primary transition">
+                        <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-[9px] font-medium text-gray-600 text-center leading-tight">Toate</span>
+                </div>
+            `;
+            html += defaultCategories.map(cat => `
+                <div class="flex flex-col items-center gap-1 cursor-pointer min-w-[60px]" onclick="filterByCategory('${cat.id}')">
+                    <div class="bg-white border border-gray-100 shadow-sm w-12 h-12 rounded-xl flex items-center justify-center text-gray-700 hover:text-primary hover:border-blue-100 transition">
+                        <i data-lucide="${cat.icon}" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-[9px] font-medium text-gray-600 text-center leading-tight">${cat.name}</span>
+                </div>
+            `).join('');
+            container.innerHTML = html;
+        }
+
+        function renderCategoriesGrid() {
+            const container = document.getElementById('allCategoriesGrid');
+            let html = `
+                <div class="bg-gray-50 border border-gray-200 shadow-sm p-3 rounded-xl flex items-center gap-3 cursor-pointer hover:border-blue-200 transition" onclick="filterByCategory('all')">
+                    <div class="bg-gray-200 text-gray-600 p-2 rounded-lg">
+                        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm">Toate categoriile</span>
+                </div>
+            `;
+            html += defaultCategories.map(cat => `
+                <div class="bg-white border border-gray-100 shadow-sm p-3 rounded-xl flex items-center gap-3 cursor-pointer hover:border-blue-200 transition" onclick="filterByCategory('${cat.id}')">
+                    <div class="bg-blue-50 text-primary p-2 rounded-lg">
+                        <i data-lucide="${cat.icon}" class="w-4 h-4"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm">${cat.name}</span>
+                </div>
+            `).join('');
+            container.innerHTML = html;
+        }
+
+        function populateCategoryDropdown() {
+            const select = document.getElementById('adCategory');
+            defaultCategories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                opt.textContent = cat.name;
+                select.appendChild(opt);
+            });
+        }
+
+        function generateAdCard(ad, isMyAd = false) {
+            const cat = defaultCategories.find(c => c.id === ad.category) || { name: 'Altul' };
+            const isFav = state.user.favorites.includes(ad.id);
+            const priceHtml = ad.price ? `<div class="font-bold text-gray-900 text-sm">${ad.price} Lei</div>` : `<div class="text-xs text-gray-500 font-medium">La cerere</div>`;
+            const promotedBadge = ad.isPromoted ? `<div class="absolute top-2 left-2 bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm flex items-center gap-0.5 z-10"><i data-lucide="arrow-up" class="w-2.5 h-2.5"></i> Promovat</div>` : '';
+            
+            return `
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer" onclick="openAdDetails('${ad.id}')">
+                    ${promotedBadge}
+                    <div class="relative h-32 bg-gray-100">
+                        <img src="${ad.photo || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'}" class="w-full h-full object-cover">
+                        ${!isMyAd ? `
+                        <button class="absolute bottom-2 right-2 p-1 bg-white/80 backdrop-blur rounded-full shadow-sm text-gray-400 hover:text-red-500 z-10 transition" onclick="event.stopPropagation(); toggleFavorite('${ad.id}')">
+                            <i data-lucide="heart" class="w-4 h-4 ${isFav ? 'fill-red-500 text-red-500' : ''}"></i>
+                        </button>
+                        ` : ''}
+                    </div>
+                    <div class="p-2.5">
+                        <div class="flex justify-between items-start mb-0.5">
+                            <span class="text-[9px] font-bold text-primary uppercase tracking-wider">${cat.name}</span>
+                        </div>
+                        <h3 class="font-bold text-gray-900 text-xs leading-snug line-clamp-2 mb-1.5 h-8">${ad.title}</h3>
+                        <p class="text-[10px] text-gray-500 flex items-center gap-1 mb-1.5"><i data-lucide="map-pin" class="w-2.5 h-2.5"></i> ${ad.city}</p>
+                        ${priceHtml}
+                        
+                        ${isMyAd ? `
+                            <div class="mt-2 grid grid-cols-2 gap-1.5 border-t border-gray-50 pt-2">
+                                <button onclick="event.stopPropagation(); deleteAd('${ad.id}')" class="text-[10px] text-red-500 font-bold py-1 bg-red-50 rounded-md">Șterge</button>
+                                ${!ad.isPromoted ? `<button onclick="event.stopPropagation(); promoteAdModal('${ad.id}')" class="text-[10px] text-primary font-bold py-1 bg-blue-50 rounded-md">Promovează</button>` : `<span class="text-[10px] text-gray-400 font-bold py-1 bg-gray-50 rounded-md text-center flex items-center justify-center"><i data-lucide="check" class="w-2.5 h-2.5 mr-0.5"></i> Promovat</span>`}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSortedAndFilteredAds() {
+            let filtered = state.ads;
+
+            // Apply category filter
+            if (state.currentFilter.category) {
+                filtered = filtered.filter(a => a.category === state.currentFilter.category);
+            }
+
+            // Apply search
+            if (state.currentFilter.search) {
+                const s = state.currentFilter.search;
+                filtered = filtered.filter(a => 
+                    a.title.toLowerCase().includes(s) || 
+                    a.city.toLowerCase().includes(s) ||
+                    a.description.toLowerCase().includes(s)
+                );
+            }
+
+            // Sort logic (Promoted ALWAYS first, then by selected sort)
+            const sortMode = document.getElementById('sortSelect').value;
+            
+            filtered.sort((a, b) => {
+                // Rule: Promoted first
+                if (a.isPromoted && !b.isPromoted) return -1;
+                if (!a.isPromoted && b.isPromoted) return 1;
+
+                // Secondary sort
+                if (sortMode === 'priceAsc') {
+                    const pa = parseFloat(a.price) || 999999;
+                    const pb = parseFloat(b.price) || 999999;
+                    return pa - pb;
+                } else {
+                    // Recent
+                    return b.date - a.date;
+                }
+            });
+
+            return filtered;
+        }
+
+        function renderHomeAds() {
+            const grid = document.getElementById('adsGrid');
+            const adsTitle = document.getElementById('homeAdsTitle');
+            const adsToShow = getSortedAndFilteredAds();
+            
+            // Update Title based on filter
+            if (state.currentFilter.category) {
+                const catInfo = defaultCategories.find(c => c.id === state.currentFilter.category);
+                adsTitle.innerHTML = `Din: ${catInfo ? catInfo.name : 'Categorie'} <button onclick="filterByCategory('all')" class="ml-2 text-[10px] text-red-500 font-normal bg-red-50 px-1.5 py-0.5 rounded cursor-pointer"><i data-lucide="x" class="w-3 h-3 inline"></i> Șterge filtrul</button>`;
+            } else {
+                adsTitle.textContent = 'Toate anunțurile';
+            }
+
+            if (adsToShow.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-8 text-sm text-gray-500">Nu am găsit anunțuri în această categorie.</div>`;
+            } else {
+                grid.innerHTML = adsToShow.map(ad => generateAdCard(ad)).join('');
+            }
+            lucide.createIcons();
+        }
+
+        function renderMyAds() {
+            const list = document.getElementById('myAdsList');
+            const empty = document.getElementById('emptyMyAds');
+            const myAds = state.ads.filter(a => a.userId === USER_ID).sort((a,b) => b.date - a.date);
+
+            if (myAds.length === 0) {
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+            } else {
+                empty.classList.add('hidden');
+                list.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 md:gap-4">${myAds.map(ad => generateAdCard(ad, true)).join('')}</div>`;
+            }
+            lucide.createIcons();
+        }
+
+        function renderFavorites() {
+            const grid = document.getElementById('favAdsGrid');
+            const empty = document.getElementById('emptyFavs');
+            const favAds = state.ads.filter(a => state.user.favorites.includes(a.id));
+
+            if (favAds.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+            } else {
+                empty.classList.add('hidden');
+                grid.innerHTML = favAds.map(ad => generateAdCard(ad)).join('');
+            }
+            lucide.createIcons();
+        }
+
+        // ================= PUBLISH & CREDITS LOGIC =================
+        function checkFreeAdStatus() {
+            const myAdsCount = state.ads.filter(a => a.userId === USER_ID).length;
+            const statusBox = document.getElementById('publishFreeStatus');
+            
+            if (myAdsCount === 0) {
+                statusBox.classList.remove('hidden');
+            } else {
+                statusBox.classList.add('hidden');
+                if (state.user.credits < 1) {
+                    showModal('Ai folosit anunțul gratuit', 'Pentru a posta încă un anunț, ai nevoie de un credit.', [
+                        { text: 'Cumpără 1 Credit (19 Lei)', primary: true, action: 'buyCredit()' },
+                        { text: 'Anulare', primary: false, action: 'switchTab("home")' }
+                    ]);
+                }
+            }
+        }
+
+        function handlePublish(e) {
+            e.preventDefault();
+            
+            const myAdsCount = state.ads.filter(a => a.userId === USER_ID).length;
+            if (myAdsCount > 0 && state.user.credits < 1) {
+                checkFreeAdStatus();
+                return;
+            }
+
+            const imgPreview = document.getElementById('adImagePreview').src;
+            const isDefaultImage = !imgPreview || imgPreview.includes(location.host);
+
+            const newAd = {
+                id: 'ad_' + Date.now(),
+                title: document.getElementById('adTitle').value,
+                category: document.getElementById('adCategory').value,
+                city: document.getElementById('adCity').value,
+                price: document.getElementById('adPrice').value,
+                description: document.getElementById('adDesc').value,
+                phone: document.getElementById('adPhone').value,
+                whatsapp: document.getElementById('adWhatsapp').checked,
+                photo: isDefaultImage ? 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80' : imgPreview,
+                isPromoted: false,
+                date: Date.now(),
+                userId: USER_ID,
+                badges: []
+            };
+
+            const wantPromo = document.getElementById('adPromote').checked;
+
+            if (myAdsCount > 0) {
+                state.user.credits -= 1;
+            }
+
+            if (wantPromo) {
+                showModal('Promovare Anunț', 'Alege un pachet pentru a urca pe prima pagină.', [
+                    { text: 'Promovare 7 zile - 29 Lei', primary: true, action: `processPublishAndPromote('${JSON.stringify(newAd).replace(/'/g, "\\'")}', 29)` },
+                    { text: 'Promovare 30 zile - 79 Lei', primary: true, action: `processPublishAndPromote('${JSON.stringify(newAd).replace(/'/g, "\\'")}', 79)` },
+                    { text: 'Publică Standard', primary: false, action: `finalizePublish('${JSON.stringify(newAd).replace(/'/g, "\\'")}')` }
+                ]);
+            } else {
+                finalizePublish(JSON.stringify(newAd));
+            }
+        }
+
+        function processPublishAndPromote(adStr, cost) {
+            const ad = JSON.parse(adStr);
+            ad.isPromoted = true;
+            simulatePayment(cost, () => {
+                finalizePublish(JSON.stringify(ad));
+            });
+        }
+
+        function finalizePublish(adStr) {
+            const ad = JSON.parse(adStr);
+            state.ads.push(ad);
+            saveState();
+            
+            document.getElementById('publishForm').reset();
+            document.getElementById('adImagePreview').classList.add('hidden');
+            document.getElementById('adImagePreview').src = '';
+
+            closeModal();
+            switchTab('myAds');
+            showModal('Succes!', 'Anunțul tău a fost publicat cu succes.');
+        }
+
+        // ================= MODALS & PAYMENTS =================
+        function showModal(title, body, actions = []) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = body; // Allow HTML in body
+            
+            let actionsHtml = '';
+            if (actions.length > 0) {
+                actionsHtml = actions.map(a => `
+                    <button onclick="${a.action}" class="w-full ${a.primary ? 'bg-primary text-white hover:bg-blue-700' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'} font-bold py-2.5 rounded-xl shadow-sm transition text-sm">
+                        ${a.text}
+                    </button>
+                `).join('');
+            } else {
+                actionsHtml = `<button onclick="closeModal()" class="w-full bg-primary text-white font-bold py-2.5 rounded-xl text-sm">OK</button>`;
+            }
+            
+            document.getElementById('modalActions').innerHTML = actionsHtml;
+            document.getElementById('globalModal').classList.remove('hidden');
+            document.getElementById('globalModal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('globalModal').classList.add('hidden');
+            document.getElementById('globalModal').classList.remove('flex');
+        }
+
+        function simulatePayment(amount, successCallback) {
+            document.getElementById('modalTitle').textContent = "Procesare...";
+            document.getElementById('modalBody').innerHTML = `<div class="flex justify-center py-4"><i data-lucide="loader-2" class="w-8 h-8 text-primary animate-spin"></i></div>`;
+            document.getElementById('modalActions').innerHTML = '';
+            lucide.createIcons();
+
+            setTimeout(() => {
+                state.admin.revenue += amount;
+                saveState();
+                successCallback();
+            }, 1000);
+        }
+
+        function buyCreditsModal() {
+            showModal('Cumpără Credite', 'Un credit îți permite să postezi un anunț suplimentar. (Sistem Demo)', [
+                { text: 'Cumpără 1 Credit - 19 Lei', primary: true, action: 'processBuyCredit(1, 19)' },
+                { text: 'Cumpără 3 Credite - 49 Lei', primary: true, action: 'processBuyCredit(3, 49)' },
+                { text: 'Anulare', primary: false, action: 'closeModal()' }
+            ]);
+        }
+
+        function buyCredit() {
+            buyCreditsModal();
+        }
+
+        function processBuyCredit(amount, cost) {
+            simulatePayment(cost, () => {
+                state.user.credits += amount;
+                saveState();
+                closeModal();
+                showModal('Plată Acceptată', `Ai adăugat ${amount} credit(e) în cont.`);
+            });
+        }
+
+        function promoteAdModal(adId) {
+            showModal('Promovează Anunțul', 'Vrei să atragi mai mulți clienți? Urcă anunțul tău în fruntea listei.', [
+                { text: 'Promovare 7 zile - 29 Lei', primary: true, action: `processPromote('${adId}', 29)` },
+                { text: 'Promovare VIP - 149 Lei', primary: true, action: `processPromote('${adId}', 149)` },
+                { text: 'Anulare', primary: false, action: 'closeModal()' }
+            ]);
+        }
+
+        function processPromote(adId, cost) {
+            simulatePayment(cost, () => {
+                const ad = state.ads.find(a => a.id === adId);
+                if (ad) {
+                    ad.isPromoted = true;
+                    saveState();
+                    renderMyAds();
+                    closeModal();
+                    showModal('Succes!', 'Anunțul a fost promovat și este acum pe prima pagină.');
+                }
+            });
+        }
+
+        // ================= PROFILE & USER ACTIONS =================
+        function updateProfileView() {
+            document.getElementById('profileName').textContent = state.user.name;
+            document.getElementById('profileCity').textContent = state.user.city;
+            document.getElementById('profilePic').src = state.user.photo;
+            
+            const myAds = state.ads.filter(a => a.userId === USER_ID);
+            document.getElementById('statActiveAds').textContent = myAds.length;
+            document.getElementById('statPromoted').textContent = myAds.filter(a => a.isPromoted).length;
+            document.getElementById('statCredits').textContent = state.user.credits;
+        }
+
+        function editProfile() {
+            document.getElementById('editName').value = state.user.name || '';
+            document.getElementById('editEmail').value = state.user.email || '';
+            document.getElementById('editPhone').value = state.user.phone || '';
+            document.getElementById('editDob').value = state.user.dob || '';
+            document.getElementById('editCity').value = state.user.city || '';
+            document.getElementById('editBio').value = state.user.bio || '';
+
+            document.getElementById('editProfileModal').classList.remove('hidden');
+            document.getElementById('editProfileModal').classList.add('flex');
+        }
+
+        function saveProfile() {
+            state.user.name = document.getElementById('editName').value;
+            state.user.email = document.getElementById('editEmail').value;
+            state.user.phone = document.getElementById('editPhone').value;
+            state.user.dob = document.getElementById('editDob').value;
+            state.user.city = document.getElementById('editCity').value;
+            state.user.bio = document.getElementById('editBio').value;
+
+            saveState();
+            document.getElementById('editProfileModal').classList.add('hidden');
+            document.getElementById('editProfileModal').classList.remove('flex');
+        }
+
+        function changeProfilePic() {
+            const url = prompt("Introdu URL-ul pentru noua poză de profil:");
+            if (url) {
+                state.user.photo = url;
+                saveState();
+            }
+        }
+
+        function toggleFavorite(adId) {
+            const idx = state.user.favorites.indexOf(adId);
+            if (idx > -1) {
+                state.user.favorites.splice(idx, 1);
+            } else {
+                state.user.favorites.push(adId);
+            }
+            saveState();
+            
+            if (document.getElementById('view-home').classList.contains('active')) renderHomeAds();
+            if (document.getElementById('view-favorites').classList.contains('active')) renderFavorites();
+        }
+
+        function deleteAd(adId) {
+            if(confirm("Sigur vrei să ștergi acest anunț?")) {
+                state.ads = state.ads.filter(a => a.id !== adId);
+                state.user.favorites = state.user.favorites.filter(id => id !== adId);
+                saveState();
+                renderMyAds();
+            }
+        }
+
+        // ================= AD DETAILS VIEW =================
+        let currentDetailAdId = null;
+
+        function openAdDetails(adId) {
+            const ad = state.ads.find(a => a.id === adId);
+            if (!ad) return;
+            currentDetailAdId = adId;
+
+            document.getElementById('detailImage').src = ad.photo || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80';
+            document.getElementById('detailTitle').textContent = ad.title;
+            document.getElementById('detailLocation').textContent = ad.city;
+            document.getElementById('detailDesc').textContent = ad.description;
+            
+            if (ad.price) {
+                document.getElementById('detailPriceBox').classList.remove('hidden');
+                document.getElementById('detailPrice').textContent = ad.price;
+            } else {
+                document.getElementById('detailPriceBox').classList.add('hidden');
+            }
+
+            if (ad.isPromoted) {
+                document.getElementById('detailPromotedBadge').classList.remove('hidden');
+            } else {
+                document.getElementById('detailPromotedBadge').classList.add('hidden');
+            }
+
+            // Mock user info
+            if (ad.userId === USER_ID) {
+                document.getElementById('detailUserName').textContent = state.user.name;
+                document.getElementById('detailUserAvatar').src = state.user.photo;
+            } else {
+                document.getElementById('detailUserName').textContent = "Partener RapidLocal";
+                document.getElementById('detailUserAvatar').src = `https://ui-avatars.com/api/?name=Partener&background=F3F4F6&color=4B5563`;
+            }
+
+            // Buttons
+            document.getElementById('btnCall').onclick = () => window.location.href = `tel:${ad.phone}`;
+            if (ad.whatsapp) {
+                document.getElementById('btnWhatsApp').classList.remove('hidden');
+                document.getElementById('btnWhatsApp').onclick = () => window.location.href = `https://wa.me/${ad.phone.replace(/^0/, '40')}`;
+            } else {
+                document.getElementById('btnWhatsApp').classList.add('hidden');
+            }
+
+            updateDetailFavIcon();
+
+            // Store history and open details
+            if (viewHistory[viewHistory.length - 1] !== 'details') {
+                viewHistory.push('details');
+            }
+            
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-details').classList.add('active');
+            window.scrollTo(0,0);
+            updateHeader('details');
+        }
+
+        function updateDetailFavIcon() {
+            const icon = document.getElementById('detailFavIcon');
+            if (state.user.favorites.includes(currentDetailAdId)) {
+                icon.classList.add('fill-red-500', 'text-red-500');
+            } else {
+                icon.classList.remove('fill-red-500', 'text-red-500');
+            }
+        }
+
+        function toggleFavoriteFromDetail() {
+            if (currentDetailAdId) {
+                toggleFavorite(currentDetailAdId);
+                updateDetailFavIcon();
+            }
+        }
+
+        // ================= ADMIN VIEW =================
+        function renderAdmin() {
+            document.getElementById('adminTotalAds').textContent = state.ads.length;
+            document.getElementById('adminRevenue').textContent = state.admin.revenue;
+
+            const tbody = document.getElementById('adminAdsList');
+            tbody.innerHTML = state.ads.map(ad => `
+                <tr class="border-b">
+                    <td class="px-3 py-2">
+                        <div class="font-medium text-gray-900 truncate w-24">${ad.title}</div>
+                        <div class="text-[10px] text-gray-500">${ad.id}</div>
+                    </td>
+                    <td class="px-3 py-2">
+                        ${ad.isPromoted ? '<span class="bg-blue-100 text-blue-800 text-[10px] font-medium px-2 py-0.5 rounded">Promovat</span>' : '<span class="bg-gray-100 text-gray-800 text-[10px] font-medium px-2 py-0.5 rounded">Standard</span>'}
+                    </td>
+                    <td class="px-3 py-2 flex gap-2">
+                        ${!ad.isPromoted ? `<button onclick="adminForcePromote('${ad.id}')" class="text-primary hover:underline text-[10px]">Promovează</button>` : ''}
+                        <button onclick="adminDelete('${ad.id}')" class="text-red-600 hover:underline text-[10px]">Șterge</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function adminForcePromote(id) {
+            const ad = state.ads.find(a => a.id === id);
+            if(ad) {
+                ad.isPromoted = true;
+                saveState();
+                renderAdmin();
+            }
+        }
+
+        function adminDelete(id) {
+            if(confirm("Stergere din baza de date?")) {
+                state.ads = state.ads.filter(a => a.id !== id);
+                saveState();
+                renderAdmin();
+            }
+        }
+
+        // ================= STATIC PAGES =================
+        function showStaticPage(type) {
+            let title = "";
+            let content = "";
+
+            if(type === 'terms') {
+                title = "Termeni și Condiții";
+                content = "Acestea sunt Termenii și Condițiile platformei RapidLocal.\n\n1. Utilizarea platformei\nPrin utilizarea aplicației sunteți de acord cu toți termenii.\n\n2. Reguli de postare\nAnunțurile trebuie să fie reale și să ofere servicii locale valide. Nu se acceptă conținut fals sau înșelător.\n\n3. Plăți și Promovări\nPlățile în această aplicație sunt doar simulări demo. Nu se efectuează tranzacții reale.\n\n4. Confidențialitate\nDatele introduse sunt salvate local pe dispozitivul dumneavoastră.";
+            } else if(type === 'about') {
+                title = "Despre Noi";
+                content = "RapidLocal este o platformă modernă dedicată serviciilor locale din România.\n\nNe dorim să conectăm rapid meseriașii și prestatorii de servicii cu clienții din orașul lor, într-un mod simplu, aerisit și sigur.\n\nVersiune aplicație: 1.0.0 Demo\nDezvoltat cu pasiune pentru performanță.";
+            } else if(type === 'contact') {
+                title = "Contact Suport";
+                content = "Ai o problemă, o sugestie sau pur și simplu vrei să ne transmiți un mesaj?\n\nNe poți contacta oricând la:\nEmail: suport@rapidlocal.ro\nTelefon: 0700 000 000\n\nProgram suport:\nLuni - Vineri, 09:00 - 18:00.\n\nÎți vom răspunde în cel mai scurt timp posibil!";
+            }
+
+            document.getElementById('pageTitle') && (document.getElementById('pageTitle').textContent = title);
+            document.getElementById('pageContent').textContent = content;
+            
+            // Set header title properly
+            viewHistory.push('page');
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-page').classList.add('active');
+            window.scrollTo(0,0);
+            
+            const header = document.getElementById('mainHeader');
+            header.classList.remove('hidden');
+            header.innerHTML = `
+                <div class="max-w-3xl mx-auto px-3 py-2 flex items-center gap-2">
+                    <button class="p-1.5 -ml-1 text-gray-600 hover:bg-gray-100 rounded-full transition" onclick="goBack()">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <h1 class="text-base font-bold text-gray-900 truncate flex-1">${title}</h1>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // Start
+        window.addEventListener('DOMContentLoaded', initApp);
+
+    </script>
+</body>
+</html>
