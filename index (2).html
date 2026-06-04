@@ -1,1326 +1,2062 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="ro" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RapidLocal - Servicii Locale</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f7f7;
-            color: #111827;
-            -webkit-tap-highlight-color: transparent;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        /* Hide scrollbar for clean UI */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+  <title>RM ELIART 2020 SRL | Elena Art - Terapie prin Artă & Educație Culturală</title>
+  <meta name="description" content="RM ELIART 2020 SRL - Elena Art. Terapie prin artă, cursuri de artă pentru copii, tabere creative, picturi personalizate și portofoliu artistic." />
+  <meta name="theme-color" content="#0d9488" />
 
-        .view {
-            display: none;
-            animation: fadeIn 0.2s ease-out;
-        }
-        .view.active {
-            display: block;
-        }
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-        .modal-content {
-            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+  <!-- AOS Animation Library CSS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-        .nav-item.active {
-            color: #2563eb;
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Playfair Display', 'serif'],
+            sans: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            primary: '#0d9488',
+            primaryLight: '#14b8a6',
+            secondary: '#e11d48',
+            accent: '#f59e0b',
+            warmBg: '#fdfbf7',
+          }
         }
-        
-        .premium-shadow {
-            box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.05);
-        }
+      }
+    }
+  </script>
 
-        .img-cover { object-fit: cover; }
-    </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#2563eb', // Premium Blue
-                        accent: '#06c167', // Success Green
-                        bglight: '#f7f7f7'
-                    }
-                }
-            }
-        }
-    </script>
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": "RM ELIART 2020 SRL",
+    "alternateName": "Elena Art",
+    "description": "Terapie prin artă, cursuri creative, tabere de artă și picturi personalizate.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Sâncraiu nr. 550",
+      "addressLocality": "Sâncraiu, Comuna Ilieni",
+      "addressRegion": "Covasna",
+      "postalCode": "527107",
+      "addressCountry": "RO"
+    },
+    "telephone": "+40700123456",
+    "url": ""
+  }
+  </script>
+
+  <style>
+    html,
+    body {
+      overflow-x: hidden;
+      max-width: 100%;
+      background-color: #fdfbf7;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    body.menu-open {
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .text-gradient {
+      background: linear-gradient(to right, #0d9488, #e11d48);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .float-anim {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0); }
+    }
+
+    .bg-parallax {
+      background-image: url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+      background-attachment: fixed;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    @media (max-width: 768px) {
+      .bg-parallax {
+        background-attachment: scroll;
+      }
+    }
+
+    .tab-content {
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .nav-link.active {
+      color: #0d9488;
+    }
+
+    /* LOADING SCREEN PREMIUM */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(13, 148, 136, 0.18), transparent 32%),
+        radial-gradient(circle at 85% 72%, rgba(225, 29, 72, 0.13), transparent 34%),
+        radial-gradient(circle at 50% 100%, rgba(245, 158, 11, 0.12), transparent 34%),
+        linear-gradient(135deg, #fdfbf7 0%, #ffffff 48%, #f8efe3 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    .loading-screen.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loader-premium {
+      width: min(88vw, 360px);
+      text-align: center;
+      position: relative;
+      padding: 44px 26px 36px;
+      border-radius: 36px;
+      background: rgba(255, 255, 255, 0.56);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 30px 100px rgba(15, 23, 42, 0.13);
+      backdrop-filter: blur(20px);
+      overflow: hidden;
+      transform: translateY(0);
+      animation: loaderCardIn 0.75s ease both;
+    }
+
+    .loader-premium::before {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(13, 148, 136, 0.18), transparent 68%);
+      top: -80px;
+      left: -70px;
+    }
+
+    .loader-premium::after {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(225, 29, 72, 0.12), transparent 66%);
+      bottom: -90px;
+      right: -80px;
+    }
+
+    .loader-inner {
+      position: relative;
+      z-index: 2;
+    }
+
+    .loader-orbit {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      border-radius: 999px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow:
+        0 18px 48px rgba(13, 148, 136, 0.18),
+        inset 0 0 0 1px rgba(13, 148, 136, 0.13);
+    }
+
+    .loader-orbit::before {
+      content: "";
+      position: absolute;
+      inset: -8px;
+      border-radius: 999px;
+      border: 2px solid rgba(13, 148, 136, 0.16);
+      border-top-color: #0d9488;
+      border-right-color: rgba(225, 29, 72, 0.75);
+      animation: orbitSpin 1.05s linear infinite;
+    }
+
+    .loader-orbit::after {
+      content: "";
+      position: absolute;
+      inset: 9px;
+      border-radius: 999px;
+      border: 1px dashed rgba(245, 158, 11, 0.6);
+      animation: orbitSpinReverse 1.8s linear infinite;
+    }
+
+    .loader-orbit i {
+      font-size: 27px;
+      color: #0d9488;
+      z-index: 2;
+      animation: iconFloat 1.2s ease-in-out infinite;
+    }
+
+    .loader-premium h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 8px;
+      letter-spacing: -0.03em;
+    }
+
+    .loader-premium p {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 22px;
+    }
+
+    .loader-brush {
+      width: 174px;
+      height: 5px;
+      margin: 0 auto;
+      border-radius: 999px;
+      background: rgba(17, 24, 39, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .loader-brush span {
+      display: block;
+      height: 100%;
+      width: 58%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #0d9488, #14b8a6, #e11d48, #f59e0b);
+      animation: brushMove 1s ease-in-out infinite;
+    }
+
+    .loader-mini-text {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-top: 15px;
+    }
+
+    .loader-mini-text span {
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: #0d9488;
+      opacity: 0.4;
+      animation: dotPremium 1s ease-in-out infinite;
+    }
+
+    .loader-mini-text span:nth-child(2) {
+      background: #e11d48;
+      animation-delay: 0.14s;
+    }
+
+    .loader-mini-text span:nth-child(3) {
+      background: #f59e0b;
+      animation-delay: 0.28s;
+    }
+
+    @keyframes loaderCardIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes orbitSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes orbitSpinReverse {
+      to { transform: rotate(-360deg); }
+    }
+
+    @keyframes iconFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-2px) rotate(-5deg); }
+    }
+
+    @keyframes brushMove {
+      0% { transform: translateX(-110%); }
+      52% { transform: translateX(52%); }
+      100% { transform: translateX(190%); }
+    }
+
+    @keyframes dotPremium {
+      0%, 100% {
+        opacity: 0.35;
+        transform: translateY(0);
+      }
+      50% {
+        opacity: 1;
+        transform: translateY(-4px);
+      }
+    }
+
+    /* HAMBURGER */
+    .hamburger-btn {
+      position: fixed;
+      top: calc(env(safe-area-inset-top, 0px) + 14px);
+      right: 14px;
+      z-index: 90;
+      width: 43px;
+      height: 43px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #111827;
+      border: 1px solid rgba(229, 231, 235, 0.9);
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.12);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s ease, opacity 0.25s ease, color 0.25s ease, background 0.25s ease;
+      touch-action: manipulation;
+      pointer-events: auto;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .hamburger-btn:hover {
+      color: #0d9488;
+      transform: translateY(-1px) scale(1.03);
+    }
+
+    .hamburger-btn.is-hidden {
+      opacity: 0;
+      transform: scale(0.85);
+      pointer-events: none;
+    }
+
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      background: rgba(17, 24, 39, 0.46);
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+
+    .menu-overlay.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .menu-drawer {
+      position: fixed;
+      top: calc(env(safe-area-inset-top, 0px) + 12px);
+      right: 12px;
+      bottom: 12px;
+      z-index: 85;
+      width: min(78vw, 286px);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 30px 90px rgba(15, 23, 42, 0.22);
+      backdrop-filter: blur(18px);
+      transform: translateX(116%) scale(0.96);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.32s cubic-bezier(.2,.9,.2,1), opacity 0.25s ease;
+      overflow: hidden;
+    }
+
+    .menu-drawer.is-open {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 16px;
+      color: #374151;
+      font-size: 13px;
+      font-weight: 600;
+      transition: 0.22s ease;
+      text-align: left;
+    }
+
+    .menu-link i {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: rgba(13, 148, 136, 0.08);
+      color: #0d9488;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: 0.22s ease;
+    }
+
+    .menu-link:hover,
+    .menu-link.active {
+      background: rgba(13, 148, 136, 0.08);
+      color: #0d9488;
+      transform: translateX(-2px);
+    }
+
+    .menu-link:hover i,
+    .menu-link.active i {
+      background: #0d9488;
+      color: white;
+    }
+
+    .lang-btn {
+      width: 44px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7280;
+      background: white;
+      transition: 0.22s ease;
+    }
+
+    .lang-btn.active {
+      background: #0d9488;
+      color: white;
+      border-color: #0d9488;
+      box-shadow: 0 10px 24px rgba(13, 148, 136, 0.22);
+    }
+
+    .back-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+      padding: 9px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      transition: 0.2s ease;
+    }
+
+    .back-tab-btn:hover {
+      color: #0d9488;
+      border-color: rgba(13, 148, 136, 0.25);
+      transform: translateX(-2px);
+    }
+
+
+
+    .portfolio-category-btn {
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .portfolio-category-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(13, 148, 136, 0.08), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.22s ease;
+      pointer-events: none;
+    }
+
+    .portfolio-category-btn:hover::after,
+    .portfolio-category-btn.active::after {
+      opacity: 1;
+    }
+
+    .portfolio-category-panel {
+      display: none;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    .portfolio-category-panel.is-visible {
+      display: block;
+      animation: portfolioPanelIn 0.28s ease forwards;
+    }
+
+    @keyframes portfolioPanelIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (min-width: 768px) {
+      .hamburger-btn {
+        top: 18px;
+        right: 22px;
+      }
+
+      .menu-drawer {
+        top: 18px;
+        right: 18px;
+        bottom: 18px;
+        width: 294px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .menu-drawer {
+        width: min(82vw, 276px);
+        border-radius: 24px;
+      }
+
+      .menu-link {
+        font-size: 12px;
+        padding: 9px 10px;
+      }
+
+      .loader-premium {
+        padding: 38px 22px 32px;
+        border-radius: 30px;
+      }
+
+      .loader-premium h2 {
+        font-size: 30px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+      }
+
+      .loader-orbit::before,
+      .loader-orbit::after,
+      .loader-orbit i,
+      .loader-brush span,
+      .loader-mini-text span,
+      .float-anim {
+        animation: none !important;
+      }
+
+      .loading-screen,
+      .tab-content,
+      .hamburger-btn,
+      .menu-overlay,
+      .menu-drawer,
+      .menu-link {
+        transition-duration: 0.15s !important;
+      }
+    }
+  </style>
 </head>
-<body class="pb-16 md:pb-0 min-h-screen relative text-[15px]">
 
-    <!-- Top Header -->
-    <header id="mainHeader" class="bg-white sticky top-0 z-40 border-b border-gray-100 premium-shadow min-h-[50px]">
-        <!-- Populated dynamically by JS for Back Buttons logic -->
-    </header>
+<body class="font-sans text-gray-800 antialiased flex flex-col min-h-screen">
 
-    <!-- Main Content Area -->
-    <main class="max-w-3xl mx-auto md:pb-10">
-        
-        <!-- ================= VIEW: HOME ================= -->
-        <div id="view-home" class="view active px-3 py-3 space-y-5">
-            <!-- Search -->
-            <div class="relative">
-                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"></i>
-                <input type="text" id="searchInput" placeholder="Caută servicii, oraș, categorie..." 
-                       class="w-full text-sm bg-white border border-gray-200 rounded-xl py-2.5 pl-9 pr-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-sm transition">
-            </div>
-
-            <!-- Promo Card -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 flex items-center justify-between cursor-pointer shadow-sm" onclick="switchTab('publish')">
-                <div>
-                    <h3 class="font-bold text-sm text-gray-900">Postează primul anunț gratuit!</h3>
-                    <p class="text-xs text-gray-600 mt-0.5">Găsește clienți noi în orașul tău.</p>
-                </div>
-                <div class="bg-primary text-white p-1.5 rounded-full shadow-md shrink-0">
-                    <i data-lucide="plus" class="w-5 h-5"></i>
-                </div>
-            </div>
-
-            <!-- Categories Quick -->
-            <div>
-                <div class="flex justify-between items-end mb-2">
-                    <h2 class="font-bold text-base text-gray-900">Categorii</h2>
-                    <button class="text-xs text-primary font-medium" onclick="switchTab('categories')">Vezi toate</button>
-                </div>
-                <div class="flex gap-2.5 overflow-x-auto no-scrollbar pb-1" id="quickCategories">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-
-            <!-- Promoted & Recent Ads -->
-            <div>
-                <div class="flex justify-between items-center mb-3">
-                    <h2 id="homeAdsTitle" class="font-bold text-base text-gray-900 flex items-center">Toate anunțurile</h2>
-                    <select id="sortSelect" class="text-xs bg-transparent border-none text-gray-500 focus:ring-0 cursor-pointer p-0">
-                        <option value="recent">Recente</option>
-                        <option value="priceAsc">Preț mic</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 md:gap-4" id="adsGrid">
-                    <!-- Ads populated by JS -->
-                </div>
-            </div>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loader-premium">
+      <div class="loader-inner">
+        <div class="loader-orbit">
+          <i class="fa-solid fa-palette"></i>
         </div>
 
-        <!-- ================= VIEW: CATEGORIES ================= -->
-        <div id="view-categories" class="view px-3 py-4">
-            <h2 class="font-bold text-xl text-gray-900 mb-4">Alege o categorie</h2>
-            <div class="grid grid-cols-2 gap-2.5" id="allCategoriesGrid">
-                <!-- Populated by JS -->
-            </div>
+        <h2>Elena Art</h2>
+        <p data-i18n="loadingText">Pregătim culorile...</p>
+
+        <div class="loader-brush">
+          <span></span>
         </div>
 
-        <!-- ================= VIEW: PUBLISH ================= -->
-        <div id="view-publish" class="view px-3 py-4">
-            <h2 class="font-bold text-xl text-gray-900 mb-4">Publică un anunț</h2>
-            
-            <div id="publishFreeStatus" class="bg-green-50 border border-green-100 text-green-800 p-3 rounded-xl mb-4 flex items-start gap-2 text-xs hidden">
-                <i data-lucide="check-circle" class="w-4 h-4 text-green-600 shrink-0 mt-0.5"></i>
-                <p>Acesta este <b>primul tău anunț gratuit</b>! După acesta, publicarea necesită credite.</p>
+        <div class="loader-mini-text">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="bg-white/95 backdrop-blur-md shadow-sm fixed w-full z-40 top-0 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pr-16 sm:pr-20">
+      <div class="flex justify-between items-center h-16 sm:h-20">
+
+        <!-- Logo -->
+        <button type="button" class="flex-shrink-0 flex items-center cursor-pointer group text-left" onclick="openTab('tab-home')">
+          <i class="fa-solid fa-palette text-primary text-2xl sm:text-3xl mr-2 group-hover:rotate-12 transition-transform duration-300"></i>
+          <div>
+            <h1 class="font-serif text-xl sm:text-2xl font-bold text-gray-900 leading-tight">Elena Art</h1>
+            <p class="text-[10px] sm:text-xs text-gray-500 font-medium" data-i18n="brandSubtitle">RM ELIART 2020 SRL</p>
+          </div>
+        </button>
+
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
+          <button onclick="openTab('tab-home')" class="nav-link text-sm text-gray-600 hover:text-primary transition font-medium" data-tab-target="tab-home" data-i18n="navHome">Acasă</button>
+          <button onclick="openTab('tab-about')" class="nav-link text-sm text-gray-600 hover:text-primary transition font-medium" data-tab-target="tab-about" data-i18n="navAbout">Despre mine</button>
+          <button onclick="openTab('tab-portofoliu')" class="nav-link text-sm text-gray-600 hover:text-primary transition font-medium" data-tab-target="tab-portofoliu" data-i18n="navPortfolio">Portofoliu</button>
+        </div>
+
+        <!-- Desktop Call Button -->
+        <div class="hidden lg:flex items-center">
+          <a href="tel:0700123456" class="bg-primary hover:bg-primaryLight text-white text-sm px-5 py-2 rounded-full font-semibold transition shadow-md shadow-primary/30 flex items-center transform hover:scale-105">
+            <i class="fa-solid fa-phone mr-2 text-xs"></i>
+            <span data-i18n="callShort">Sună</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hamburger -->
+  <button
+    id="open-menu-btn"
+    type="button"
+    aria-label="Deschide meniul"
+    aria-expanded="false"
+    aria-controls="mobile-sidebar"
+    class="hamburger-btn"
+  >
+    <i class="fa-solid fa-bars text-[18px]"></i>
+  </button>
+
+  <!-- Overlay -->
+  <div id="mobile-menu-overlay" class="menu-overlay"></div>
+
+  <!-- Menu Drawer -->
+  <aside id="mobile-sidebar" class="menu-drawer" aria-hidden="true">
+    <div class="h-full flex flex-col">
+
+      <div class="p-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center mr-2">
+              <i class="fa-solid fa-palette text-sm"></i>
             </div>
+            <div>
+              <h2 class="font-serif text-lg font-bold text-gray-900 leading-tight">Elena Art</h2>
+              <p class="text-[10px] text-gray-500" data-i18n="brandSubtitle">RM ELIART 2020 SRL</p>
+            </div>
+          </div>
 
-            <form id="publishForm" class="space-y-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                <!-- Image Upload -->
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1.5">Fotografii</label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition relative overflow-hidden" id="imageUploadBox" onclick="document.getElementById('adImage').click()">
-                        <i data-lucide="camera" class="w-6 h-6 text-gray-400 mb-1"></i>
-                        <span class="text-xs text-primary font-medium">Adaugă o poză</span>
-                        <input type="file" id="adImage" accept="image/*" class="hidden">
-                        <img id="adImagePreview" src="" class="absolute inset-0 w-full h-full object-cover hidden">
-                    </div>
-                </div>
+          <button id="close-menu-btn" type="button" aria-label="Închide meniul" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:text-primary hover:bg-primary/10 transition flex items-center justify-center">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+      </div>
 
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Titlu anunț *</label>
-                    <input type="text" id="adTitle" required placeholder="ex. Instalator autorizat" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition">
-                </div>
+      <div class="p-4">
+        <p class="text-[10px] uppercase tracking-[0.22em] text-gray-400 mb-3 font-semibold" data-i18n="menuLabel">Meniu</p>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Categorie *</label>
-                        <select id="adCategory" required class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition appearance-none">
-                            <option value="">Alege...</option>
-                            <!-- Populated by JS -->
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Oraș *</label>
-                        <input type="text" id="adCity" required placeholder="București" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition">
-                    </div>
-                </div>
+        <div class="space-y-1.5">
+          <button onclick="openTab('tab-home')" class="menu-link mobile-link" data-tab-target="tab-home">
+            <i class="fa-solid fa-house"></i>
+            <span data-i18n="navHome">Acasă</span>
+          </button>
 
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Preț (Lei) - Opțional</label>
-                    <input type="number" id="adPrice" placeholder="ex. 150" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition">
-                </div>
+          <button onclick="openTab('tab-about')" class="menu-link mobile-link" data-tab-target="tab-about">
+            <i class="fa-solid fa-user"></i>
+            <span data-i18n="navAbout">Despre mine</span>
+          </button>
 
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Descriere *</label>
-                    <textarea id="adDesc" required rows="3" placeholder="Descrie serviciile..." class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition"></textarea>
-                </div>
+          <button onclick="openTab('tab-portofoliu')" class="menu-link mobile-link" data-tab-target="tab-portofoliu">
+            <i class="fa-solid fa-image"></i>
+            <span data-i18n="navPortfolio">Portofoliu</span>
+          </button>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Telefon *</label>
-                        <input type="tel" id="adPhone" required placeholder="07xx" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 focus:bg-white focus:border-primary outline-none transition">
-                    </div>
-                    <div class="flex items-center mt-5">
-                        <label class="flex items-center cursor-pointer gap-2">
-                            <input type="checkbox" id="adWhatsapp" class="w-4 h-4 rounded border-gray-300 text-green-500 focus:ring-green-500">
-                            <span class="text-xs font-medium text-gray-700">Are WhatsApp</span>
-                        </label>
-                    </div>
-                </div>
 
-                <div class="bg-blue-50 border border-blue-100 p-3 rounded-xl mt-2">
-                    <label class="flex items-start cursor-pointer gap-2.5">
-                        <input type="checkbox" id="adPromote" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mt-0.5">
-                        <div>
-                            <span class="text-xs font-bold text-gray-900 block">Vreau promovare VIP</span>
-                            <span class="text-[10px] text-gray-600 mt-0.5 block leading-tight">Anunțul tău va apărea mereu primul în categorie. (Simulare Demo)</span>
-                        </div>
-                    </label>
-                </div>
+          <button onclick="openTab('tab-termeni')" class="menu-link mobile-link" data-tab-target="tab-termeni">
+            <i class="fa-solid fa-file-lines"></i>
+            <span data-i18n="navTerms">Termeni și Condiții</span>
+          </button>
+        </div>
 
-                <button type="submit" class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-sm transition text-sm mt-2">
-                    Publică anunțul
+        <div class="mt-5 pt-4 border-t border-gray-100">
+          <p class="text-[10px] uppercase tracking-[0.22em] text-gray-400 mb-3 font-semibold" data-i18n="languageLabel">Limbă</p>
+
+          <div class="flex items-center gap-2">
+            <button type="button" class="lang-btn" data-lang="ro">RO</button>
+            <button type="button" class="lang-btn" data-lang="en">EN</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-auto p-4 border-t border-gray-100">
+        <a href="tel:0700123456" class="w-full bg-primary hover:bg-primaryLight text-white text-xs px-4 py-3 rounded-full font-semibold transition shadow-md flex items-center justify-center">
+          <i class="fa-solid fa-phone mr-2 text-[11px]"></i>
+          <span data-i18n="callNow">Sună acum</span>
+        </a>
+
+        <a href="https://wa.me/40700123456" target="_blank" class="mt-2 w-full bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs px-4 py-3 rounded-full font-semibold transition shadow-md flex items-center justify-center">
+          <i class="fa-brands fa-whatsapp mr-2 text-[13px]"></i>
+          <span data-i18n="whatsappNow">Scrie pe WhatsApp</span>
+        </a>
+
+        <div class="flex items-center justify-center gap-3 mt-4">
+          <a href="https://wa.me/40700123456" target="_blank" aria-label="WhatsApp" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:bg-[#25D366] hover:text-white transition flex items-center justify-center">
+            <i class="fa-brands fa-whatsapp text-sm"></i>
+          </a>
+
+          <a href="#" aria-label="Facebook" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:bg-[#1877F2] hover:text-white transition flex items-center justify-center">
+            <i class="fa-brands fa-facebook-f text-sm"></i>
+          </a>
+
+          <a href="#" aria-label="Instagram" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:bg-[#e6683c] hover:text-white transition flex items-center justify-center">
+            <i class="fa-brands fa-instagram text-sm"></i>
+          </a>
+        </div>
+
+        <p class="text-[10px] text-gray-400 text-center mt-3" data-i18n="menuFooter">Răspund cât de repede pot.</p>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-grow pt-16 sm:pt-20">
+
+    <!-- TAB: HOME -->
+    <div id="tab-home" class="tab-content active">
+
+      <!-- Hero -->
+      <section class="relative pt-16 pb-12 lg:pt-28 lg:pb-20 overflow-hidden bg-parallax">
+        <div class="absolute inset-0 bg-white/90"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+
+            <div data-aos="fade-up-right" data-aos-duration="1000">
+              <span class="text-primary font-semibold tracking-wider uppercase text-xs sm:text-sm mb-3 block">
+                <i class="fa-solid fa-sparkles mr-1"></i>
+                <span data-i18n="heroBadge">RM ELIART 2020 SRL • Artă, cursuri și tabere creative</span>
+              </span>
+
+              <h1 class="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-gray-900 leading-tight mb-4 sm:mb-6" data-i18n-html="heroTitle">
+                Arta ca limbaj al <span class="text-gradient">sufletului</span>
+              </h1>
+
+              <p class="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 leading-relaxed" data-i18n-html="heroText">
+                Elena este <strong class="text-primary font-medium">terapeut de artă la un centru pentru persoane cu dizabilități</strong>, profesoară de artă pentru copii, organizatoare de tabere creative și pictoriță. Activitățile sunt prezentate profesional sub firma <strong class="text-primary font-medium">RM ELIART 2020 SRL</strong>.
+              </p>
+
+              <div class="flex flex-wrap gap-3">
+                <button onclick="openTab('tab-portofoliu')" class="bg-gray-900 hover:bg-gray-800 text-white text-sm px-6 py-2.5 rounded-full font-medium transition shadow-md transform hover:-translate-y-1">
+                  <span data-i18n="ctaPortfolio">Vezi Portofoliul</span>
                 </button>
-            </form>
+
+                <button onclick="openTab('tab-about')" class="bg-white hover:bg-gray-50 text-gray-800 text-sm px-6 py-2.5 rounded-full font-medium transition shadow-md border border-gray-100">
+                  <span data-i18n="ctaAbout">Despre mine</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="relative mt-8 lg:mt-0" data-aos="fade-up-left" data-aos-duration="1000" data-aos-delay="200">
+              <div class="relative rounded-2xl overflow-hidden shadow-xl float-anim border-4 border-white max-w-md mx-auto lg:max-w-full">
+                <img src="https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Materiale de pictură" class="w-full h-auto object-cover">
+              </div>
+            </div>
+
+          </div>
         </div>
+      </section>
 
-        <!-- ================= VIEW: MY ADS ================= -->
-        <div id="view-myAds" class="view px-3 py-4">
-            <div id="myAdsList" class="space-y-3">
-                <!-- Populated by JS -->
+      <!-- Services -->
+      <section class="py-12 bg-white border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center max-w-3xl mx-auto mb-9" data-aos="fade-up">
+            <span class="text-primary font-semibold tracking-wider uppercase text-xs mb-2 block" data-i18n="servicesBadge">Activități</span>
+            <h2 class="text-2xl sm:text-3xl font-serif font-bold text-gray-900 mb-3" data-i18n="servicesTitle">Ce oferă Elena Art</h2>
+            <p class="text-gray-600 text-sm leading-relaxed" data-i18n="servicesText">
+              Un site profesional trebuie să arate clar experiența, serviciile și direcțiile de lucru. Secțiunea de mai jos poate fi adaptată cu program, poze reale și prețuri.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-warmBg rounded-3xl p-5 border border-gray-100 shadow-sm hover:-translate-y-1 transition" data-aos="fade-up" data-aos-delay="50">
+              <div class="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                <i class="fa-solid fa-hands-holding-child"></i>
+              </div>
+              <h3 class="font-serif text-xl font-bold text-gray-900 mb-2" data-i18n="serviceTherapyTitle">Terapie prin artă</h3>
+              <p class="text-sm text-gray-600 leading-relaxed" data-i18n="serviceTherapyText">
+                Activitate cu persoane cu dizabilități, folosind culoarea și desenul ca formă de exprimare și comunicare.
+              </p>
             </div>
-            <div id="emptyMyAds" class="hidden text-center py-8">
-                <div class="bg-gray-100 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <i data-lucide="inbox" class="w-6 h-6 text-gray-400"></i>
-                </div>
-                <h3 class="font-bold text-sm text-gray-900">Nu ai niciun anunț activ</h3>
-                <p class="text-gray-500 text-xs mt-1 mb-4">Începe să oferi servicii adăugând un anunț.</p>
-                <button onclick="switchTab('publish')" class="bg-primary text-white text-sm px-5 py-2 rounded-lg font-medium shadow-sm">Adaugă un anunț</button>
+
+            <div class="bg-warmBg rounded-3xl p-5 border border-gray-100 shadow-sm hover:-translate-y-1 transition" data-aos="fade-up" data-aos-delay="100">
+              <div class="w-11 h-11 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center mb-4">
+                <i class="fa-solid fa-child-reaching"></i>
+              </div>
+              <h3 class="font-serif text-xl font-bold text-gray-900 mb-2" data-i18n="serviceKidsTitle">Cursuri pentru copii</h3>
+              <p class="text-sm text-gray-600 leading-relaxed" data-i18n="serviceKidsText">
+                Lecții de artă pentru copii, cu accent pe încredere, răbdare, joacă și dezvoltarea creativității.
+              </p>
             </div>
+
+            <div class="bg-warmBg rounded-3xl p-5 border border-gray-100 shadow-sm hover:-translate-y-1 transition" data-aos="fade-up" data-aos-delay="150">
+              <div class="w-11 h-11 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mb-4">
+                <i class="fa-solid fa-campground"></i>
+              </div>
+              <h3 class="font-serif text-xl font-bold text-gray-900 mb-2" data-i18n="serviceCampTitle">Tabere de artă</h3>
+              <p class="text-sm text-gray-600 leading-relaxed" data-i18n="serviceCampText">
+                Ateliere și tabere creative, unde copiii pot experimenta pictura, culoarea și lucrul în grup.
+              </p>
+            </div>
+
+            <div class="bg-warmBg rounded-3xl p-5 border border-gray-100 shadow-sm hover:-translate-y-1 transition" data-aos="fade-up" data-aos-delay="200">
+              <div class="w-11 h-11 rounded-2xl bg-gray-900/10 text-gray-900 flex items-center justify-center mb-4">
+                <i class="fa-solid fa-palette"></i>
+              </div>
+              <h3 class="font-serif text-xl font-bold text-gray-900 mb-2" data-i18n="servicePainterTitle">Picturi personalizate</h3>
+              <p class="text-sm text-gray-600 leading-relaxed" data-i18n="servicePainterText">
+                Lucrări pictate manual, potrivite pentru cadouri, decor sau comenzi personalizate.
+              </p>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <!-- ================= VIEW: PROFILE ================= -->
-        <div id="view-profile" class="view px-3 py-4 space-y-5">
-            <!-- User Info Card -->
-            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3">
-                <div class="relative w-16 h-16 shrink-0">
-                    <img id="profilePic" src="https://ui-avatars.com/api/?name=User&background=EBF4FF&color=2563EB" class="w-full h-full rounded-full object-cover border border-gray-200">
-                    <button onclick="changeProfilePic()" class="absolute -bottom-1 -right-1 bg-white border border-gray-200 p-1 rounded-full shadow-sm text-gray-600 hover:text-primary transition">
-                        <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-                    </button>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <h2 class="font-bold text-lg text-gray-900 truncate" id="profileName">Utilizator Demo</h2>
-                    <p class="text-xs text-gray-500 flex items-center gap-1 mt-0.5 truncate"><i data-lucide="map-pin" class="w-3 h-3"></i> <span id="profileCity">România</span></p>
-                    <button class="text-[11px] text-primary font-medium mt-1.5 bg-blue-50 px-2 py-1 rounded-md" onclick="editProfile()">Editează profilul tău</button>
-                </div>
-            </div>
+      <!-- Contact -->
+      <section class="py-12 bg-gray-50 border-t border-gray-100">
+        <div class="max-w-5xl mx-auto px-4" data-aos="fade-up">
 
-            <!-- Stats -->
-            <div class="grid grid-cols-3 gap-2.5">
-                <div class="bg-white rounded-xl p-2.5 shadow-sm border border-gray-100 text-center">
-                    <div class="text-base font-bold text-gray-900" id="statActiveAds">0</div>
-                    <div class="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">Active</div>
-                </div>
-                <div class="bg-white rounded-xl p-2.5 shadow-sm border border-gray-100 text-center">
-                    <div class="text-base font-bold text-primary" id="statPromoted">0</div>
-                    <div class="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">Promovate</div>
-                </div>
-                <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-2.5 shadow-sm text-center cursor-pointer hover:opacity-90 transition" onclick="buyCreditsModal()">
-                    <div class="text-base font-bold text-white flex items-center justify-center gap-1">
-                        <span id="statCredits">0</span> <i data-lucide="coins" class="w-3.5 h-3.5 text-yellow-400"></i>
-                    </div>
-                    <div class="text-[10px] text-gray-300 uppercase tracking-wide mt-0.5">Credite</div>
-                </div>
-            </div>
+          <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 sm:p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
 
-            <!-- Settings List -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden text-sm">
-                <div class="px-4 py-1.5 bg-gray-50 border-b border-gray-100">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Activitatea mea</span>
-                </div>
-                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="switchTab('myAds')">
+              <div class="lg:col-span-6 text-center lg:text-left">
+                <span class="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] font-semibold text-primary mb-3">
+                  <i class="fa-solid fa-phone-volume"></i>
+                  <span data-i18n="contactSmallLabel">Programări telefonice</span>
+                </span>
+
+                <h2 class="text-2xl sm:text-3xl font-serif font-bold text-gray-900 mb-3" data-i18n="contactTitle">
+                  Contactează RM ELIART 2020 SRL
+                </h2>
+
+                <p class="text-gray-600 text-sm leading-relaxed" data-i18n="contactText">
+                  Pentru ședințe, cursuri, tabere creative sau lucrări personalizate, programările se fac telefonic.
+                </p>
+              </div>
+
+              <div class="lg:col-span-6">
+                <div class="flex flex-col gap-3">
+
+                  <a href="tel:0700123456" class="group flex items-center justify-between gap-4 bg-primary hover:bg-primaryLight text-white rounded-2xl px-5 py-4 shadow-lg shadow-primary/20 transition transform hover:-translate-y-0.5">
                     <div class="flex items-center gap-3">
-                        <div class="bg-blue-50 p-1.5 rounded-lg text-primary"><i data-lucide="list" class="w-4 h-4"></i></div>
-                        <span class="font-medium text-gray-800">Anunțurile mele</span>
-                    </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                </div>
-                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="switchTab('favorites')">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-red-50 p-1.5 rounded-lg text-red-500"><i data-lucide="heart" class="w-4 h-4"></i></div>
-                        <span class="font-medium text-gray-800">Favorite</span>
-                    </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                </div>
+                      <span class="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center">
+                        <i class="fa-solid fa-phone"></i>
+                      </span>
 
-                <div class="px-4 py-1.5 bg-gray-50 border-y border-gray-100">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Setări cont</span>
-                </div>
-                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="editProfile()">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-orange-50 p-1.5 rounded-lg text-orange-500"><i data-lucide="settings" class="w-4 h-4"></i></div>
-                        <span class="font-medium text-gray-800">Informații personale</span>
+                      <div class="text-left">
+                        <p class="text-[11px] uppercase tracking-[0.18em] text-white/75 font-semibold" data-i18n="callNow">
+                          Sună acum
+                        </p>
+                        <p class="text-base font-bold leading-tight">
+                          0700 123 456
+                        </p>
+                      </div>
                     </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                </div>
-                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="showModal('Notificări', 'Setările de notificări sunt salvate pe acest dispozitiv.')">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-gray-100 p-1.5 rounded-lg text-gray-600"><i data-lucide="bell" class="w-4 h-4"></i></div>
-                        <span class="font-medium text-gray-800">Notificări</span>
-                    </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                </div>
 
-                <div class="px-4 py-1.5 bg-gray-50 border-y border-gray-100">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Suport & Info</span>
-                </div>
-                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="showStaticPage('terms')">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-teal-50 p-1.5 rounded-lg text-teal-600"><i data-lucide="file-text" class="w-4 h-4"></i></div>
-                        <span class="font-medium text-gray-800">Termeni și condiții</span>
-                    </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                </div>
-                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="showStaticPage('about')">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-indigo-50 p-1.5 rounded-lg text-indigo-500"><i data-lucide="info" class="w-4 h-4"></i></div>
-                        <span class="font-medium text-gray-800">Despre noi</span>
-                    </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                </div>
-                <div class="p-3.5 border-b border-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="showStaticPage('contact')">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-yellow-50 p-1.5 rounded-lg text-yellow-600"><i data-lucide="help-circle" class="w-4 h-4"></i></div>
-                        <span class="font-medium text-gray-800">Contact suport</span>
-                    </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                </div>
+                    <i class="fa-solid fa-arrow-right text-sm opacity-70 group-hover:translate-x-1 transition"></i>
+                  </a>
 
-                <div class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="switchTab('admin')">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-purple-50 p-1.5 rounded-lg text-purple-600"><i data-lucide="shield" class="w-4 h-4"></i></div>
-                        <span class="font-medium text-gray-800">Admin Demo (Ascuns)</span>
-                    </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                </div>
-            </div>
-            
-            <button class="w-full py-3 text-gray-400 font-medium text-xs" onclick="resetDemo()">Deconectare / Resetare Date Demo</button>
-        </div>
+                  <div class="bg-warmBg rounded-2xl p-4 border border-gray-100">
+                    <a href="https://www.google.com/maps/search/?api=1&query=Sancraiu%20550%20Ilieni%20Covasna%20Romania" target="_blank" class="flex items-center justify-between gap-3 group">
+                      <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                          <i class="fa-solid fa-location-dot"></i>
+                        </span>
 
-        <!-- ================= VIEW: STATIC PAGE ================= -->
-        <div id="view-page" class="view px-4 py-5 bg-white min-h-screen">
-            <div id="pageContent" class="prose prose-sm text-gray-700 leading-relaxed whitespace-pre-line pb-10 text-sm">
-                <!-- Content injected via JS -->
-            </div>
-        </div>
-
-        <!-- ================= VIEW: FAVORITES ================= -->
-        <div id="view-favorites" class="view px-3 py-4">
-            <h2 class="font-bold text-xl text-gray-900 mb-4">Anunțuri Favorite</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 md:gap-4" id="favAdsGrid">
-                <!-- Populated by JS -->
-            </div>
-            <div id="emptyFavs" class="hidden text-center py-8">
-                <i data-lucide="heart" class="w-10 h-10 text-gray-300 mx-auto mb-2"></i>
-                <h3 class="font-medium text-sm text-gray-600">Nu ai niciun anunț salvat.</h3>
-            </div>
-        </div>
-
-        <!-- ================= VIEW: AD DETAILS ================= -->
-        <div id="view-details" class="view">
-            <!-- Full page overlay style -->
-            <div class="bg-white min-h-screen pb-16 md:pb-0">
-                <div class="relative h-56 w-full bg-gray-100">
-                    <img id="detailImage" src="" class="w-full h-full object-cover">
-                    <button class="absolute top-3 left-3 bg-white/90 p-1.5 rounded-full shadow-md backdrop-blur-sm" onclick="goBack()">
-                        <i data-lucide="arrow-left" class="w-5 h-5 text-gray-800"></i>
-                    </button>
-                    <button id="detailFavBtn" class="absolute top-3 right-3 bg-white/90 p-1.5 rounded-full shadow-md backdrop-blur-sm" onclick="toggleFavoriteFromDetail()">
-                        <i data-lucide="heart" class="w-5 h-5 text-gray-800" id="detailFavIcon"></i>
-                    </button>
-                    <div id="detailPromotedBadge" class="absolute bottom-3 left-3 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md hidden flex items-center gap-1">
-                        <i data-lucide="arrow-up" class="w-3 h-3"></i> Promovat
-                    </div>
-                </div>
-
-                <div class="p-4 border-b border-gray-100">
-                    <div class="flex justify-between items-start gap-3">
-                        <div>
-                            <h1 id="detailTitle" class="text-lg font-bold text-gray-900 leading-tight">Titlu</h1>
-                            <p class="text-xs text-gray-500 mt-1.5 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span id="detailLocation">Locatie</span></p>
+                        <div class="text-left">
+                          <p class="text-[11px] uppercase tracking-[0.18em] text-gray-400 font-semibold" data-i18n="locationLabel">
+                            Sediu social
+                          </p>
+                          <p class="text-sm text-gray-700 font-medium group-hover:text-primary transition" data-i18n="locationText">
+                            Sâncraiu nr. 550, com. Ilieni, jud. Covasna
+                          </p>
                         </div>
-                        <div id="detailPriceBox" class="bg-green-50 text-green-700 px-2.5 py-1 rounded-lg font-bold text-base hidden whitespace-nowrap">
-                            <span id="detailPrice"></span> Lei
-                        </div>
+                      </div>
+
+                      <i class="fa-solid fa-map-location-dot text-primary opacity-80 group-hover:scale-110 transition"></i>
+                    </a>
+
+                    <div class="grid grid-cols-2 gap-2 mt-3">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Sancraiu%20550%20Ilieni%20Covasna%20Romania" target="_blank" class="bg-white hover:bg-gray-50 border border-gray-100 text-gray-700 text-xs font-semibold rounded-full px-3 py-2 flex items-center justify-center gap-2 transition">
+                        <i class="fa-solid fa-map-location-dot text-primary"></i>
+                        <span data-i18n="openMaps">Google Maps</span>
+                      </a>
+
+                      <a href="https://waze.com/ul?q=Sancraiu%20550%20Ilieni%20Covasna%20Romania&navigate=yes&utm_source=elena_art_website" target="_blank" class="bg-white hover:bg-gray-50 border border-gray-100 text-gray-700 text-xs font-semibold rounded-full px-3 py-2 flex items-center justify-center gap-2 transition">
+                        <i class="fa-brands fa-waze text-primary"></i>
+                        <span data-i18n="openWaze">Waze</span>
+                      </a>
                     </div>
+                  </div>
+
                 </div>
 
-                <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <img id="detailUserAvatar" src="" class="w-10 h-10 rounded-full bg-gray-100">
-                        <div>
-                            <p class="font-bold text-sm text-gray-900" id="detailUserName">User</p>
-                            <div class="flex gap-1 mt-0.5">
-                                <span class="bg-blue-50 text-primary text-[9px] font-bold px-1.5 py-0.5 rounded">Verificat</span>
-                                <span class="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded">Răspuns rapid</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="flex justify-center lg:justify-end items-center gap-3 mt-4">
+                  <a href="https://wa.me/40700123456" target="_blank" aria-label="WhatsApp" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500 hover:bg-[#25D366] hover:text-white transition flex items-center justify-center">
+                    <i class="fa-brands fa-whatsapp"></i>
+                  </a>
 
-                <div class="p-4">
-                    <h3 class="font-bold text-sm text-gray-900 mb-1.5">Descriere</h3>
-                    <p id="detailDesc" class="text-gray-700 text-xs leading-relaxed whitespace-pre-line"></p>
-                </div>
+                  <a href="#" aria-label="Facebook" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500 hover:bg-[#1877F2] hover:text-white transition flex items-center justify-center">
+                    <i class="fa-brands fa-facebook-f"></i>
+                  </a>
 
-                <!-- Action Buttons fixed bottom on mobile -->
-                <div class="fixed bottom-[56px] md:bottom-0 md:sticky left-0 right-0 p-3 bg-white border-t border-gray-100 flex gap-2 z-30">
-                    <button id="btnCall" class="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-sm transition text-sm">
-                        <i data-lucide="phone" class="w-4 h-4"></i> Sună
-                    </button>
-                    <button id="btnWhatsApp" class="flex-1 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-sm transition hidden text-sm">
-                        <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
-                    </button>
+                  <a href="#" aria-label="Instagram" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500 hover:bg-[#e6683c] hover:text-white transition flex items-center justify-center">
+                    <i class="fa-brands fa-instagram"></i>
+                  </a>
                 </div>
+              </div>
+
             </div>
+          </div>
+
         </div>
+      </section>
 
-        <!-- ================= VIEW: ADMIN ================= -->
-        <div id="view-admin" class="view px-3 py-4">
-            <h2 class="font-bold text-xl text-red-600 mb-4 flex items-center gap-2"><i data-lucide="shield-alert" class="w-5 h-5"></i> Admin Demo</h2>
-            
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                    <div class="text-xs text-gray-500">Total Anunțuri</div>
-                    <div class="text-xl font-bold" id="adminTotalAds">0</div>
-                </div>
-                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                    <div class="text-xs text-gray-500">Venit Simulat (Lei)</div>
-                    <div class="text-xl font-bold text-green-600" id="adminRevenue">0</div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto text-xs">
-                <table class="w-full text-left">
-                    <thead class="text-gray-700 bg-gray-50 border-b">
-                        <tr>
-                            <th class="px-3 py-2">ID / Titlu</th>
-                            <th class="px-3 py-2">Status</th>
-                            <th class="px-3 py-2">Acțiuni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminAdsList">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Bottom Navigation (Compact 3 buttons) -->
-    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-100 z-50 md:hidden pb-safe">
-        <div class="flex justify-around items-center h-14 px-4">
-            <button onclick="switchTab('home')" class="nav-item flex flex-col items-center justify-center w-full h-full text-gray-400 active">
-                <i data-lucide="home" class="w-5 h-5 mb-0.5"></i>
-                <span class="text-[9px] font-medium">Acasă</span>
-            </button>
-            <button onclick="switchTab('publish')" class="nav-item flex flex-col items-center justify-center w-full h-full text-gray-400 relative">
-                <div class="bg-primary text-white p-3 rounded-full absolute -top-4 shadow-lg border-[3px] border-white premium-shadow transition hover:scale-105">
-                    <i data-lucide="plus" class="w-5 h-5"></i>
-                </div>
-                <span class="text-[9px] font-medium mt-6">Publică</span>
-            </button>
-            <button onclick="switchTab('profile')" class="nav-item flex flex-col items-center justify-center w-full h-full text-gray-400">
-                <i data-lucide="user" class="w-5 h-5 mb-0.5"></i>
-                <span class="text-[9px] font-medium">Profil</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Global Modal Overlay -->
-    <div id="globalModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm">
-        <div class="modal-content w-full sm:w-[350px] bg-white rounded-t-2xl sm:rounded-2xl p-5 relative">
-            <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-800 bg-gray-100 rounded-full p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
-            <h3 id="modalTitle" class="text-lg font-bold text-gray-900 mb-1 mt-1">Titlu Modal</h3>
-            <p id="modalBody" class="text-sm text-gray-600 mb-5">Continut modal...</p>
-            <div id="modalActions" class="space-y-2">
-                <!-- Actions populated dynamically -->
-                <button onclick="closeModal()" class="w-full bg-gray-100 text-gray-800 font-bold py-2.5 rounded-xl text-sm">Închide</button>
-            </div>
-        </div>
     </div>
 
-    <!-- Edit Profile Modal -->
-    <div id="editProfileModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm">
-        <div class="modal-content w-full sm:w-[380px] bg-white rounded-t-2xl sm:rounded-2xl p-5 relative">
-            <h3 class="text-lg font-bold text-gray-900 mb-3">Informații Personale</h3>
-            <div class="space-y-3 max-h-[60vh] overflow-y-auto no-scrollbar pr-1 pb-2">
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Nume complet</label>
-                    <input type="text" id="editName" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="editEmail" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Telefon</label>
-                    <input type="tel" id="editPhone" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Data nașterii</label>
-                        <input type="date" id="editDob" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Oraș</label>
-                        <input type="text" id="editCity" class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Scurtă descriere (Bio)</label>
-                    <textarea id="editBio" rows="2" placeholder="Ceva despre tine și serviciile oferite..." class="text-sm w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition"></textarea>
-                </div>
-            </div>
-            <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                <button onclick="document.getElementById('editProfileModal').classList.add('hidden')" class="flex-1 bg-gray-100 text-gray-800 text-sm font-bold py-2.5 rounded-xl hover:bg-gray-200 transition">Anulare</button>
-                <button onclick="saveProfile()" class="flex-1 bg-primary text-white text-sm font-bold py-2.5 rounded-xl hover:bg-blue-700 transition">Salvează</button>
-            </div>
+    <!-- TAB: ABOUT -->
+    <div id="tab-about" class="tab-content bg-warmBg min-h-[70vh] py-10 sm:py-12">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="mb-6">
+          <button type="button" onclick="goBackTab()" class="back-tab-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span data-i18n="backBtn">Înapoi</span>
+          </button>
         </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div class="lg:col-span-5" data-aos="fade-right">
+            <div class="rounded-3xl overflow-hidden shadow-xl border-4 border-white bg-white">
+              <img src="https://images.unsplash.com/photo-1579783901586-d88db74b4fe4?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80" alt="Artă și culori" class="w-full h-[360px] object-cover">
+            </div>
+          </div>
+
+          <div class="lg:col-span-7" data-aos="fade-up">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
+              <span class="text-primary font-semibold tracking-wider uppercase text-xs mb-3 block" data-i18n="aboutBadge">Despre Elena</span>
+
+              <h2 class="text-3xl sm:text-4xl font-serif font-bold text-gray-900 mb-5" data-i18n="aboutPageTitle">
+                Terapeut de artă, profesoară și pictoriță
+              </h2>
+
+              <div class="space-y-4 text-sm sm:text-base text-gray-600 leading-relaxed">
+                <p data-i18n="aboutPara1">
+                  Elena lucrează ca terapeut de artă la un centru pentru persoane cu dizabilități, unde folosește desenul, pictura și culoarea ca instrumente de exprimare, răbdare și comunicare.
+                </p>
+
+                <p data-i18n="aboutPara2">
+                  În paralel, susține cursuri de artă pentru copii, organizează tabere creative și creează lucrări pictate manual, potrivite pentru cadouri, decor sau comenzi personalizate.
+                </p>
+
+                <p data-i18n="aboutPara3">
+                  Site-ul prezintă activitatea artistică și educațională sub RM ELIART 2020 SRL, într-un format profesionist, clar și ușor de actualizat cu poze reale, prețuri și program.
+                </p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-7">
+                <div class="bg-warmBg rounded-2xl p-4 border border-gray-100">
+                  <i class="fa-solid fa-heart text-secondary mb-3"></i>
+                  <h3 class="font-semibold text-gray-900 text-sm mb-1" data-i18n="value1Title">Empatie</h3>
+                  <p class="text-xs text-gray-500" data-i18n="value1Text">Lucru atent cu fiecare persoană.</p>
+                </div>
+
+                <div class="bg-warmBg rounded-2xl p-4 border border-gray-100">
+                  <i class="fa-solid fa-brush text-primary mb-3"></i>
+                  <h3 class="font-semibold text-gray-900 text-sm mb-1" data-i18n="value2Title">Creativitate</h3>
+                  <p class="text-xs text-gray-500" data-i18n="value2Text">Culoarea devine o formă de comunicare.</p>
+                </div>
+
+                <div class="bg-warmBg rounded-2xl p-4 border border-gray-100">
+                  <i class="fa-solid fa-seedling text-accent mb-3"></i>
+                  <h3 class="font-semibold text-gray-900 text-sm mb-1" data-i18n="value3Title">Dezvoltare</h3>
+                  <p class="text-xs text-gray-500" data-i18n="value3Text">Activități pentru încredere și exprimare.</p>
+                </div>
+              </div>
+
+              <div class="mt-7 flex flex-wrap gap-3">
+                <button onclick="openTab('tab-portofoliu')" class="bg-gray-900 hover:bg-gray-800 text-white text-sm px-6 py-2.5 rounded-full font-medium transition">
+                  <span data-i18n="ctaPortfolio">Vezi Portofoliul</span>
+                </button>
+
+
+                <a href="tel:0700123456" class="bg-primary hover:bg-primaryLight text-white text-sm px-6 py-2.5 rounded-full font-medium transition">
+                  <span data-i18n="callNow">Sună acum</span>
+                </a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
 
-    <!-- Logic JS -->
-    <script>
-        // ================= CONFIG & DATA STRUCTURE =================
-        const USER_ID = 'demo_user_1';
-        
-        const defaultCategories = [
-            { id: 'tractari', name: 'Tractări', icon: 'truck' },
-            { id: 'vulcanizare', name: 'Vulcanizare', icon: 'settings' },
-            { id: 'service', name: 'Service auto', icon: 'wrench' },
-            { id: 'instalatii', name: 'Instalații', icon: 'droplet' },
-            { id: 'electricieni', name: 'Electricieni', icon: 'zap' },
-            { id: 'curatenie', name: 'Curățenie', icon: 'sparkles' },
-            { id: 'mutari', name: 'Mutări', icon: 'box' },
-            { id: 'telefoane', name: 'Telefoane', icon: 'smartphone' },
-            { id: 'laptop', name: 'Laptop/PC', icon: 'monitor' },
-            { id: 'foto', name: 'Foto/Video', icon: 'camera' },
-            { id: 'beauty', name: 'Beauty', icon: 'scissors' },
-            { id: 'altele', name: 'Altele', icon: 'more-horizontal' }
-        ];
+    <!-- TAB: PORTOFOLIU -->
+    <div id="tab-portofoliu" class="tab-content bg-white min-h-[70vh] py-10 sm:py-12">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        const defaultAds = [
-            { id: 'ad1', title: 'Tractări Auto București 24/7 Platformă', category: 'tractari', city: 'București', price: '150', description: 'Servicii de tractare auto pe platformă intern și internațional. Intervenție rapidă 24/7. Seriozitate maximă.', phone: '0700000000', whatsapp: true, photo: 'https://images.unsplash.com/photo-1605348532723-67c48f22fa10?w=500&q=80', isPromoted: true, date: Date.now() - 100000, userId: 'other', badges: ['24/7'] },
-            { id: 'ad2', title: 'Vulcanizare mobilă Sibiu NON-STOP', category: 'vulcanizare', city: 'Sibiu', price: '', description: 'Vulcanizare mobilă. Venim la locația ta pentru reparații anvelope, echilibrare, schimb.', phone: '0711111111', whatsapp: false, photo: 'https://images.unsplash.com/photo-1626025219929-1662dddb8a0e?w=500&q=80', isPromoted: true, date: Date.now() - 200000, userId: 'other', badges: ['Rapid'] },
-            { id: 'ad3', title: 'Electrician Autorizat Intervenții Rapide', category: 'electricieni', city: 'București', price: '100', description: 'Electrician autorizat, execut instalații electrice, reparații, tablouri electrice. Garanție pentru lucrări.', phone: '0722222222', whatsapp: true, photo: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80', isPromoted: false, date: Date.now() - 300000, userId: 'other', badges: ['Verificat'] },
-            { id: 'ad4', title: 'Curățenie profesională la domiciliu', category: 'curatenie', city: 'Brașov', price: '250', description: 'Ofert servicii curățenie generală, de întreținere sau după constructor. Folosim soluții profesionale.', phone: '0733333333', whatsapp: true, photo: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80', isPromoted: false, date: Date.now() - 400000, userId: 'other', badges: [] },
-            { id: 'ad5', title: 'Service Telefoane / Înlocuire sticlă', category: 'telefoane', city: 'Cluj-Napoca', price: '', description: 'Reparații telefoane orice marcă. Înlocuire display, baterie, sticlă. Piese originale.', phone: '0744444444', whatsapp: true, photo: 'https://images.unsplash.com/photo-1597740985671-2a8a3b80502e?w=500&q=80', isPromoted: true, date: Date.now() - 500000, userId: 'other', badges: [] },
-            { id: 'ad6', title: 'Mutări Mobilă / Transport marfă', category: 'mutari', city: 'Timișoara', price: '200', description: 'Asigurăm transport marfă și mutări mobilă cu dube de 3.5t. Manipulare inclusă la cerere.', phone: '0755555555', whatsapp: false, photo: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&q=80', isPromoted: false, date: Date.now() - 600000, userId: 'other', badges: [] },
-        ];
+        <div class="mb-6">
+          <button type="button" onclick="goBackTab()" class="back-tab-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span data-i18n="backBtn">Înapoi</span>
+          </button>
+        </div>
 
-        let state = {
-            user: {
-                name: 'Utilizator Demo',
-                city: 'București',
-                email: 'demo@rapidlocal.ro',
-                phone: '0700000000',
-                dob: '',
-                bio: 'Sunt profesionist și ofer servicii de înaltă calitate.',
-                photo: 'https://ui-avatars.com/api/?name=Utilizator+Demo&background=EBF4FF&color=2563EB',
-                credits: 0,
-                favorites: []
-            },
-            ads: [],
-            admin: { revenue: 0 },
-            currentFilter: { category: null, search: '' }
-        };
+        <div class="text-center mb-8">
+          <span class="text-primary font-semibold tracking-wider uppercase text-xs mb-2 block" data-i18n="portfolioBadge">Portofoliu pe categorii</span>
+          <h2 class="text-3xl sm:text-4xl font-serif font-bold text-gray-900 mb-3" data-i18n="portfolioTitle">Portofoliu Artistic</h2>
+          <p class="text-gray-500 text-sm max-w-2xl mx-auto leading-relaxed" data-i18n="portfolioText">
+            Alege categoria dorită. Fiecare categorie se deschide separat, cu propriul buton de întoarcere.
+          </p>
+        </div>
 
-        // ================= ROUTING & NAVIGATION =================
-        let viewHistory = ['home'];
+        <div id="portfolio-category-menu" class="bg-warmBg border border-gray-100 rounded-[1.75rem] p-4 sm:p-5 shadow-sm" data-aos="fade-up">
+          <p class="text-[10px] uppercase tracking-[0.22em] text-gray-400 font-semibold mb-4" data-i18n="portfolioChooseCategory">Alege categoria</p>
 
-        function updateHeader(tabId) {
-            const header = document.getElementById('mainHeader');
-            if (!header) return;
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <button type="button" onclick="openTab('tab-portfolio-pictura')" class="portfolio-category-btn bg-white border border-gray-100 rounded-2xl p-4 text-left shadow-sm hover:-translate-y-1 transition group">
+              <span class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-white transition">
+                <i class="fa-solid fa-palette text-sm"></i>
+              </span>
+              <h3 class="font-serif text-lg font-bold text-gray-900" data-i18n="catPaintingShort">Pictură</h3>
+              <p class="text-[11px] text-gray-500 mt-1 leading-relaxed" data-i18n="catPaintingDesc">Tablouri și comenzi.</p>
+              <p class="text-xs font-bold text-primary mt-3" data-i18n="pricePaintingSmallValue">de la 180 lei</p>
+            </button>
 
-            // Ascundem pe Details pentru că are propriul buton plutitor Back
-            if (tabId === 'details') {
-                header.classList.add('hidden');
-                return;
-            } else {
-                header.classList.remove('hidden');
-            }
+            <button type="button" onclick="openTab('tab-portfolio-cursuri')" class="portfolio-category-btn bg-white border border-gray-100 rounded-2xl p-4 text-left shadow-sm hover:-translate-y-1 transition group">
+              <span class="w-9 h-9 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center mb-3 group-hover:bg-secondary group-hover:text-white transition">
+                <i class="fa-solid fa-child-reaching text-sm"></i>
+              </span>
+              <h3 class="font-serif text-lg font-bold text-gray-900" data-i18n="catKidsShort">Cursuri copii</h3>
+              <p class="text-[11px] text-gray-500 mt-1 leading-relaxed" data-i18n="catKidsDesc">Desen și pictură.</p>
+              <p class="text-xs font-bold text-secondary mt-3" data-i18n="price80Session">80 lei/ședință</p>
+            </button>
 
-            if (tabId === 'home') {
-                header.innerHTML = `
-                    <div class="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
-                        <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('home')">
-                            <div class="bg-primary text-white p-1.5 rounded-lg">
-                                <i data-lucide="zap" class="w-4 h-4"></i>
-                            </div>
-                            <h1 class="text-lg font-bold tracking-tight text-gray-900">RapidLocal</h1>
-                        </div>
-                        <div class="flex gap-2">
-                            <button class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition" onclick="switchTab('favorites')">
-                                <i data-lucide="heart" class="w-5 h-5"></i>
-                            </button>
-                            <button class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition relative" onclick="showModal('Notificări', 'Nu ai notificări noi momentan.')">
-                                <i data-lucide="bell" class="w-5 h-5"></i>
-                                <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                const titles = {
-                    'categories': 'Categorii',
-                    'publish': 'Publică un anunț',
-                    'myAds': 'Anunțurile mele',
-                    'profile': 'Profilul meu',
-                    'favorites': 'Favorite',
-                    'admin': 'Admin Demo',
-                    'page': document.getElementById('pageTitle') ? document.getElementById('pageTitle').textContent : 'Informații'
-                };
-                header.innerHTML = `
-                    <div class="max-w-3xl mx-auto px-3 py-2 flex items-center gap-2">
-                        <button class="p-1.5 -ml-1 text-gray-600 hover:bg-gray-100 rounded-full transition" onclick="goBack()">
-                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                        </button>
-                        <h1 class="text-base font-bold text-gray-900 truncate flex-1">${titles[tabId] || ''}</h1>
-                    </div>
-                `;
-            }
-            lucide.createIcons();
+            <button type="button" onclick="openTab('tab-portfolio-tabere')" class="portfolio-category-btn bg-white border border-gray-100 rounded-2xl p-4 text-left shadow-sm hover:-translate-y-1 transition group">
+              <span class="w-9 h-9 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-3 group-hover:bg-accent group-hover:text-white transition">
+                <i class="fa-solid fa-campground text-sm"></i>
+              </span>
+              <h3 class="font-serif text-lg font-bold text-gray-900" data-i18n="catCampsShort">Tabere</h3>
+              <p class="text-[11px] text-gray-500 mt-1 leading-relaxed" data-i18n="catCampsDesc">Ateliere creative.</p>
+              <p class="text-xs font-bold text-accent mt-3" data-i18n="price180Child">180 lei/copil</p>
+            </button>
+
+            <button type="button" onclick="openTab('tab-portfolio-terapie')" class="portfolio-category-btn bg-white border border-gray-100 rounded-2xl p-4 text-left shadow-sm hover:-translate-y-1 transition group">
+              <span class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-white transition">
+                <i class="fa-solid fa-hands-holding-child text-sm"></i>
+              </span>
+              <h3 class="font-serif text-lg font-bold text-gray-900" data-i18n="catTherapyShort">Terapie prin artă</h3>
+              <p class="text-[11px] text-gray-500 mt-1 leading-relaxed" data-i18n="catTherapyDesc">Exprimare prin culoare.</p>
+              <p class="text-xs font-bold text-primary mt-3" data-i18n="price120Session">120 lei/ședință</p>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: PORTOFOLIU - PICTURĂ -->
+    <div id="tab-portfolio-pictura" class="tab-content bg-white min-h-[70vh] py-10 sm:py-12">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="mb-6 flex flex-wrap gap-3">
+          <button type="button" onclick="goBackTab()" class="back-tab-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span data-i18n="categoryBack">Înapoi la Portofoliu</span>
+          </button>
+        </div>
+
+        <div class="mb-7">
+          <span class="text-[10px] uppercase tracking-[0.18em] text-primary font-semibold" data-i18n="portfolioTagPainting">Pictură</span>
+          <h2 class="font-serif text-3xl sm:text-4xl font-bold text-gray-900 mt-2" data-i18n="categoryPaintingTitle">Picturi & comenzi personalizate</h2>
+          <p class="text-sm text-gray-500 mt-3 max-w-2xl leading-relaxed" data-i18n="categoryPaintingText">Tablouri decorative, portrete stilizate și lucrări făcute la comandă.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <aside class="lg:col-span-4 bg-warmBg rounded-3xl p-5 border border-gray-100 h-fit">
+            <h3 class="font-serif text-xl font-bold text-gray-900 mb-4" data-i18n="pricesTitle">Prețuri orientative</h3>
+            <div class="space-y-2">
+              <div class="flex justify-between gap-3 text-sm bg-white rounded-2xl px-4 py-3 border border-gray-100">
+                <span data-i18n="pricePaintingSmall">Tablou mic</span>
+                <strong data-i18n="pricePaintingSmallValue">de la 180 lei</strong>
+              </div>
+              <div class="flex justify-between gap-3 text-sm bg-white rounded-2xl px-4 py-3 border border-gray-100">
+                <span data-i18n="pricePaintingMedium">Tablou mediu</span>
+                <strong data-i18n="pricePaintingMediumValue">de la 350 lei</strong>
+              </div>
+              <div class="flex justify-between gap-3 text-sm bg-white rounded-2xl px-4 py-3 border border-gray-100">
+                <span data-i18n="pricePaintingCustom">Comandă personalizată</span>
+                <strong data-i18n="pricePaintingCustomValue">de la 500 lei</strong>
+              </div>
+            </div>
+          </aside>
+
+          <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <article class="rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-sm group">
+              <div class="h-40 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1543857778-c4a1a3e0b2eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Tablou abstract" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+              </div>
+              <div class="p-4">
+                <h4 class="font-serif text-lg font-bold text-gray-900" data-i18n="portfolioItem1Title">Tablou abstract</h4>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="portfolioItem1Text">Lucrare decorativă pictată manual.</p>
+                <p class="text-sm font-bold text-primary mt-3" data-i18n="pricePaintingSmallValue">de la 180 lei</p>
+              </div>
+            </article>
+
+            <article class="rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-sm group">
+              <div class="h-40 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Lucrare colorată" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+              </div>
+              <div class="p-4">
+                <h4 class="font-serif text-lg font-bold text-gray-900" data-i18n="portfolioItem2Title">Lucrare colorată</h4>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="portfolioItem2Text">Model pentru picturi, portrete sau decor.</p>
+                <p class="text-sm font-bold text-primary mt-3" data-i18n="pricePaintingMediumValue">de la 350 lei</p>
+              </div>
+            </article>
+
+            <article class="rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-sm group sm:col-span-2">
+              <div class="h-40 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80" alt="Comandă personalizată" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+              </div>
+              <div class="p-4">
+                <h4 class="font-serif text-lg font-bold text-gray-900" data-i18n="portfolioItem5Title">Comandă personalizată</h4>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="portfolioItem5Text">Pentru picturi făcute la cerere, cadouri sau decor personalizat.</p>
+                <p class="text-sm font-bold text-primary mt-3" data-i18n="pricePaintingCustomValue">de la 500 lei</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: PORTOFOLIU - CURSURI COPII -->
+    <div id="tab-portfolio-cursuri" class="tab-content bg-white min-h-[70vh] py-10 sm:py-12">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="mb-6">
+          <button type="button" onclick="goBackTab()" class="back-tab-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span data-i18n="categoryBack">Înapoi la Portofoliu</span>
+          </button>
+        </div>
+
+        <div class="mb-7">
+          <span class="text-[10px] uppercase tracking-[0.18em] text-secondary font-semibold" data-i18n="portfolioTagKids">Cursuri copii</span>
+          <h2 class="font-serif text-3xl sm:text-4xl font-bold text-gray-900 mt-2" data-i18n="categoryKidsTitle">Cursuri de artă pentru copii</h2>
+          <p class="text-sm text-gray-500 mt-3 max-w-2xl leading-relaxed" data-i18n="categoryKidsText">Ateliere de desen și pictură pentru copii, cu accent pe creativitate, răbdare și încredere.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <aside class="lg:col-span-4 bg-warmBg rounded-3xl p-5 border border-gray-100 h-fit">
+            <h3 class="font-serif text-xl font-bold text-gray-900 mb-4" data-i18n="pricesTitle">Prețuri orientative</h3>
+            <div class="space-y-2">
+              <div class="flex justify-between gap-3 text-sm bg-white rounded-2xl px-4 py-3 border border-gray-100">
+                <span data-i18n="kidsPrice1Label">Ședință individuală</span>
+                <strong data-i18n="price80Session">80 lei/ședință</strong>
+              </div>
+              <div class="flex justify-between gap-3 text-sm bg-white rounded-2xl px-4 py-3 border border-gray-100">
+                <span data-i18n="kidsPrice2Label">Pachet 4 ședințe</span>
+                <strong data-i18n="price300Package">300 lei</strong>
+              </div>
+            </div>
+          </aside>
+
+          <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <article class="rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-sm group">
+              <div class="h-40 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1599423300746-b62533397364?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Atelier pentru copii" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+              </div>
+              <div class="p-4">
+                <h4 class="font-serif text-lg font-bold text-gray-900" data-i18n="portfolioItem3Title">Atelier pentru copii</h4>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="portfolioItem3Text">Activități de desen și culoare.</p>
+                <p class="text-sm font-bold text-secondary mt-3" data-i18n="price80Session">80 lei/ședință</p>
+              </div>
+            </article>
+
+            <article class="rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-sm group">
+              <div class="h-40 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Curs de pictură" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+              </div>
+              <div class="p-4">
+                <h4 class="font-serif text-lg font-bold text-gray-900" data-i18n="portfolioItem7Title">Curs de pictură</h4>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="portfolioItem7Text">Cursuri pentru începători și copii creativi.</p>
+                <p class="text-sm font-bold text-secondary mt-3" data-i18n="price300Package">300 lei / 4 ședințe</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: PORTOFOLIU - TABERE -->
+    <div id="tab-portfolio-tabere" class="tab-content bg-white min-h-[70vh] py-10 sm:py-12">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="mb-6">
+          <button type="button" onclick="goBackTab()" class="back-tab-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span data-i18n="categoryBack">Înapoi la Portofoliu</span>
+          </button>
+        </div>
+
+        <div class="mb-7">
+          <span class="text-[10px] uppercase tracking-[0.18em] text-accent font-semibold" data-i18n="portfolioTagCamp">Tabere</span>
+          <h2 class="font-serif text-3xl sm:text-4xl font-bold text-gray-900 mt-2" data-i18n="categoryCampsTitle">Tabere de artă</h2>
+          <p class="text-sm text-gray-500 mt-3 max-w-2xl leading-relaxed" data-i18n="categoryCampsText">Activități de grup, pictură, joacă și explorare creativă în cadrul taberelor.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <aside class="lg:col-span-4 bg-warmBg rounded-3xl p-5 border border-gray-100 h-fit">
+            <h3 class="font-serif text-xl font-bold text-gray-900 mb-4" data-i18n="pricesTitle">Prețuri orientative</h3>
+            <div class="space-y-2">
+              <div class="flex justify-between gap-3 text-sm bg-white rounded-2xl px-4 py-3 border border-gray-100">
+                <span data-i18n="campPrice1Label">Atelier în tabără</span>
+                <strong data-i18n="price180Child">180 lei/copil</strong>
+              </div>
+              <div class="flex justify-between gap-3 text-sm bg-white rounded-2xl px-4 py-3 border border-gray-100">
+                <span data-i18n="campPrice2Label">Pachet creativ</span>
+                <strong data-i18n="priceFrom450">de la 450 lei</strong>
+              </div>
+            </div>
+          </aside>
+
+          <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <article class="rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-sm group">
+              <div class="h-40 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1456086272160-b22364c9ca36?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Tabără creativă" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+              </div>
+              <div class="p-4">
+                <h4 class="font-serif text-lg font-bold text-gray-900" data-i18n="portfolioItem4Title">Tabără creativă</h4>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="portfolioItem4Text">Activități de grup și pictură.</p>
+                <p class="text-sm font-bold text-accent mt-3" data-i18n="priceFrom450">de la 450 lei</p>
+              </div>
+            </article>
+
+            <article class="rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-sm group">
+              <div class="h-40 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Atelier în natură" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+              </div>
+              <div class="p-4">
+                <h4 class="font-serif text-lg font-bold text-gray-900" data-i18n="portfolioItem8Title">Atelier în natură</h4>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="portfolioItem8Text">Activități în aer liber și lucru în grup.</p>
+                <p class="text-sm font-bold text-accent mt-3" data-i18n="price180Child">180 lei/copil</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: PORTOFOLIU - TERAPIE -->
+    <div id="tab-portfolio-terapie" class="tab-content bg-white min-h-[70vh] py-10 sm:py-12">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="mb-6">
+          <button type="button" onclick="goBackTab()" class="back-tab-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span data-i18n="categoryBack">Înapoi la Portofoliu</span>
+          </button>
+        </div>
+
+        <div class="mb-7">
+          <span class="text-[10px] uppercase tracking-[0.18em] text-primary font-semibold" data-i18n="portfolioTagTherapy">Terapie prin artă</span>
+          <h2 class="font-serif text-3xl sm:text-4xl font-bold text-gray-900 mt-2" data-i18n="categoryTherapyTitle">Terapie prin artă</h2>
+          <p class="text-sm text-gray-500 mt-3 max-w-2xl leading-relaxed" data-i18n="categoryTherapyText">Activități prin desen și culoare, cu accent pe exprimare, comunicare și lucru atent cu fiecare persoană.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <aside class="lg:col-span-4 bg-warmBg rounded-3xl p-5 border border-gray-100 h-fit">
+            <h3 class="font-serif text-xl font-bold text-gray-900 mb-4" data-i18n="pricesTitle">Prețuri orientative</h3>
+            <ul class="space-y-2 text-sm text-gray-700">
+              <li class="bg-white rounded-2xl px-4 py-3 border border-gray-100">• <span data-i18n="therapyBullet1">Ședință individuală</span> — <strong data-i18n="therapyPrice1">120 lei</strong></li>
+              <li class="bg-white rounded-2xl px-4 py-3 border border-gray-100">• <span data-i18n="therapyBullet2">Sesiune de grup</span> — <strong data-i18n="therapyPrice2">70 lei/pers.</strong></li>
+              <li class="bg-white rounded-2xl px-4 py-3 border border-gray-100">• <span data-i18n="therapyBullet3">Pachet 4 ședințe</span> — <strong data-i18n="therapyPrice3">420 lei</strong></li>
+            </ul>
+          </aside>
+
+          <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <article class="rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-sm group">
+              <div class="h-40 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Activitate creativă" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+              </div>
+              <div class="p-4">
+                <h4 class="font-serif text-lg font-bold text-gray-900" data-i18n="portfolioItem6Title">Activitate creativă</h4>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="portfolioItem6Text">Exprimare prin culoare și desen.</p>
+                <p class="text-sm font-bold text-primary mt-3" data-i18n="price120Session">120 lei/ședință</p>
+              </div>
+            </article>
+
+            <article class="rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-sm group">
+              <div class="h-40 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Exprimare prin artă" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+              </div>
+              <div class="p-4">
+                <h4 class="font-serif text-lg font-bold text-gray-900" data-i18n="portfolioItem9Title">Exprimare prin artă</h4>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="portfolioItem9Text">Comunicare și lucru cu emoțiile.</p>
+                <p class="text-sm font-bold text-primary mt-3" data-i18n="price420Package">420 lei / 4 ședințe</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: TERMENI -->
+    <div id="tab-termeni" class="tab-content bg-warmBg min-h-[70vh] py-10 sm:py-12">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="mb-6">
+          <button type="button" onclick="goBackTab()" class="back-tab-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span data-i18n="backBtn">Înapoi</span>
+          </button>
+        </div>
+
+        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
+          <h2 class="text-2xl font-serif font-bold text-gray-900 mb-6 border-b pb-4" data-i18n="termsTitle">Termeni și Condiții</h2>
+
+          <div class="space-y-6 text-gray-600 text-sm leading-relaxed">
+            <section>
+              <h3 class="font-bold text-gray-800 text-base mb-2" data-i18n="termsIntroTitle">Operator site</h3>
+              <p data-i18n="termsIntroText">Acest site prezintă activitățile creative și educaționale asociate firmei RM ELIART 2020 SRL, CUI 43192503, J14/351/2020.</p>
+            </section>
+
+            <section>
+              <h3 class="font-bold text-gray-800 text-base mb-2" data-i18n="terms1Title">1. Confidențialitate</h3>
+              <p data-i18n="terms1Text">Toate informațiile și detaliile personale discutate în cadrul ședințelor sau activităților creative sunt tratate cu respect și confidențialitate.</p>
+            </section>
+
+            <section>
+              <h3 class="font-bold text-gray-800 text-base mb-2" data-i18n="terms2Title">2. Programări și Anulări</h3>
+              <p data-i18n="terms2Text">Programările pentru ședințe, cursuri sau tabere se fac în prealabil. Orice anulare sau reprogramare trebuie anunțată din timp.</p>
+            </section>
+
+            <section>
+              <h3 class="font-bold text-gray-800 text-base mb-2" data-i18n="terms3Title">3. Drepturi de Autor</h3>
+              <p data-i18n="terms3Text">Textele, imaginile și lucrările artistice prezentate pe site nu pot fi copiate, reproduse sau folosite comercial fără acordul proprietarului.</p>
+            </section>
+
+            <section>
+              <h3 class="font-bold text-gray-800 text-base mb-2" data-i18n="terms4Title">4. Despre acest site</h3>
+              <p data-i18n="terms4Text">Acest site web are rol de prezentare. Informațiile prezentate au caracter informativ și pot fi actualizate la cererea proprietarului.</p>
+            </section>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-400 py-7 text-center text-xs border-t border-white/5 mt-auto px-4">
+    <div class="max-w-5xl mx-auto">
+      <p class="text-gray-300 font-semibold">RM ELIART 2020 SRL</p>
+      <p class="mt-1" data-i18n="footerCompany">CUI 43192503 • J14/351/2020</p>
+      <p class="mt-1" data-i18n="footerAddress">Sediu social: Sâncraiu nr. 550, sat Sâncraiu, com. Ilieni, jud. Covasna</p>
+      <p class="mt-2" data-i18n="footerText">© 2026 Elena Art - Terapie și Creație. Toate drepturile rezervate.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <script>
+    AOS.init({
+      once: true,
+      offset: 30,
+      duration: 700
+    });
+
+    const translations = {
+      ro: {
+        loadingText: "Pregătim culorile...",
+        brandSubtitle: "RM ELIART 2020 SRL",
+        navHome: "Acasă",
+        navAbout: "Despre mine",
+        navPortfolio: "Portofoliu",
+        navTerms: "Termeni și Condiții",
+        navCompany: "Date firmă",
+        callShort: "Sună",
+        callNow: "Sună acum",
+        whatsappNow: "Scrie pe WhatsApp",
+        menuLabel: "Meniu",
+        languageLabel: "Limbă",
+        menuFooter: "Răspund cât de repede pot.",
+        heroBadge: "RM ELIART 2020 SRL • Artă, cursuri și tabere creative",
+        heroTitle: "Arta ca limbaj al <span class='text-gradient'>sufletului</span>",
+        heroText: "Elena este <strong class='text-primary font-medium'>terapeut de artă la un centru pentru persoane cu dizabilități</strong>, profesoară de artă pentru copii, organizatoare de tabere creative și pictoriță. Activitățile sunt prezentate profesional sub firma <strong class='text-primary font-medium'>RM ELIART 2020 SRL</strong>.",
+        statCompany: "Firmă",
+        statRole: "Roluri",
+        statRoleValue: "Terapeut & artist",
+        statActivity: "Activitate",
+        statActivityValue: "Cursuri & picturi",
+        ctaPortfolio: "Vezi Portofoliul",
+        ctaAbout: "Despre mine",
+        ctaCompany: "Vezi datele firmei",
+        servicesBadge: "Activități",
+        servicesTitle: "Ce oferă Elena Art",
+        servicesText: "Un site profesional trebuie să arate clar experiența, serviciile și direcțiile de lucru. Secțiunea de mai jos poate fi adaptată cu program, poze reale și prețuri.",
+        serviceTherapyTitle: "Terapie prin artă",
+        serviceTherapyText: "Activitate cu persoane cu dizabilități, folosind culoarea și desenul ca formă de exprimare și comunicare.",
+        serviceKidsTitle: "Cursuri pentru copii",
+        serviceKidsText: "Lecții de artă pentru copii, cu accent pe încredere, răbdare, joacă și dezvoltarea creativității.",
+        serviceCampTitle: "Tabere de artă",
+        serviceCampText: "Ateliere și tabere creative, unde copiii pot experimenta pictura, culoarea și lucrul în grup.",
+        servicePainterTitle: "Picturi personalizate",
+        servicePainterText: "Lucrări pictate manual, potrivite pentru cadouri, decor sau comenzi personalizate.",
+        contactSmallLabel: "Programări telefonice",
+        contactTitle: "Contactează RM ELIART 2020 SRL",
+        contactText: "Pentru ședințe, cursuri, tabere creative sau lucrări personalizate, programările se fac telefonic.",
+        locationLabel: "Sediu social",
+        locationText: "Sâncraiu nr. 550, com. Ilieni, jud. Covasna",
+        openMaps: "Google Maps",
+        openWaze: "Waze",
+        backBtn: "Înapoi",
+        aboutBadge: "Despre Elena",
+        aboutPageTitle: "Terapeut de artă, profesoară și pictoriță",
+        aboutPara1: "Elena lucrează ca terapeut de artă la un centru pentru persoane cu dizabilități, unde folosește desenul, pictura și culoarea ca instrumente de exprimare, răbdare și comunicare.",
+        aboutPara2: "În paralel, susține cursuri de artă pentru copii, organizează tabere creative și creează lucrări pictate manual, potrivite pentru cadouri, decor sau comenzi personalizate.",
+        aboutPara3: "Site-ul prezintă activitatea artistică și educațională sub RM ELIART 2020 SRL, într-un format profesionist, clar și ușor de actualizat cu poze reale, prețuri și program.",
+        value1Title: "Empatie",
+        value1Text: "Lucru atent cu fiecare persoană.",
+        value2Title: "Creativitate",
+        value2Text: "Culoarea devine o formă de comunicare.",
+        value3Title: "Dezvoltare",
+        value3Text: "Activități pentru încredere și exprimare.",
+        portfolioBadge: "Portofoliu organizat",
+        portfolioTitle: "Portofoliu Artistic",
+        portfolioText: "Alege categoria dorită. Fiecare categorie se deschide separat, cu propriul buton de întoarcere.",
+        portfolioEmptyTitle: "Alege o categorie",
+        portfolioEmptyText: "Conținutul portofoliului apare doar după ce vizitatorul selectează Pictură, Cursuri copii, Tabere sau Terapie prin artă.",
+        categoryBack: "Înapoi la categorii",
+        catPaintingDesc: "Tablouri, lucrări decorative și comenzi personalizate.",
+        catKidsDesc: "Ateliere de desen și pictură pentru copii.",
+        catCampsDesc: "Experiențe creative, activități de grup și pictură.",
+        catTherapyDesc: "Activități expresive prin desen, culoare și comunicare.",
+        portfolioTagPainting: "Pictură",
+        portfolioTagKids: "Cursuri copii",
+        portfolioTagCamp: "Tabere",
+        portfolioTagCustom: "Personalizat",
+        portfolioTagTherapy: "Terapie prin artă",
+        portfolioItem1Title: "Tablou abstract",
+        portfolioItem1Text: "Lucrare decorativă pictată manual.",
+        portfolioItem2Title: "Lucrare colorată",
+        portfolioItem2Text: "Model pentru picturi decorative.",
+        portfolioItem3Title: "Atelier pentru copii",
+        portfolioItem3Text: "Activități de desen și pictură.",
+        portfolioItem4Title: "Tabără creativă",
+        portfolioItem4Text: "Activități de grup și pictură.",
+        portfolioItem5Title: "Comandă personalizată",
+        portfolioItem5Text: "Cadouri sau decor personalizat.",
+        portfolioItem6Title: "Activitate creativă",
+        portfolioItem6Text: "Exprimare prin culoare și desen.",
+        categoryPaintingTitle: "Picturi & comenzi personalizate",
+        categoryPaintingText: "Tablouri decorative, portrete stilizate și lucrări făcute la comandă.",
+        categoryKidsTitle: "Cursuri de artă pentru copii",
+        categoryKidsText: "Ateliere creative pentru exprimare liberă, răbdare și încredere.",
+        categoryCampsTitle: "Tabere de artă",
+        categoryCampsText: "Activități creative de grup, potrivite pentru experiențe educative, joacă și explorare prin culoare.",
+        categoryTherapyTitle: "Terapie prin artă",
+        categoryTherapyText: "Activități prin desen și culoare, cu accent pe exprimare, comunicare și lucru atent cu fiecare persoană.",
+        portfolioItem7Title: "Lecție de desen",
+        portfolioItem7Text: "Card pentru programe săptămânale, grupe de copii sau ateliere tematice.",
+        portfolioItem8Title: "Atelier în natură",
+        portfolioItem8Text: "Loc pentru poze din tabere, activități în aer liber sau sesiuni de grup.",
+        portfolioItem9Title: "Exprimare prin artă",
+        portfolioItem9Text: "Card pentru activități de exprimare, comunicare și lucru cu emoțiile prin artă.",
+        portfolioPriceRequest: "Preț la cerere",
+        askPrice: "Întreabă prețul",
+        portfolioChooseCategory: "Alege categoria",
+        categoryBack: "Înapoi la Portofoliu",
+        pricesTitle: "Prețuri orientative",
+        catPaintingShort: "Pictură",
+        catKidsShort: "Cursuri copii",
+        catCampsShort: "Tabere",
+        catTherapyShort: "Terapie prin artă",
+        pricePaintingSmall: "Tablou mic",
+        pricePaintingSmallValue: "de la 180 lei",
+        pricePaintingMedium: "Tablou mediu",
+        pricePaintingMediumValue: "de la 350 lei",
+        pricePaintingCustom: "Comandă personalizată",
+        pricePaintingCustomValue: "de la 500 lei",
+        kidsBullet1: "Ședință individuală",
+        kidsPrice1: "80 lei",
+        kidsBullet2: "Atelier de grup",
+        kidsPrice2: "60 lei/copil",
+        kidsBullet3: "Abonament 4 ședințe",
+        kidsPrice3: "250 lei",
+        campBullet1: "Zi creativă",
+        campPrice1: "180 lei/copil",
+        campBullet2: "Weekend creativ",
+        campPrice2: "de la 450 lei",
+        campBullet3: "Program complet",
+        therapyBullet1: "Ședință individuală",
+        therapyPrice1: "120 lei",
+        therapyBullet2: "Sesiune de grup",
+        therapyPrice2: "70 lei/pers.",
+        therapyBullet3: "Pachet 4 ședințe",
+        therapyPrice3: "420 lei",
+        price250: "250 lei",
+        price350: "350 lei",
+        priceFrom500: "de la 500 lei",
+        price60Child: "60 lei/copil",
+        price80Session: "80 lei/ședință",
+        priceFrom450: "de la 450 lei",
+        price180Child: "180 lei/copil",
+        price120Session: "120 lei/ședință",
+        price420Package: "420 lei / 4 ședințe",
+        companyBadge: "Date de identificare",
+        companyIntro: "Informații utile pentru identificarea firmei și pentru transparență profesională.",
+        companyNameLabel: "Denumire",
+        regComLabel: "Nr. Registrul Comerțului",
+        companyAddressLabel: "Sediu social",
+        companyAddress: "Sâncraiu nr. 550, cod poștal 527107, sat Sâncraiu, com. Ilieni, jud. Covasna",
+        companyNote: "Notă: datele de identificare trebuie verificate de proprietarul firmei înainte de publicarea finală a site-ului.",
+        termsTitle: "Termeni și Condiții",
+        termsIntroTitle: "Operator site",
+        termsIntroText: "Acest site prezintă activitățile creative și educaționale asociate firmei RM ELIART 2020 SRL, CUI 43192503, J14/351/2020.",
+        terms1Title: "1. Confidențialitate",
+        terms1Text: "Toate informațiile și detaliile personale discutate în cadrul ședințelor sau activităților creative sunt tratate cu respect și confidențialitate.",
+        terms2Title: "2. Programări și Anulări",
+        terms2Text: "Programările pentru ședințe, cursuri sau tabere se fac în prealabil. Orice anulare sau reprogramare trebuie anunțată din timp.",
+        terms3Title: "3. Drepturi de Autor",
+        terms3Text: "Textele, imaginile și lucrările artistice prezentate pe site nu pot fi copiate, reproduse sau folosite comercial fără acordul proprietarului.",
+        terms4Title: "4. Despre acest site",
+        terms4Text: "Acest site web are rol de prezentare. Informațiile prezentate au caracter informativ și pot fi actualizate la cererea proprietarului.",
+        footerCompany: "CUI 43192503 • J14/351/2020",
+        footerAddress: "Sediu social: Sâncraiu nr. 550, sat Sâncraiu, com. Ilieni, jud. Covasna",
+        footerText: "© 2026 Elena Art - Terapie și Creație. Toate drepturile rezervate."
+      },
+
+      en: {
+        loadingText: "Preparing the colors...",
+        brandSubtitle: "RM ELIART 2020 SRL",
+        navHome: "Home",
+        navAbout: "About me",
+        navPortfolio: "Portfolio",
+        navTerms: "Terms & Conditions",
+        navCompany: "Company details",
+        callShort: "Call",
+        callNow: "Call now",
+        whatsappNow: "Message on WhatsApp",
+        menuLabel: "Menu",
+        languageLabel: "Language",
+        menuFooter: "I reply as soon as possible.",
+        heroBadge: "RM ELIART 2020 SRL • Art, classes and creative camps",
+        heroTitle: "Art as the language of the <span class='text-gradient'>soul</span>",
+        heroText: "Elena is an <strong class='text-primary font-medium'>art therapist at a center for people with disabilities</strong>, an art teacher for children, an organizer of creative camps and a painter. The activities are professionally presented under <strong class='text-primary font-medium'>RM ELIART 2020 SRL</strong>.",
+        statCompany: "Company",
+        statRole: "Roles",
+        statRoleValue: "Therapist & artist",
+        statActivity: "Activity",
+        statActivityValue: "Classes & paintings",
+        ctaPortfolio: "View Portfolio",
+        ctaAbout: "About me",
+        ctaCompany: "View company details",
+        servicesBadge: "Activities",
+        servicesTitle: "What Elena Art offers",
+        servicesText: "A professional website should clearly present experience, services and work directions. This section can be adapted with real photos, prices and schedule.",
+        serviceTherapyTitle: "Art therapy",
+        serviceTherapyText: "Work with people with disabilities, using color and drawing as a form of expression and communication.",
+        serviceKidsTitle: "Art classes for children",
+        serviceKidsText: "Art lessons for children, focused on confidence, patience, play and creativity.",
+        serviceCampTitle: "Art camps",
+        serviceCampText: "Creative workshops and camps where children can experience painting, color and group activities.",
+        servicePainterTitle: "Custom paintings",
+        servicePainterText: "Hand-painted artworks suitable for gifts, decor or personalized orders.",
+        contactSmallLabel: "Phone appointments",
+        contactTitle: "Contact RM ELIART 2020 SRL",
+        contactText: "For sessions, classes, creative camps or custom artworks, appointments are made by phone.",
+        locationLabel: "Registered office",
+        locationText: "Sâncraiu no. 550, Ilieni commune, Covasna county",
+        openMaps: "Google Maps",
+        openWaze: "Waze",
+        backBtn: "Back",
+        aboutBadge: "About Elena",
+        aboutPageTitle: "Art therapist, teacher and painter",
+        aboutPara1: "Elena works as an art therapist at a center for people with disabilities, using drawing, painting and color as tools for expression, patience and communication.",
+        aboutPara2: "She also teaches art classes for children, organizes creative camps and creates hand-painted artworks suitable for gifts, decor or personalized orders.",
+        aboutPara3: "The website presents her artistic and educational activity under RM ELIART 2020 SRL in a professional, clear format that can be easily updated with real photos, prices and schedule.",
+        value1Title: "Empathy",
+        value1Text: "Attentive work with each person.",
+        value2Title: "Creativity",
+        value2Text: "Color becomes a form of communication.",
+        value3Title: "Development",
+        value3Text: "Activities for confidence and expression.",
+        portfolioBadge: "Organized portfolio",
+        portfolioTitle: "Art Portfolio",
+        portfolioText: "The categories are clearly separated so visitors can quickly find paintings, children’s classes, camps or art therapy activities.",
+        portfolioTagPainting: "Painting",
+        portfolioTagKids: "Kids classes",
+        portfolioTagCamp: "Camps",
+        portfolioTagCustom: "Custom",
+        portfolioTagTherapy: "Art therapy",
+        portfolioItem1Title: "Abstract painting",
+        portfolioItem1Text: "Hand-painted decorative artwork.",
+        portfolioItem2Title: "Colorful artwork",
+        portfolioItem2Text: "Model for decorative paintings.",
+        portfolioItem3Title: "Children’s workshop",
+        portfolioItem3Text: "Drawing and painting activities.",
+        portfolioItem4Title: "Creative camp",
+        portfolioItem4Text: "Group activities and painting.",
+        portfolioItem5Title: "Custom order",
+        portfolioItem5Text: "Gifts or personalized decor.",
+        portfolioItem6Title: "Creative activity",
+        portfolioItem6Text: "Expression through color and drawing.",
+        categoryPaintingTitle: "Paintings & custom orders",
+        categoryPaintingText: "Hand-painted artworks, decorative paintings and custom-made orders.",
+        categoryKidsTitle: "Art classes for children",
+        categoryKidsText: "Creative workshops for free expression, patience and confidence.",
+        categoryCampsTitle: "Art camps",
+        categoryCampsText: "Creative group activities suitable for educational experiences, play and exploration through color.",
+        categoryTherapyTitle: "Art therapy",
+        categoryTherapyText: "Drawing and color activities focused on expression, communication and attentive work with each person.",
+        portfolioItem7Title: "Drawing lesson",
+        portfolioItem7Text: "Card for weekly programs, children’s groups or themed workshops.",
+        portfolioItem8Title: "Outdoor workshop",
+        portfolioItem8Text: "Space for photos from camps, outdoor activities or group sessions.",
+        portfolioItem9Title: "Expression through art",
+        portfolioItem9Text: "Card for expression, communication and emotion-focused activities through art.",
+        portfolioPriceRequest: "Price on request",
+        askPrice: "Ask price",
+        portfolioChooseCategory: "Choose category",
+        categoryBack: "Back to Portfolio",
+        pricesTitle: "Estimated prices",
+        catPaintingShort: "Painting",
+        catKidsShort: "Kids classes",
+        catCampsShort: "Camps",
+        catTherapyShort: "Art therapy",
+        categoryPaintingTitle: "Paintings & custom orders",
+        categoryPaintingText: "Decorative paintings, stylized portraits and custom works.",
+        categoryKidsTitle: "Art classes for children",
+        categoryKidsText: "Creative workshops for free expression, patience and confidence.",
+        categoryCampsTitle: "Art camps",
+        categoryCampsText: "Creative group experiences with workshops, painting and educational activities.",
+        categoryTherapyTitle: "Art therapy",
+        categoryTherapyText: "Activities through drawing and color, focused on expression, communication and attentive work with each person.",
+        pricePaintingSmall: "Small painting",
+        pricePaintingSmallValue: "from 180 lei",
+        pricePaintingMedium: "Medium painting",
+        pricePaintingMediumValue: "from 350 lei",
+        pricePaintingCustom: "Custom order",
+        pricePaintingCustomValue: "from 500 lei",
+        kidsBullet1: "Individual session",
+        kidsPrice1: "80 lei",
+        kidsBullet2: "Group workshop",
+        kidsPrice2: "60 lei/child",
+        kidsBullet3: "4-session package",
+        kidsPrice3: "250 lei",
+        campBullet1: "Creative day",
+        campPrice1: "180 lei/child",
+        campBullet2: "Creative weekend",
+        campPrice2: "from 450 lei",
+        campBullet3: "Full program",
+        therapyBullet1: "Individual session",
+        therapyPrice1: "120 lei",
+        therapyBullet2: "Group session",
+        therapyPrice2: "70 lei/person",
+        therapyBullet3: "4-session package",
+        therapyPrice3: "420 lei",
+        price250: "250 lei",
+        price350: "350 lei",
+        priceFrom500: "from 500 lei",
+        price60Child: "60 lei/child",
+        price80Session: "80 lei/session",
+        priceFrom450: "from 450 lei",
+        price180Child: "180 lei/child",
+        price120Session: "120 lei/session",
+        price420Package: "420 lei / 4 sessions",
+        companyBadge: "Identification details",
+        companyIntro: "Useful information for company identification and professional transparency.",
+        companyNameLabel: "Company name",
+        regComLabel: "Trade Registry No.",
+        companyAddressLabel: "Registered office",
+        companyAddress: "Sâncraiu no. 550, postal code 527107, Sâncraiu village, Ilieni commune, Covasna county",
+        companyNote: "Note: identification details should be verified by the company owner before final publication.",
+        termsTitle: "Terms & Conditions",
+        termsIntroTitle: "Website operator",
+        termsIntroText: "This website presents creative and educational activities associated with RM ELIART 2020 SRL, CUI 43192503, J14/351/2020.",
+        terms1Title: "1. Confidentiality",
+        terms1Text: "All personal information and details discussed during sessions or creative activities are treated with respect and confidentiality.",
+        terms2Title: "2. Appointments and Cancellations",
+        terms2Text: "Appointments for sessions, classes or camps are made in advance. Any cancellation or rescheduling should be announced in time.",
+        terms3Title: "3. Copyright",
+        terms3Text: "The texts, images and artworks presented on this website may not be copied, reproduced or used commercially without the owner’s consent.",
+        terms4Title: "4. About this website",
+        terms4Text: "This website is designed for presentation purposes. The information shown here is informative and may be updated at the owner’s request.",
+        footerCompany: "CUI 43192503 • J14/351/2020",
+        footerAddress: "Registered office: Sâncraiu no. 550, Sâncraiu village, Ilieni commune, Covasna county",
+        footerText: "© 2026 Elena Art - Therapy and Creation. All rights reserved."
+      }
+    };
+
+    const loadingStartedAt = Date.now();
+
+    const openBtn = document.getElementById('open-menu-btn');
+    const closeBtn = document.getElementById('close-menu-btn');
+    const sidebar = document.getElementById('mobile-sidebar');
+    const overlay = document.getElementById('mobile-menu-overlay');
+    const loadingScreen = document.getElementById('loading-screen');
+
+    let menuIsOpen = false;
+    let activeTabId = 'tab-home';
+    let tabHistory = [];
+    let currentLanguage = 'ro';
+
+    function safeLocalStorageGet(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function safeLocalStorageSet(key, value) {
+      try {
+        localStorage.setItem(key, value);
+      } catch (error) {}
+    }
+
+    function refreshAnimations() {
+      setTimeout(() => {
+        if (window.AOS) {
+          AOS.refresh();
         }
+      }, 250);
+    }
 
-        function goBack() {
-            if (viewHistory.length > 1) {
-                viewHistory.pop(); // Remove current view
-                const prevView = viewHistory[viewHistory.length - 1];
-                switchTabCore(prevView, true);
-            } else {
-                switchTabCore('home', true);
-            }
+    function updateActiveLinks() {
+      document.querySelectorAll('[data-tab-target]').forEach(link => {
+        if (link.getAttribute('data-tab-target') === activeTabId) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
         }
+      });
+    }
 
-        function switchTab(tabId) {
-            switchTabCore(tabId, false);
+    function updateLanguageButtons() {
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        if (btn.getAttribute('data-lang') === currentLanguage) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
         }
+      });
+    }
 
-        function switchTabCore(tabId, isBack = false) {
-            if (!isBack) {
-                if (viewHistory[viewHistory.length - 1] !== tabId) {
-                    viewHistory.push(tabId);
-                }
-            }
+    function setLanguage(lang) {
+      if (!translations[lang]) return;
 
-            // Hide all views
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            // Remove active from nav
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
-            // Show target
-            const viewEl = document.getElementById(`view-${tabId}`);
-            if(viewEl) viewEl.classList.add('active');
-            
-            // Activate nav item for the 3 main buttons
-            const navItems = document.querySelectorAll('.nav-item');
-            if(tabId === 'home' && navItems[0]) navItems[0].classList.add('active');
-            if(tabId === 'publish' && navItems[1]) navItems[1].classList.add('active');
-            if(tabId === 'profile' && navItems[2]) navItems[2].classList.add('active');
+      currentLanguage = lang;
+      document.documentElement.lang = lang;
 
-            window.scrollTo(0,0);
-            updateHeader(tabId);
-
-            // Tab specific logic
-            if(tabId === 'home') {
-                renderHomeAds(); // Do NOT reset filter here, keep the filter active if they come back to home
-            }
-            if(tabId === 'myAds') renderMyAds();
-            if(tabId === 'favorites') renderFavorites();
-            if(tabId === 'admin') renderAdmin();
-            if(tabId === 'publish') checkFreeAdStatus();
-
-            lucide.createIcons();
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+          el.textContent = translations[lang][key];
         }
+      });
 
-        function filterByCategory(catId) {
-            if (catId === 'all') {
-                state.currentFilter.category = null;
-            } else {
-                state.currentFilter.category = catId;
-            }
-            // If we are not on home, go to home
-            if (viewHistory[viewHistory.length - 1] !== 'home') {
-                switchTabCore('home', false);
-            }
-            renderHomeAds();
-            window.scrollTo(0,0);
+      document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        const key = el.getAttribute('data-i18n-html');
+        if (translations[lang][key]) {
+          el.innerHTML = translations[lang][key];
         }
+      });
+
+      safeLocalStorageSet('elena_art_language', lang);
+      updateLanguageButtons();
+      refreshAnimations();
+    }
+
+
+    function resetPortfolioView() {
+      document.querySelectorAll('.portfolio-category-panel').forEach(panel => {
+        panel.classList.remove('is-visible');
+      });
+
+      document.querySelectorAll('[data-portfolio-target]').forEach(btn => {
+        btn.classList.remove('active');
+      });
 
-        // ================= INIT & LOCALSTORAGE =================
-        function initApp() {
-            // Load state from localStorage
-            const savedUser = localStorage.getItem('rl_user');
-            const savedAds = localStorage.getItem('rl_ads');
-            const savedAdmin = localStorage.getItem('rl_admin');
-
-            if (savedUser) state.user = { ...state.user, ...JSON.parse(savedUser) };
-            if (savedAdmin) state.admin = JSON.parse(savedAdmin);
-            
-            if (savedAds) {
-                state.ads = JSON.parse(savedAds);
-            } else {
-                state.ads = [...defaultAds];
-                saveState();
-            }
-
-            renderCategories();
-            renderCategoriesGrid();
-            populateCategoryDropdown();
-            renderHomeAds();
-            updateProfileView();
-            updateHeader('home');
-            lucide.createIcons();
-
-            // Setup listeners
-            document.getElementById('searchInput').addEventListener('input', (e) => {
-                state.currentFilter.search = e.target.value.toLowerCase();
-                renderHomeAds();
-            });
-
-            document.getElementById('sortSelect').addEventListener('change', () => {
-                renderHomeAds();
-            });
-
-            document.getElementById('publishForm').addEventListener('submit', handlePublish);
-
-            // Image Preview handler
-            document.getElementById('adImage').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if(file) {
-                    const reader = new FileReader();
-                    reader.onload = function(evt) {
-                        const preview = document.getElementById('adImagePreview');
-                        preview.src = evt.target.result;
-                        preview.classList.remove('hidden');
-                    }
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
-
-        function saveState() {
-            localStorage.setItem('rl_user', JSON.stringify(state.user));
-            localStorage.setItem('rl_ads', JSON.stringify(state.ads));
-            localStorage.setItem('rl_admin', JSON.stringify(state.admin));
-            updateProfileView();
-        }
-
-        function resetDemo() {
-            localStorage.clear();
-            location.reload();
-        }
-
-        // ================= RENDERING =================
-        function renderCategories() {
-            const container = document.getElementById('quickCategories');
-            let html = `
-                <div class="flex flex-col items-center gap-1 cursor-pointer min-w-[60px]" onclick="filterByCategory('all')">
-                    <div class="bg-gray-100 border border-gray-200 shadow-sm w-12 h-12 rounded-xl flex items-center justify-center text-gray-700 hover:text-primary transition">
-                        <i data-lucide="layout-grid" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-[9px] font-medium text-gray-600 text-center leading-tight">Toate</span>
-                </div>
-            `;
-            html += defaultCategories.map(cat => `
-                <div class="flex flex-col items-center gap-1 cursor-pointer min-w-[60px]" onclick="filterByCategory('${cat.id}')">
-                    <div class="bg-white border border-gray-100 shadow-sm w-12 h-12 rounded-xl flex items-center justify-center text-gray-700 hover:text-primary hover:border-blue-100 transition">
-                        <i data-lucide="${cat.icon}" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-[9px] font-medium text-gray-600 text-center leading-tight">${cat.name}</span>
-                </div>
-            `).join('');
-            container.innerHTML = html;
-        }
-
-        function renderCategoriesGrid() {
-            const container = document.getElementById('allCategoriesGrid');
-            let html = `
-                <div class="bg-gray-50 border border-gray-200 shadow-sm p-3 rounded-xl flex items-center gap-3 cursor-pointer hover:border-blue-200 transition" onclick="filterByCategory('all')">
-                    <div class="bg-gray-200 text-gray-600 p-2 rounded-lg">
-                        <i data-lucide="layout-grid" class="w-4 h-4"></i>
-                    </div>
-                    <span class="font-bold text-gray-800 text-sm">Toate categoriile</span>
-                </div>
-            `;
-            html += defaultCategories.map(cat => `
-                <div class="bg-white border border-gray-100 shadow-sm p-3 rounded-xl flex items-center gap-3 cursor-pointer hover:border-blue-200 transition" onclick="filterByCategory('${cat.id}')">
-                    <div class="bg-blue-50 text-primary p-2 rounded-lg">
-                        <i data-lucide="${cat.icon}" class="w-4 h-4"></i>
-                    </div>
-                    <span class="font-bold text-gray-800 text-sm">${cat.name}</span>
-                </div>
-            `).join('');
-            container.innerHTML = html;
-        }
-
-        function populateCategoryDropdown() {
-            const select = document.getElementById('adCategory');
-            defaultCategories.forEach(cat => {
-                const opt = document.createElement('option');
-                opt.value = cat.id;
-                opt.textContent = cat.name;
-                select.appendChild(opt);
-            });
-        }
-
-        function generateAdCard(ad, isMyAd = false) {
-            const cat = defaultCategories.find(c => c.id === ad.category) || { name: 'Altul' };
-            const isFav = state.user.favorites.includes(ad.id);
-            const priceHtml = ad.price ? `<div class="font-bold text-gray-900 text-sm">${ad.price} Lei</div>` : `<div class="text-xs text-gray-500 font-medium">La cerere</div>`;
-            const promotedBadge = ad.isPromoted ? `<div class="absolute top-2 left-2 bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm flex items-center gap-0.5 z-10"><i data-lucide="arrow-up" class="w-2.5 h-2.5"></i> Promovat</div>` : '';
-            
-            return `
-                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer" onclick="openAdDetails('${ad.id}')">
-                    ${promotedBadge}
-                    <div class="relative h-32 bg-gray-100">
-                        <img src="${ad.photo || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'}" class="w-full h-full object-cover">
-                        ${!isMyAd ? `
-                        <button class="absolute bottom-2 right-2 p-1 bg-white/80 backdrop-blur rounded-full shadow-sm text-gray-400 hover:text-red-500 z-10 transition" onclick="event.stopPropagation(); toggleFavorite('${ad.id}')">
-                            <i data-lucide="heart" class="w-4 h-4 ${isFav ? 'fill-red-500 text-red-500' : ''}"></i>
-                        </button>
-                        ` : ''}
-                    </div>
-                    <div class="p-2.5">
-                        <div class="flex justify-between items-start mb-0.5">
-                            <span class="text-[9px] font-bold text-primary uppercase tracking-wider">${cat.name}</span>
-                        </div>
-                        <h3 class="font-bold text-gray-900 text-xs leading-snug line-clamp-2 mb-1.5 h-8">${ad.title}</h3>
-                        <p class="text-[10px] text-gray-500 flex items-center gap-1 mb-1.5"><i data-lucide="map-pin" class="w-2.5 h-2.5"></i> ${ad.city}</p>
-                        ${priceHtml}
-                        
-                        ${isMyAd ? `
-                            <div class="mt-2 grid grid-cols-2 gap-1.5 border-t border-gray-50 pt-2">
-                                <button onclick="event.stopPropagation(); deleteAd('${ad.id}')" class="text-[10px] text-red-500 font-bold py-1 bg-red-50 rounded-md">Șterge</button>
-                                ${!ad.isPromoted ? `<button onclick="event.stopPropagation(); promoteAdModal('${ad.id}')" class="text-[10px] text-primary font-bold py-1 bg-blue-50 rounded-md">Promovează</button>` : `<span class="text-[10px] text-gray-400 font-bold py-1 bg-gray-50 rounded-md text-center flex items-center justify-center"><i data-lucide="check" class="w-2.5 h-2.5 mr-0.5"></i> Promovat</span>`}
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-        }
-
-        function getSortedAndFilteredAds() {
-            let filtered = state.ads;
-
-            // Apply category filter
-            if (state.currentFilter.category) {
-                filtered = filtered.filter(a => a.category === state.currentFilter.category);
-            }
-
-            // Apply search
-            if (state.currentFilter.search) {
-                const s = state.currentFilter.search;
-                filtered = filtered.filter(a => 
-                    a.title.toLowerCase().includes(s) || 
-                    a.city.toLowerCase().includes(s) ||
-                    a.description.toLowerCase().includes(s)
-                );
-            }
-
-            // Sort logic (Promoted ALWAYS first, then by selected sort)
-            const sortMode = document.getElementById('sortSelect').value;
-            
-            filtered.sort((a, b) => {
-                // Rule: Promoted first
-                if (a.isPromoted && !b.isPromoted) return -1;
-                if (!a.isPromoted && b.isPromoted) return 1;
-
-                // Secondary sort
-                if (sortMode === 'priceAsc') {
-                    const pa = parseFloat(a.price) || 999999;
-                    const pb = parseFloat(b.price) || 999999;
-                    return pa - pb;
-                } else {
-                    // Recent
-                    return b.date - a.date;
-                }
-            });
-
-            return filtered;
-        }
-
-        function renderHomeAds() {
-            const grid = document.getElementById('adsGrid');
-            const adsTitle = document.getElementById('homeAdsTitle');
-            const adsToShow = getSortedAndFilteredAds();
-            
-            // Update Title based on filter
-            if (state.currentFilter.category) {
-                const catInfo = defaultCategories.find(c => c.id === state.currentFilter.category);
-                adsTitle.innerHTML = `Din: ${catInfo ? catInfo.name : 'Categorie'} <button onclick="filterByCategory('all')" class="ml-2 text-[10px] text-red-500 font-normal bg-red-50 px-1.5 py-0.5 rounded cursor-pointer"><i data-lucide="x" class="w-3 h-3 inline"></i> Șterge filtrul</button>`;
-            } else {
-                adsTitle.textContent = 'Toate anunțurile';
-            }
-
-            if (adsToShow.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-8 text-sm text-gray-500">Nu am găsit anunțuri în această categorie.</div>`;
-            } else {
-                grid.innerHTML = adsToShow.map(ad => generateAdCard(ad)).join('');
-            }
-            lucide.createIcons();
-        }
-
-        function renderMyAds() {
-            const list = document.getElementById('myAdsList');
-            const empty = document.getElementById('emptyMyAds');
-            const myAds = state.ads.filter(a => a.userId === USER_ID).sort((a,b) => b.date - a.date);
-
-            if (myAds.length === 0) {
-                list.innerHTML = '';
-                empty.classList.remove('hidden');
-            } else {
-                empty.classList.add('hidden');
-                list.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 md:gap-4">${myAds.map(ad => generateAdCard(ad, true)).join('')}</div>`;
-            }
-            lucide.createIcons();
-        }
-
-        function renderFavorites() {
-            const grid = document.getElementById('favAdsGrid');
-            const empty = document.getElementById('emptyFavs');
-            const favAds = state.ads.filter(a => state.user.favorites.includes(a.id));
-
-            if (favAds.length === 0) {
-                grid.innerHTML = '';
-                empty.classList.remove('hidden');
-            } else {
-                empty.classList.add('hidden');
-                grid.innerHTML = favAds.map(ad => generateAdCard(ad)).join('');
-            }
-            lucide.createIcons();
-        }
-
-        // ================= PUBLISH & CREDITS LOGIC =================
-        function checkFreeAdStatus() {
-            const myAdsCount = state.ads.filter(a => a.userId === USER_ID).length;
-            const statusBox = document.getElementById('publishFreeStatus');
-            
-            if (myAdsCount === 0) {
-                statusBox.classList.remove('hidden');
-            } else {
-                statusBox.classList.add('hidden');
-                if (state.user.credits < 1) {
-                    showModal('Ai folosit anunțul gratuit', 'Pentru a posta încă un anunț, ai nevoie de un credit.', [
-                        { text: 'Cumpără 1 Credit (19 Lei)', primary: true, action: 'buyCredit()' },
-                        { text: 'Anulare', primary: false, action: 'switchTab("home")' }
-                    ]);
-                }
-            }
-        }
-
-        function handlePublish(e) {
-            e.preventDefault();
-            
-            const myAdsCount = state.ads.filter(a => a.userId === USER_ID).length;
-            if (myAdsCount > 0 && state.user.credits < 1) {
-                checkFreeAdStatus();
-                return;
-            }
-
-            const imgPreview = document.getElementById('adImagePreview').src;
-            const isDefaultImage = !imgPreview || imgPreview.includes(location.host);
-
-            const newAd = {
-                id: 'ad_' + Date.now(),
-                title: document.getElementById('adTitle').value,
-                category: document.getElementById('adCategory').value,
-                city: document.getElementById('adCity').value,
-                price: document.getElementById('adPrice').value,
-                description: document.getElementById('adDesc').value,
-                phone: document.getElementById('adPhone').value,
-                whatsapp: document.getElementById('adWhatsapp').checked,
-                photo: isDefaultImage ? 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80' : imgPreview,
-                isPromoted: false,
-                date: Date.now(),
-                userId: USER_ID,
-                badges: []
-            };
-
-            const wantPromo = document.getElementById('adPromote').checked;
-
-            if (myAdsCount > 0) {
-                state.user.credits -= 1;
-            }
-
-            if (wantPromo) {
-                showModal('Promovare Anunț', 'Alege un pachet pentru a urca pe prima pagină.', [
-                    { text: 'Promovare 7 zile - 29 Lei', primary: true, action: `processPublishAndPromote('${JSON.stringify(newAd).replace(/'/g, "\\'")}', 29)` },
-                    { text: 'Promovare 30 zile - 79 Lei', primary: true, action: `processPublishAndPromote('${JSON.stringify(newAd).replace(/'/g, "\\'")}', 79)` },
-                    { text: 'Publică Standard', primary: false, action: `finalizePublish('${JSON.stringify(newAd).replace(/'/g, "\\'")}')` }
-                ]);
-            } else {
-                finalizePublish(JSON.stringify(newAd));
-            }
-        }
-
-        function processPublishAndPromote(adStr, cost) {
-            const ad = JSON.parse(adStr);
-            ad.isPromoted = true;
-            simulatePayment(cost, () => {
-                finalizePublish(JSON.stringify(ad));
-            });
-        }
-
-        function finalizePublish(adStr) {
-            const ad = JSON.parse(adStr);
-            state.ads.push(ad);
-            saveState();
-            
-            document.getElementById('publishForm').reset();
-            document.getElementById('adImagePreview').classList.add('hidden');
-            document.getElementById('adImagePreview').src = '';
-
-            closeModal();
-            switchTab('myAds');
-            showModal('Succes!', 'Anunțul tău a fost publicat cu succes.');
-        }
-
-        // ================= MODALS & PAYMENTS =================
-        function showModal(title, body, actions = []) {
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalBody').innerHTML = body; // Allow HTML in body
-            
-            let actionsHtml = '';
-            if (actions.length > 0) {
-                actionsHtml = actions.map(a => `
-                    <button onclick="${a.action}" class="w-full ${a.primary ? 'bg-primary text-white hover:bg-blue-700' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'} font-bold py-2.5 rounded-xl shadow-sm transition text-sm">
-                        ${a.text}
-                    </button>
-                `).join('');
-            } else {
-                actionsHtml = `<button onclick="closeModal()" class="w-full bg-primary text-white font-bold py-2.5 rounded-xl text-sm">OK</button>`;
-            }
-            
-            document.getElementById('modalActions').innerHTML = actionsHtml;
-            document.getElementById('globalModal').classList.remove('hidden');
-            document.getElementById('globalModal').classList.add('flex');
-        }
-
-        function closeModal() {
-            document.getElementById('globalModal').classList.add('hidden');
-            document.getElementById('globalModal').classList.remove('flex');
-        }
-
-        function simulatePayment(amount, successCallback) {
-            document.getElementById('modalTitle').textContent = "Procesare...";
-            document.getElementById('modalBody').innerHTML = `<div class="flex justify-center py-4"><i data-lucide="loader-2" class="w-8 h-8 text-primary animate-spin"></i></div>`;
-            document.getElementById('modalActions').innerHTML = '';
-            lucide.createIcons();
-
-            setTimeout(() => {
-                state.admin.revenue += amount;
-                saveState();
-                successCallback();
-            }, 1000);
-        }
-
-        function buyCreditsModal() {
-            showModal('Cumpără Credite', 'Un credit îți permite să postezi un anunț suplimentar. (Sistem Demo)', [
-                { text: 'Cumpără 1 Credit - 19 Lei', primary: true, action: 'processBuyCredit(1, 19)' },
-                { text: 'Cumpără 3 Credite - 49 Lei', primary: true, action: 'processBuyCredit(3, 49)' },
-                { text: 'Anulare', primary: false, action: 'closeModal()' }
-            ]);
-        }
-
-        function buyCredit() {
-            buyCreditsModal();
-        }
-
-        function processBuyCredit(amount, cost) {
-            simulatePayment(cost, () => {
-                state.user.credits += amount;
-                saveState();
-                closeModal();
-                showModal('Plată Acceptată', `Ai adăugat ${amount} credit(e) în cont.`);
-            });
-        }
-
-        function promoteAdModal(adId) {
-            showModal('Promovează Anunțul', 'Vrei să atragi mai mulți clienți? Urcă anunțul tău în fruntea listei.', [
-                { text: 'Promovare 7 zile - 29 Lei', primary: true, action: `processPromote('${adId}', 29)` },
-                { text: 'Promovare VIP - 149 Lei', primary: true, action: `processPromote('${adId}', 149)` },
-                { text: 'Anulare', primary: false, action: 'closeModal()' }
-            ]);
-        }
-
-        function processPromote(adId, cost) {
-            simulatePayment(cost, () => {
-                const ad = state.ads.find(a => a.id === adId);
-                if (ad) {
-                    ad.isPromoted = true;
-                    saveState();
-                    renderMyAds();
-                    closeModal();
-                    showModal('Succes!', 'Anunțul a fost promovat și este acum pe prima pagină.');
-                }
-            });
-        }
-
-        // ================= PROFILE & USER ACTIONS =================
-        function updateProfileView() {
-            document.getElementById('profileName').textContent = state.user.name;
-            document.getElementById('profileCity').textContent = state.user.city;
-            document.getElementById('profilePic').src = state.user.photo;
-            
-            const myAds = state.ads.filter(a => a.userId === USER_ID);
-            document.getElementById('statActiveAds').textContent = myAds.length;
-            document.getElementById('statPromoted').textContent = myAds.filter(a => a.isPromoted).length;
-            document.getElementById('statCredits').textContent = state.user.credits;
-        }
-
-        function editProfile() {
-            document.getElementById('editName').value = state.user.name || '';
-            document.getElementById('editEmail').value = state.user.email || '';
-            document.getElementById('editPhone').value = state.user.phone || '';
-            document.getElementById('editDob').value = state.user.dob || '';
-            document.getElementById('editCity').value = state.user.city || '';
-            document.getElementById('editBio').value = state.user.bio || '';
-
-            document.getElementById('editProfileModal').classList.remove('hidden');
-            document.getElementById('editProfileModal').classList.add('flex');
-        }
-
-        function saveProfile() {
-            state.user.name = document.getElementById('editName').value;
-            state.user.email = document.getElementById('editEmail').value;
-            state.user.phone = document.getElementById('editPhone').value;
-            state.user.dob = document.getElementById('editDob').value;
-            state.user.city = document.getElementById('editCity').value;
-            state.user.bio = document.getElementById('editBio').value;
-
-            saveState();
-            document.getElementById('editProfileModal').classList.add('hidden');
-            document.getElementById('editProfileModal').classList.remove('flex');
-        }
-
-        function changeProfilePic() {
-            const url = prompt("Introdu URL-ul pentru noua poză de profil:");
-            if (url) {
-                state.user.photo = url;
-                saveState();
-            }
-        }
-
-        function toggleFavorite(adId) {
-            const idx = state.user.favorites.indexOf(adId);
-            if (idx > -1) {
-                state.user.favorites.splice(idx, 1);
-            } else {
-                state.user.favorites.push(adId);
-            }
-            saveState();
-            
-            if (document.getElementById('view-home').classList.contains('active')) renderHomeAds();
-            if (document.getElementById('view-favorites').classList.contains('active')) renderFavorites();
-        }
-
-        function deleteAd(adId) {
-            if(confirm("Sigur vrei să ștergi acest anunț?")) {
-                state.ads = state.ads.filter(a => a.id !== adId);
-                state.user.favorites = state.user.favorites.filter(id => id !== adId);
-                saveState();
-                renderMyAds();
-            }
-        }
-
-        // ================= AD DETAILS VIEW =================
-        let currentDetailAdId = null;
-
-        function openAdDetails(adId) {
-            const ad = state.ads.find(a => a.id === adId);
-            if (!ad) return;
-            currentDetailAdId = adId;
-
-            document.getElementById('detailImage').src = ad.photo || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80';
-            document.getElementById('detailTitle').textContent = ad.title;
-            document.getElementById('detailLocation').textContent = ad.city;
-            document.getElementById('detailDesc').textContent = ad.description;
-            
-            if (ad.price) {
-                document.getElementById('detailPriceBox').classList.remove('hidden');
-                document.getElementById('detailPrice').textContent = ad.price;
-            } else {
-                document.getElementById('detailPriceBox').classList.add('hidden');
-            }
-
-            if (ad.isPromoted) {
-                document.getElementById('detailPromotedBadge').classList.remove('hidden');
-            } else {
-                document.getElementById('detailPromotedBadge').classList.add('hidden');
-            }
-
-            // Mock user info
-            if (ad.userId === USER_ID) {
-                document.getElementById('detailUserName').textContent = state.user.name;
-                document.getElementById('detailUserAvatar').src = state.user.photo;
-            } else {
-                document.getElementById('detailUserName').textContent = "Partener RapidLocal";
-                document.getElementById('detailUserAvatar').src = `https://ui-avatars.com/api/?name=Partener&background=F3F4F6&color=4B5563`;
-            }
-
-            // Buttons
-            document.getElementById('btnCall').onclick = () => window.location.href = `tel:${ad.phone}`;
-            if (ad.whatsapp) {
-                document.getElementById('btnWhatsApp').classList.remove('hidden');
-                document.getElementById('btnWhatsApp').onclick = () => window.location.href = `https://wa.me/${ad.phone.replace(/^0/, '40')}`;
-            } else {
-                document.getElementById('btnWhatsApp').classList.add('hidden');
-            }
-
-            updateDetailFavIcon();
-
-            // Store history and open details
-            if (viewHistory[viewHistory.length - 1] !== 'details') {
-                viewHistory.push('details');
-            }
-            
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-details').classList.add('active');
-            window.scrollTo(0,0);
-            updateHeader('details');
-        }
-
-        function updateDetailFavIcon() {
-            const icon = document.getElementById('detailFavIcon');
-            if (state.user.favorites.includes(currentDetailAdId)) {
-                icon.classList.add('fill-red-500', 'text-red-500');
-            } else {
-                icon.classList.remove('fill-red-500', 'text-red-500');
-            }
-        }
-
-        function toggleFavoriteFromDetail() {
-            if (currentDetailAdId) {
-                toggleFavorite(currentDetailAdId);
-                updateDetailFavIcon();
-            }
-        }
-
-        // ================= ADMIN VIEW =================
-        function renderAdmin() {
-            document.getElementById('adminTotalAds').textContent = state.ads.length;
-            document.getElementById('adminRevenue').textContent = state.admin.revenue;
-
-            const tbody = document.getElementById('adminAdsList');
-            tbody.innerHTML = state.ads.map(ad => `
-                <tr class="border-b">
-                    <td class="px-3 py-2">
-                        <div class="font-medium text-gray-900 truncate w-24">${ad.title}</div>
-                        <div class="text-[10px] text-gray-500">${ad.id}</div>
-                    </td>
-                    <td class="px-3 py-2">
-                        ${ad.isPromoted ? '<span class="bg-blue-100 text-blue-800 text-[10px] font-medium px-2 py-0.5 rounded">Promovat</span>' : '<span class="bg-gray-100 text-gray-800 text-[10px] font-medium px-2 py-0.5 rounded">Standard</span>'}
-                    </td>
-                    <td class="px-3 py-2 flex gap-2">
-                        ${!ad.isPromoted ? `<button onclick="adminForcePromote('${ad.id}')" class="text-primary hover:underline text-[10px]">Promovează</button>` : ''}
-                        <button onclick="adminDelete('${ad.id}')" class="text-red-600 hover:underline text-[10px]">Șterge</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function adminForcePromote(id) {
-            const ad = state.ads.find(a => a.id === id);
-            if(ad) {
-                ad.isPromoted = true;
-                saveState();
-                renderAdmin();
-            }
-        }
-
-        function adminDelete(id) {
-            if(confirm("Stergere din baza de date?")) {
-                state.ads = state.ads.filter(a => a.id !== id);
-                saveState();
-                renderAdmin();
-            }
-        }
-
-        // ================= STATIC PAGES =================
-        function showStaticPage(type) {
-            let title = "";
-            let content = "";
-
-            if(type === 'terms') {
-                title = "Termeni și Condiții";
-                content = "Acestea sunt Termenii și Condițiile platformei RapidLocal.\n\n1. Utilizarea platformei\nPrin utilizarea aplicației sunteți de acord cu toți termenii.\n\n2. Reguli de postare\nAnunțurile trebuie să fie reale și să ofere servicii locale valide. Nu se acceptă conținut fals sau înșelător.\n\n3. Plăți și Promovări\nPlățile în această aplicație sunt doar simulări demo. Nu se efectuează tranzacții reale.\n\n4. Confidențialitate\nDatele introduse sunt salvate local pe dispozitivul dumneavoastră.";
-            } else if(type === 'about') {
-                title = "Despre Noi";
-                content = "RapidLocal este o platformă modernă dedicată serviciilor locale din România.\n\nNe dorim să conectăm rapid meseriașii și prestatorii de servicii cu clienții din orașul lor, într-un mod simplu, aerisit și sigur.\n\nVersiune aplicație: 1.0.0 Demo\nDezvoltat cu pasiune pentru performanță.";
-            } else if(type === 'contact') {
-                title = "Contact Suport";
-                content = "Ai o problemă, o sugestie sau pur și simplu vrei să ne transmiți un mesaj?\n\nNe poți contacta oricând la:\nEmail: suport@rapidlocal.ro\nTelefon: 0700 000 000\n\nProgram suport:\nLuni - Vineri, 09:00 - 18:00.\n\nÎți vom răspunde în cel mai scurt timp posibil!";
-            }
-
-            document.getElementById('pageTitle') && (document.getElementById('pageTitle').textContent = title);
-            document.getElementById('pageContent').textContent = content;
-            
-            // Set header title properly
-            viewHistory.push('page');
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-page').classList.add('active');
-            window.scrollTo(0,0);
-            
-            const header = document.getElementById('mainHeader');
-            header.classList.remove('hidden');
-            header.innerHTML = `
-                <div class="max-w-3xl mx-auto px-3 py-2 flex items-center gap-2">
-                    <button class="p-1.5 -ml-1 text-gray-600 hover:bg-gray-100 rounded-full transition" onclick="goBack()">
-                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                    </button>
-                    <h1 class="text-base font-bold text-gray-900 truncate flex-1">${title}</h1>
-                </div>
-            `;
-            lucide.createIcons();
-        }
-
-        // Start
-        window.addEventListener('DOMContentLoaded', initApp);
-
-    </script>
+      const emptyState = document.getElementById('portfolio-empty-state');
+      if (emptyState) {
+        emptyState.style.display = 'block';
+      }
+
+      const menu = document.getElementById('portfolio-category-menu');
+      if (menu && activeTabId === 'tab-portofoliu') {
+        setTimeout(() => {
+          menu.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 40);
+      }
+    }
+
+    function openPortfolioCategory(panelId) {
+      const targetPanel = document.getElementById(panelId);
+      if (!targetPanel) return;
+
+      document.querySelectorAll('.portfolio-category-panel').forEach(panel => {
+        panel.classList.remove('is-visible');
+      });
+
+      document.querySelectorAll('[data-portfolio-target]').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-portfolio-target') === panelId);
+      });
+
+      const emptyState = document.getElementById('portfolio-empty-state');
+      if (emptyState) {
+        emptyState.style.display = 'none';
+      }
+
+      targetPanel.classList.add('is-visible');
+
+      setTimeout(() => {
+        targetPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        refreshAnimations();
+      }, 60);
+    }
+
+    function showTab(tabId) {
+      const target = document.getElementById(tabId);
+      if (!target) return;
+
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+        tab.style.display = 'none';
+      });
+
+      target.style.display = 'block';
+
+      requestAnimationFrame(() => {
+        target.classList.add('active');
+      });
+
+      activeTabId = tabId;
+      updateActiveLinks();
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+
+      refreshAnimations();
+    }
+
+    function openTab(tabId) {
+      if (tabId === activeTabId) {
+        closeMenu();
+        return;
+      }
+
+      if (activeTabId) {
+        tabHistory.push(activeTabId);
+      }
+
+      showTab(tabId);
+      closeMenu();
+    }
+
+    function goBackTab() {
+      const previousTab = tabHistory.pop();
+
+      if (previousTab && document.getElementById(previousTab)) {
+        showTab(previousTab);
+      } else {
+        showTab('tab-home');
+      }
+
+      closeMenu();
+    }
+
+    function openMenu() {
+      menuIsOpen = true;
+
+      overlay.classList.add('is-visible');
+      sidebar.classList.add('is-open');
+      sidebar.setAttribute('aria-hidden', 'false');
+
+      document.body.classList.add('menu-open');
+
+      openBtn.setAttribute('aria-expanded', 'true');
+      openBtn.classList.add('is-hidden');
+    }
+
+    function closeMenu() {
+      menuIsOpen = false;
+
+      overlay.classList.remove('is-visible');
+      sidebar.classList.remove('is-open');
+      sidebar.setAttribute('aria-hidden', 'true');
+
+      document.body.classList.remove('menu-open');
+
+      openBtn.setAttribute('aria-expanded', 'false');
+      openBtn.classList.remove('is-hidden');
+    }
+
+    let lastMenuToggleAt = 0;
+
+    function toggleMenuFromUserEvent(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      const now = Date.now();
+      if (now - lastMenuToggleAt < 180) return;
+      lastMenuToggleAt = now;
+
+      if (menuIsOpen) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }
+
+    if (window.PointerEvent) {
+      openBtn.addEventListener('pointerup', toggleMenuFromUserEvent, { passive: false });
+    } else {
+      openBtn.addEventListener('touchend', toggleMenuFromUserEvent, { passive: false });
+    }
+
+    openBtn.addEventListener('click', (event) => {
+      if (Date.now() - lastMenuToggleAt < 450) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
+      toggleMenuFromUserEvent(event);
+    });
+
+    closeBtn.addEventListener('pointerup', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      closeMenu();
+    }, { passive: false });
+
+    overlay.addEventListener('pointerup', (event) => {
+      event.preventDefault();
+      closeMenu();
+    }, { passive: false });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      closeMenu();
+    });
+
+    document.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const selectedLanguage = btn.getAttribute('data-lang');
+        setLanguage(selectedLanguage);
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+        tab.classList.remove('active');
+      });
+
+      const savedLanguage = safeLocalStorageGet('elena_art_language');
+
+      if (savedLanguage && translations[savedLanguage]) {
+        setLanguage(savedLanguage);
+      } else {
+        setLanguage('ro');
+      }
+
+      const home = document.getElementById('tab-home');
+      home.style.display = 'block';
+
+      requestAnimationFrame(() => {
+        home.classList.add('active');
+      });
+
+      activeTabId = 'tab-home';
+      tabHistory = [];
+      updateActiveLinks();
+      updateLanguageButtons();
+    });
+
+    window.addEventListener('load', () => {
+      const elapsed = Date.now() - loadingStartedAt;
+      const remaining = Math.max(1000 - elapsed, 0);
+
+      setTimeout(() => {
+        loadingScreen.classList.add('hide');
+      }, remaining);
+    });
+  </script>
+
 </body>
 </html>
