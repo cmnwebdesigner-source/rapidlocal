@@ -1,1622 +1,858 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AutoRapid RO</title>
-  <meta name="theme-color" content="#0f172a" />
-  <style>
-    :root {
-      --bg: #f5f7fb;
-      --surface: #ffffff;
-      --surface-soft: #eef3f8;
-      --text: #172033;
-      --muted: #667085;
-      --line: #dce3ec;
-      --primary: #0f66ff;
-      --primary-soft: #e8f1ff;
-      --success: #099268;
-      --warning: #f59f00;
-      --danger: #d9480f;
-      --shadow: 0 18px 40px rgba(15, 23, 42, .08);
-      --radius: 20px;
-      --bar-height: 76px;
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      color-scheme: light;
-    }
-
-    html[data-theme="dark"] {
-      --bg: #0b1220;
-      --surface: #111a2d;
-      --surface-soft: #172238;
-      --text: #eef4ff;
-      --muted: #9aa8bd;
-      --line: #26344d;
-      --primary: #5b8cff;
-      --primary-soft: #162849;
-      --success: #4dd4ac;
-      --warning: #ffd166;
-      --danger: #ff8a65;
-      --shadow: 0 18px 40px rgba(0, 0, 0, .28);
-      color-scheme: dark;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      margin: 0;
-      width: 100%;
-      min-height: 100%;
-      overflow-x: hidden;
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      font-size: 15px;
-      line-height: 1.45;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
-
-    button, input, select, textarea {
-      font: inherit;
-    }
-
-    button {
-      border: 0;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      color: var(--text);
-      border-radius: 15px;
-      padding: 13px 14px;
-      outline: none;
-      min-height: 48px;
-      transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 110px;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: color-mix(in srgb, var(--primary) 70%, var(--line));
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
-    }
-
-    label {
-      display: block;
-      margin: 0 0 7px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 400;
-    }
-
-    .app-shell {
-      width: min(100%, 1120px);
-      margin: 0 auto;
-      padding: 18px 14px calc(var(--bar-height) + var(--safe-bottom) + 26px);
-    }
-
-    .screen {
-      display: none;
-      animation: fadeIn .18s ease both;
-    }
-
-    .screen.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .top-card {
-      background: linear-gradient(135deg, #0f172a, #173b85 60%, #0f66ff);
-      color: #fff;
-      border-radius: 28px;
-      padding: 22px 18px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      position: relative;
-      margin-bottom: 16px;
-    }
-
-    .top-card::after {
-      content: "";
-      position: absolute;
-      inset: auto -35px -70px auto;
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.12);
-    }
-
-    .brand-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .logo-mark {
-      width: 42px;
-      height: 42px;
-      border-radius: 16px;
-      background: rgba(255,255,255,.14);
-      display: grid;
-      place-items: center;
-      flex: 0 0 auto;
-    }
-
-    .brand-title {
-      font-size: 19px;
-      letter-spacing: -.02em;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    .pill {
-      border-radius: 999px;
-      padding: 8px 11px;
-      font-size: 12px;
-      background: rgba(255,255,255,.15);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,.16);
-      white-space: nowrap;
-    }
-
-    .hero-title {
-      margin: 20px 0 8px;
-      font-size: 29px;
-      line-height: 1.08;
-      letter-spacing: -.035em;
-      font-weight: 500;
-      max-width: 560px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-text {
-      margin: 0;
-      color: rgba(255,255,255,.78);
-      max-width: 620px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .section {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 14px;
-      box-shadow: var(--shadow);
-      margin-bottom: 14px;
-    }
-
-    .section.flat {
-      box-shadow: none;
-    }
-
-    .section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .section-title {
-      margin: 0;
-      font-size: 17px;
-      font-weight: 500;
-      letter-spacing: -.01em;
-    }
-
-    .section-note {
-      margin: 3px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .filters {
-      display: grid;
-      gap: 10px;
-    }
-
-    @media (min-width: 760px) {
-      .filters.three {
-        grid-template-columns: 1.4fr 1fr 1fr;
-      }
-      .form-grid.two {
-        grid-template-columns: 1fr 1fr;
-      }
-      .desktop-grid {
-        display: grid;
-        grid-template-columns: 1fr 360px;
-        gap: 16px;
-        align-items: start;
-      }
-      .category-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      .listing-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    .search-wrap {
-      position: relative;
-    }
-
-    .search-wrap svg {
-      position: absolute;
-      left: 13px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      pointer-events: none;
-    }
-
-    .search-wrap input {
-      padding-left: 42px;
-    }
-
-    .category-card {
-      border: 1px solid var(--line);
-      background: var(--surface);
-      color: var(--text);
-      border-radius: 18px;
-      padding: 14px;
-      text-align: left;
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      min-height: 86px;
-      transition: transform .18s ease, border-color .18s ease, background .18s ease;
-    }
-
-    .category-card.active {
-      border-color: color-mix(in srgb, var(--primary) 55%, var(--line));
-      background: var(--primary-soft);
-    }
-
-    .category-card:active, .nav-btn:active, .primary-btn:active, .ghost-btn:active {
-      transform: scale(.985);
-    }
-
-    .cat-icon, .small-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 14px;
-      background: var(--surface-soft);
-      display: grid;
-      place-items: center;
-      flex: 0 0 auto;
-      color: var(--primary);
-    }
-
-    .cat-title {
-      font-size: 15px;
-      font-weight: 500;
-      margin-bottom: 3px;
-    }
-
-    .cat-desc {
-      color: var(--muted);
-      font-size: 12.5px;
-      margin: 0;
-    }
-
-    .listing-card {
-      border: 1px solid var(--line);
-      background: var(--surface);
-      border-radius: 22px;
-      padding: 12px;
-      display: grid;
-      gap: 12px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, .045);
-      min-width: 0;
-    }
-
-    .listing-card.promoted {
-      border-color: color-mix(in srgb, var(--primary) 45%, var(--line));
-    }
-
-    .listing-top {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      min-width: 0;
-    }
-
-    .listing-image {
-      width: 68px;
-      height: 68px;
-      border-radius: 19px;
-      background: linear-gradient(135deg, #dbe8ff, #eef3f8);
-      overflow: hidden;
-      flex: 0 0 auto;
-      display: grid;
-      place-items: center;
-      color: #173b85;
-      font-size: 20px;
-      font-weight: 500;
-    }
-
-    html[data-theme="dark"] .listing-image {
-      background: linear-gradient(135deg, #152440, #253956);
-      color: #dbe8ff;
-    }
-
-    .listing-image img, .avatar img, .upload-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .listing-main {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .listing-title-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .listing-title {
-      margin: 0;
-      font-size: 16px;
-      line-height: 1.22;
-      font-weight: 500;
-      letter-spacing: -.01em;
-      overflow-wrap: anywhere;
-    }
-
-    .heart-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 15px;
-      display: grid;
-      place-items: center;
-      background: var(--surface-soft);
-      color: var(--muted);
-      flex: 0 0 auto;
-      transition: color .18s ease, background .18s ease, transform .18s ease;
-    }
-
-    .heart-btn.saved {
-      color: #e03131;
-      background: color-mix(in srgb, #e03131 12%, var(--surface));
-    }
-
-    .heart-btn svg path {
-      fill: none;
-    }
-
-    .heart-btn.saved svg path {
-      fill: currentColor;
-    }
-
-    .meta-line {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      margin-top: 8px;
-      align-items: center;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      border-radius: 999px;
-      background: var(--surface-soft);
-      color: var(--muted);
-      padding: 5px 8px;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .tag.primary {
-      color: var(--primary);
-      background: var(--primary-soft);
-    }
-
-    .tag.success {
-      color: var(--success);
-      background: color-mix(in srgb, var(--success) 12%, var(--surface));
-    }
-
-    .tag.warning {
-      color: #9a6700;
-      background: #fff3bf;
-    }
-
-    html[data-theme="dark"] .tag.warning {
-      color: var(--warning);
-      background: rgba(255, 209, 102, .12);
-    }
-
-    .listing-desc {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .action-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .primary-btn, .ghost-btn, .mini-btn, .danger-btn {
-      min-height: 48px;
-      border-radius: 16px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 0 14px;
-      text-decoration: none;
-      transition: transform .18s ease, background .18s ease, border-color .18s ease;
-      font-weight: 400;
-    }
-
-    .primary-btn {
-      background: var(--primary);
-      color: #fff;
-    }
-
-    .ghost-btn {
-      background: var(--surface-soft);
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
-
-    .danger-btn {
-      background: color-mix(in srgb, var(--danger) 12%, var(--surface));
-      color: var(--danger);
-      border: 1px solid color-mix(in srgb, var(--danger) 25%, var(--line));
-    }
-
-    .mini-btn {
-      min-height: 38px;
-      border-radius: 13px;
-      background: var(--surface-soft);
-      color: var(--text);
-      font-size: 13px;
-      border: 1px solid var(--line);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 26px 14px;
-      color: var(--muted);
-      background: var(--surface-soft);
-      border-radius: 18px;
-    }
-
-    .form-grid {
-      display: grid;
-      gap: 12px;
-    }
-
-    .form-field {
-      min-width: 0;
-    }
-
-    .upload-box {
-      border: 1px dashed color-mix(in srgb, var(--primary) 40%, var(--line));
-      border-radius: 18px;
-      padding: 12px;
-      display: grid;
-      grid-template-columns: 72px 1fr;
-      gap: 12px;
-      align-items: center;
-      background: var(--surface-soft);
-    }
-
-    .upload-preview {
-      width: 72px;
-      height: 72px;
-      border-radius: 18px;
-      overflow: hidden;
-      display: grid;
-      place-items: center;
-      color: var(--primary);
-      background: var(--surface);
-      border: 1px solid var(--line);
-    }
-
-    .upload-copy {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .upload-copy span {
-      display: block;
-      color: var(--text);
-      margin-bottom: 3px;
-      font-weight: 400;
-    }
-
-    .profile-card {
-      display: flex;
-      align-items: center;
-      gap: 13px;
-    }
-
-    .avatar {
-      width: 72px;
-      height: 72px;
-      border-radius: 24px;
-      overflow: hidden;
-      background: var(--primary-soft);
-      display: grid;
-      place-items: center;
-      color: var(--primary);
-      border: 1px solid var(--line);
-      flex: 0 0 auto;
-    }
-
-    .profile-name {
-      margin: 0 0 4px;
-      font-size: 20px;
-      font-weight: 500;
-      letter-spacing: -.02em;
-      overflow-wrap: anywhere;
-    }
-
-    .profile-detail {
-      color: var(--muted);
-      margin: 0;
-      font-size: 13px;
-    }
-
-    .profile-list {
-      display: grid;
-      gap: 9px;
-    }
-
-    .profile-action {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 38px 1fr auto;
-      gap: 11px;
-      align-items: center;
-      text-align: left;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      color: var(--text);
-      border-radius: 18px;
-      padding: 11px;
-    }
-
-    .profile-action-title {
-      font-size: 14px;
-      font-weight: 400;
-    }
-
-    .profile-action-note {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 2px;
-    }
-
-    .chev {
-      color: var(--muted);
-    }
-
-    .panel {
-      display: none;
-      margin-top: 10px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 12px;
-      background: var(--surface-soft);
-      animation: fadeIn .18s ease both;
-    }
-
-    .panel.active {
-      display: block;
-    }
-
-    .notice-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .notice-card {
-      padding: 12px;
-      border-radius: 18px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-    }
-
-    .notice-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 5px;
-    }
-
-    .notice-title {
-      margin: 0;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .notice-body {
-      margin: 0 0 9px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .notice-date {
-      color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .char-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 5px;
-    }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: calc(var(--bar-height) + var(--safe-bottom) + 12px);
-      transform: translateX(-50%) translateY(20px);
-      background: var(--text);
-      color: var(--surface);
-      border-radius: 999px;
-      padding: 11px 15px;
-      z-index: 50;
-      box-shadow: var(--shadow);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .2s ease, transform .2s ease;
-      width: max-content;
-      max-width: calc(100% - 28px);
-      text-align: center;
-      font-size: 13px;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .bottom-nav {
-      position: fixed;
-      left: 50%;
-      bottom: 0;
-      transform: translateX(-50%);
-      width: min(100%, 1120px);
-      height: calc(var(--bar-height) + var(--safe-bottom));
-      padding: 8px 14px calc(8px + var(--safe-bottom));
-      z-index: 40;
-      background: color-mix(in srgb, var(--surface) 88%, transparent);
-      backdrop-filter: blur(16px);
-      border-top: 1px solid var(--line);
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-    }
-
-    .nav-btn {
-      border-radius: 18px;
-      background: transparent;
-      color: var(--muted);
-      display: grid;
-      place-items: center;
-      gap: 2px;
-      min-width: 0;
-      transition: background .18s ease, color .18s ease, transform .18s ease;
-    }
-
-    .nav-btn.active {
-      background: var(--primary-soft);
-      color: var(--primary);
-    }
-
-    .nav-label {
-      font-size: 11px;
-      line-height: 1;
-      font-weight: 400;
-    }
-
-    .nav-plus {
-      width: 32px;
-      height: 32px;
-      border-radius: 14px;
-      background: var(--primary);
-      color: #fff;
-      display: grid;
-      place-items: center;
-      margin-bottom: 1px;
-    }
-
-    .terms-text, .about-text {
-      color: var(--muted);
-      font-size: 13px;
-      margin: 0;
-    }
-
-    .divider {
-      height: 1px;
-      background: var(--line);
-      margin: 12px 0;
-    }
-
-    .hide-input {
-      display: none;
-    }
-
-    .inline-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 9px;
-      margin-top: 12px;
-    }
-
-    .plan-preview {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 12px;
-      background: var(--surface-soft);
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .desktop-only-note {
-      display: none;
-    }
-
-    @media (min-width: 900px) {
-      .app-shell {
-        padding-left: 22px;
-        padding-right: 22px;
-      }
-      .desktop-only-note {
-        display: block;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AutoRapid RO</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --text-main: #111111;
+            --text-muted: #757575;
+            --primary: #007782; /* Vinted Teal */
+            --primary-light: #e0f4f5;
+            --secondary: #007782;
+            --danger: #c20000;
+            --border: #ededed;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --radius: 8px;
+            --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --bottom-nav-height: 60px;
+        }
+
+        [data-theme="dark"] {
+            --bg: #121212;
+            --surface: #1e1e1e;
+            --text-main: #f5f5f5;
+            --text-muted: #a0a0a0;
+            --primary: #00a8b5;
+            --primary-light: #003e44;
+            --secondary: #00a8b5;
+            --border: #333333;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: var(--font); background-color: var(--bg); color: var(--text-main);
+            padding-bottom: calc(var(--bottom-nav-height) + 20px); transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+        a { text-decoration: none; color: inherit; }
+        button, select, input, textarea { font-family: inherit; outline: none; border: none; }
+        ul { list-style: none; }
+
+        h1, h2, h3 { font-weight: 700; color: var(--text-main); }
+        .text-muted { color: var(--text-muted); }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
+        .font-bold { font-weight: 700; }
+        .text-center { text-align: center; }
+        
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { display: flex; flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .p-4 { padding: 1rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mt-4 { margin-top: 1rem; }
+        .w-full { width: 100%; }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 0 1rem; } 
+        
+        .input-group { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+        .input-group label { font-size: 0.875rem; font-weight: 600; color: var(--text-main); }
+        .form-control {
+            width: 100%; padding: 0.8rem 1rem; border-radius: 8px;
+            background-color: var(--surface); border: 1px solid var(--border);
+            color: var(--text-main); font-size: 1rem; transition: border-color 0.2s;
+        }
+        .form-control:focus { border-color: var(--primary); }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+        
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 0.8rem 1rem; border-radius: 8px; font-weight: 600; font-size: 1rem;
+            cursor: pointer; transition: transform 0.1s, opacity 0.2s; width: 100%; gap: 0.5rem;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-outline { background-color: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        
+        .card {
+            background-color: var(--surface); border-radius: var(--radius);
+            padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+        }
+        
+        .v-header-sticky {
+            position: sticky; top: 0; background: var(--bg); z-index: 50;
+            padding: 1rem 0; border-bottom: 1px solid var(--border);
+            margin: 0 -1rem 1rem -1rem; padding-left: 1rem; padding-right: 1rem;
+        }
+        .v-logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.75rem; letter-spacing: -0.5px; }
+        .v-search-bar { position: relative; margin-bottom: 0.75rem; }
+        .v-search-bar input {
+            width: 100%; background: var(--surface); border-radius: 8px;
+            padding: 0.6rem 1rem 0.6rem 2.5rem; border: 1px solid var(--border); font-size: 1rem; color: var(--text-main);
+            box-shadow: var(--shadow-sm);
+        }
+        .v-search-bar input:focus { border-color: var(--primary); outline: none; }
+        .v-search-bar svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-muted); }
+        
+        .v-filters-row { display: flex; gap: 0.5rem; }
+        .v-filters-row .select-wrapper { flex: 1; position: relative; }
+        .v-filters-row .select-wrapper::after {
+            content: "▼"; font-size: 0.6rem; color: var(--text-muted);
+            position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none;
+        }
+        .v-filters-row select { 
+            background: var(--surface); border: 1px solid var(--border); padding: 0.5rem; 
+            border-radius: 6px; font-size: 0.85rem; width: 100%; color: var(--text-main);
+            appearance: none; -webkit-appearance: none;
+        }
+
+        .v-categories-scroll {
+            display: flex; overflow-x: auto; gap: 1rem; padding-bottom: 1rem;
+            margin: 0 -1rem 1.5rem -1rem; padding-left: 1rem; padding-right: 1rem;
+            scrollbar-width: none;
+        }
+        .v-categories-scroll::-webkit-scrollbar { display: none; }
+        .v-cat-pill {
+            display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+            min-width: 64px; cursor: pointer;
+        }
+        .v-cat-icon {
+            width: 56px; height: 56px; border-radius: 50%; background: var(--surface);
+            border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+            color: var(--primary); transition: all 0.2s; box-shadow: var(--shadow-sm);
+        }
+        .v-cat-pill.active .v-cat-icon { border-color: var(--primary); border-width: 2px; }
+        .v-cat-icon svg { width: 24px; height: 24px; }
+        .v-cat-text { font-size: 0.75rem; text-align: center; color: var(--text-main); white-space: nowrap; font-weight: 500; }
+
+        .v-ads-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem 0.5rem; }
+        .v-card { display: flex; flex-direction: column; cursor: pointer; }
+        .v-img-box {
+            width: 100%; aspect-ratio: 3/4; border-radius: 6px; background: var(--border);
+            position: relative; overflow: hidden; margin-bottom: 0.5rem; border: 1px solid var(--border);
+        }
+        .v-img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .v-heart-btn {
+            position: absolute; bottom: 8px; right: 8px; background: rgba(255,255,255,0.9);
+            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); border: 1px solid #e5e5e5; z-index: 2; cursor: pointer;
+        }
+        [data-theme="dark"] .v-heart-btn { background: rgba(30,30,30,0.9); border-color: #444; }
+        .v-heart-btn.saved { color: var(--primary); }
+        
+        .badge-promoted {
+            position: absolute; top: 8px; left: 8px; background: var(--surface);
+            color: var(--primary); font-size: 0.65rem; font-weight: 700; padding: 2px 6px;
+            border-radius: 4px; text-transform: uppercase; z-index: 2; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .badge-premium { background: #eab308; color: white; border: none; }
+        
+        .v-price { font-weight: 700; font-size: 1rem; color: var(--text-main); margin-bottom: 2px; }
+        .v-title { font-size: 0.8rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 2px; }
+        .v-meta { font-size: 0.75rem; color: var(--text-muted); }
+        .v-actions { display: flex; gap: 0.25rem; margin-top: 0.5rem; }
+        .v-btn { flex: 1; padding: 0.4rem; border-radius: 4px; border: 1px solid var(--primary); background: transparent; color: var(--primary); display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .v-btn-wa { border-color: #25D366; color: #25D366; }
+        .v-btn svg { width: 16px; height: 16px; }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav-height);
+            background-color: var(--surface); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 1000; padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer;
+            padding: 0.5rem; flex: 1; position: relative;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-item svg { width: 24px; height: 24px; stroke-width: 2; fill: none; stroke: currentColor; }
+        .nav-item.active svg { stroke: var(--primary); }
+        
+        .badge-count {
+            position: absolute; top: 2px; right: 20%; background-color: var(--danger);
+            color: white; font-size: 0.6rem; font-weight: bold; width: 16px; height: 16px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        }
+
+        .profile-menu { margin-top: 1rem; }
+        .profile-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; background-color: var(--surface); border: 1px solid var(--border);
+            margin-bottom: 0.5rem; border-radius: 8px; cursor: pointer;
+        }
+        .profile-item-left { display: flex; align-items: center; gap: 1rem; font-weight: 600; }
+        .profile-item-left svg { width: 24px; height: 24px; color: var(--text-muted); }
+        .profile-item-right svg { width: 20px; height: 20px; color: var(--text-muted); }
+        .section-title { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin: 1.5rem 0 0.5rem 0; font-weight: 700; }
+
+        .upload-box {
+            border: 1px dashed var(--border); border-radius: 8px; padding: 2rem;
+            text-align: center; cursor: pointer; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 0.5rem; color: var(--text-muted);
+            background-color: var(--surface);
+        }
+        .upload-box img { max-width: 100%; max-height: 150px; border-radius: 8px; display: none; }
+        #file-input { display: none; }
+
+        .promo-option {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.5rem;
+            cursor: pointer; background-color: var(--surface);
+        }
+        .promo-option input[type="radio"] { width: 20px; height: 20px; accent-color: var(--primary); }
+        .promo-info { flex: 1; margin-left: 1rem; }
+        .promo-price { font-weight: 700; color: var(--primary); }
+
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background-color: var(--primary); color: white; padding: 1rem 1.5rem;
+            border-radius: 30px; font-weight: 600; box-shadow: var(--shadow);
+            transition: transform 0.3s; z-index: 2000;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        .page-header { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+        .back-btn { background: none; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: center; }
+        
+        .header-top { padding: 1.5rem 0 1rem; }
+    </style>
 </head>
-<body>
-  <main class="app-shell">
-    <section id="homeScreen" class="screen active" aria-label="Acasă"></section>
-    <section id="postScreen" class="screen" aria-label="Postează"></section>
-    <section id="profileScreen" class="screen" aria-label="Profil"></section>
-  </main>
+<body data-theme="light">
 
-  <nav class="bottom-nav" aria-label="Navigare principală">
-    <button class="nav-btn active" data-nav="home" type="button" aria-label="Acasă">
-      <span class="nav-icon" data-icon="home"></span>
-      <span class="nav-label" data-i18n="home">Acasă</span>
-    </button>
-    <button class="nav-btn" data-nav="post" type="button" aria-label="Postează">
-      <span class="nav-plus" data-icon="plus"></span>
-      <span class="nav-label" data-i18n="post">Postează</span>
-    </button>
-    <button class="nav-btn" data-nav="profile" type="button" aria-label="Profil">
-      <span class="nav-icon" data-icon="profile"></span>
-      <span class="nav-label" data-i18n="profile">Profil</span>
-    </button>
-  </nav>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Mesaj de succes</div>
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <!-- MAIN APP WRAPPER -->
+    <div id="app">
 
-  <script>
-    const storageKeys = {
-      userListings: 'autorapid_user_listings_v1',
-      profile: 'autorapid_profile_v1',
-      lang: 'autorapid_lang_v1',
-      theme: 'autorapid_theme_v1',
-      favorites: 'autorapid_favorites_v1',
-      inboxRead: 'autorapid_inbox_read_v1',
-      feedback: 'autorapid_feedback_v1'
-    };
+        <div id="page-home" class="container page-view">
+            <div class="v-header-sticky">
+                <div class="v-logo">AutoRapid RO</div>
+                
+                <!-- Search & Filters -->
+                <div class="v-search-bar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="search-input" placeholder="Caută service, tractări..." data-i18n-placeholder="search_placeholder">
+                </div>
 
-    const categories = [
-      { id: 'tractari', label: { ro: 'Tractări auto', en: 'Car towing', it: 'Soccorso stradale', es: 'Grúas auto', ru: 'Эвакуатор', de: 'Abschleppdienst', fr: 'Remorquage auto' }, desc: { ro: 'Pentru mașini defecte, accidente sau transport auto.', en: 'For breakdowns, accidents or vehicle transport.', it: 'Per guasti, incidenti o trasporto auto.', es: 'Para averías, accidentes o transporte auto.', ru: 'Поломки, аварии или перевозка авто.', de: 'Pannen, Unfälle oder Fahrzeugtransport.', fr: 'Pannes, accidents ou transport auto.' } },
-      { id: 'vulcanizare', label: { ro: 'Vulcanizare', en: 'Tire repair', it: 'Gommista', es: 'Neumáticos', ru: 'Шиномонтаж', de: 'Reifenservice', fr: 'Pneus' }, desc: { ro: 'Schimb anvelope, pană, vulcanizare mobilă.', en: 'Tire change, puncture repair, mobile tire service.', it: 'Cambio gomme, foratura, servizio mobile.', es: 'Cambio de neumáticos, pinchazos, servicio móvil.', ru: 'Замена шин, прокол, мобильный сервис.', de: 'Reifenwechsel, Panne, mobiler Service.', fr: 'Changement de pneus, crevaison, service mobile.' } },
-      { id: 'itp', label: { ro: 'ITP', en: 'Vehicle inspection', it: 'Revisione auto', es: 'Inspección técnica', ru: 'Техосмотр', de: 'TÜV / Inspektion', fr: 'Contrôle technique' }, desc: { ro: 'Stații ITP disponibile în orașul tău.', en: 'Inspection stations available in your city.', it: 'Centri revisione nella tua città.', es: 'Estaciones de inspección en tu ciudad.', ru: 'Пункты техосмотра в вашем городе.', de: 'Prüfstellen in deiner Stadt.', fr: 'Centres de contrôle dans votre ville.' } },
-      { id: 'service', label: { ro: 'Service auto', en: 'Auto service', it: 'Officina auto', es: 'Taller auto', ru: 'Автосервис', de: 'Autoservice', fr: 'Garage auto' }, desc: { ro: 'Reparații, mecanică și întreținere auto.', en: 'Repairs, mechanics and maintenance.', it: 'Riparazioni, meccanica e manutenzione.', es: 'Reparaciones, mecánica y mantenimiento.', ru: 'Ремонт, механика и обслуживание.', de: 'Reparatur, Mechanik und Wartung.', fr: 'Réparations, mécanique et entretien.' } },
-      { id: 'diagnoza', label: { ro: 'Diagnoză auto', en: 'Car diagnostics', it: 'Diagnosi auto', es: 'Diagnóstico auto', ru: 'Диагностика авто', de: 'Auto-Diagnose', fr: 'Diagnostic auto' }, desc: { ro: 'Testare erori, verificare motor, senzori și electronică.', en: 'Error checks, engine, sensors and electronics.', it: 'Errori, motore, sensori ed elettronica.', es: 'Errores, motor, sensores y electrónica.', ru: 'Ошибки, двигатель, датчики и электроника.', de: 'Fehler, Motor, Sensoren und Elektronik.', fr: 'Erreurs, moteur, capteurs et électronique.' } },
-      { id: 'piese', label: { ro: 'Piese auto', en: 'Auto parts', it: 'Ricambi auto', es: 'Repuestos auto', ru: 'Автозапчасти', de: 'Autoteile', fr: 'Pièces auto' }, desc: { ro: 'Magazine și furnizori de piese auto.', en: 'Auto parts shops and suppliers.', it: 'Negozi e fornitori di ricambi.', es: 'Tiendas y proveedores de repuestos.', ru: 'Магазины и поставщики запчастей.', de: 'Shops und Lieferanten für Autoteile.', fr: 'Magasins et fournisseurs de pièces.' } }
-    ];
-
-    const cityData = {
-      'Alba': ['Alba Iulia', 'Aiud', 'Blaj', 'Câmpeni', 'Cugir', 'Ocna Mureș', 'Sebeș', 'Teiuș', 'Abrud', 'Baia de Arieș', 'Zlatna'],
-      'Arad': ['Arad', 'Chișineu-Criș', 'Curtici', 'Ineu', 'Lipova', 'Nădlac', 'Pâncota', 'Pecica', 'Sântana', 'Sebiș'],
-      'Argeș': ['Pitești', 'Câmpulung', 'Curtea de Argeș', 'Mioveni', 'Costești', 'Ștefănești', 'Topoloveni'],
-      'Bacău': ['Bacău', 'Moinești', 'Onești', 'Comănești', 'Buhuși', 'Dărmănești', 'Slănic-Moldova', 'Târgu Ocna'],
-      'Bihor': ['Oradea', 'Beiuș', 'Marghita', 'Salonta', 'Aleșd', 'Nucet', 'Săcueni', 'Ștei', 'Valea lui Mihai', 'Vașcău'],
-      'Bistrița-Năsăud': ['Bistrița', 'Beclean', 'Năsăud', 'Sângeorz-Băi'],
-      'Botoșani': ['Botoșani', 'Dorohoi', 'Darabani', 'Flămânzi', 'Săveni', 'Ștefănești'],
-      'Brașov': ['Brașov', 'Făgăraș', 'Săcele', 'Codlea', 'Ghimbav', 'Predeal', 'Râșnov', 'Rupea', 'Victoria', 'Zărnești'],
-      'Brăila': ['Brăila', 'Făurei', 'Ianca', 'Însurăței'],
-      'București': ['Sector 1', 'Sector 2', 'Sector 3', 'Sector 4', 'Sector 5', 'Sector 6', 'București'],
-      'Buzău': ['Buzău', 'Râmnicu Sărat', 'Nehoiu', 'Pătârlagele', 'Pogoanele'],
-      'Caraș-Severin': ['Reșița', 'Caransebeș', 'Anina', 'Băile Herculane', 'Bocșa', 'Moldova Nouă', 'Oravița', 'Oțelu Roșu'],
-      'Călărași': ['Călărași', 'Oltenița', 'Budești', 'Fundulea', 'Lehliu Gară'],
-      'Cluj': ['Cluj-Napoca', 'Turda', 'Dej', 'Câmpia Turzii', 'Gherla', 'Huedin'],
-      'Constanța': ['Constanța', 'Mangalia', 'Medgidia', 'Năvodari', 'Cernavodă', 'Eforie', 'Hârșova', 'Murfatlar', 'Negru Vodă', 'Ovidiu', 'Techirghiol'],
-      'Covasna': ['Sfântu Gheorghe', 'Târgu Secuiesc', 'Covasna', 'Baraolt', 'Întorsura Buzăului'],
-      'Dâmbovița': ['Târgoviște', 'Moreni', 'Pucioasa', 'Găești', 'Fieni', 'Răcari', 'Titu'],
-      'Dolj': ['Craiova', 'Băilești', 'Calafat', 'Bechet', 'Dăbuleni', 'Filiași', 'Segarcea'],
-      'Galați': ['Galați', 'Tecuci', 'Berești', 'Târgu Bujor'],
-      'Giurgiu': ['Giurgiu', 'Bolintin-Vale', 'Mihăilești'],
-      'Gorj': ['Târgu Jiu', 'Motru', 'Rovinari', 'Bumbești-Jiu', 'Novaci', 'Târgu Cărbunești', 'Țicleni', 'Tismana', 'Turceni'],
-      'Harghita': ['Miercurea Ciuc', 'Gheorgheni', 'Odorheiu Secuiesc', 'Toplița', 'Băile Tușnad', 'Bălan', 'Borsec', 'Cristuru Secuiesc', 'Vlăhița'],
-      'Hunedoara': ['Deva', 'Hunedoara', 'Brad', 'Călan', 'Geoagiu', 'Hațeg', 'Lupeni', 'Orăștie', 'Petroșani', 'Petrila', 'Simeria', 'Uricani', 'Vulcan'],
-      'Ialomița': ['Slobozia', 'Fetești', 'Urziceni', 'Amara', 'Căzănești', 'Fierbinți-Târg', 'Țăndărei'],
-      'Iași': ['Iași', 'Pașcani', 'Hârlău', 'Podu Iloaiei', 'Târgu Frumos'],
-      'Ilfov': ['Buftea', 'Otopeni', 'Voluntari', 'Bragadiru', 'Chitila', 'Măgurele', 'Pantelimon', 'Popești-Leordeni'],
-      'Maramureș': ['Baia Mare', 'Sighetu Marmației', 'Baia Sprie', 'Borșa', 'Cavnic', 'Dragomirești', 'Săliștea de Sus', 'Seini', 'Șomcuta Mare', 'Târgu Lăpuș', 'Tăuții-Măgherăuș', 'Ulmeni', 'Vișeu de Sus'],
-      'Mehedinți': ['Drobeta-Turnu Severin', 'Orșova', 'Baia de Aramă', 'Strehaia', 'Vânju Mare'],
-      'Mureș': ['Târgu Mureș', 'Reghin', 'Sighișoara', 'Târnăveni', 'Iernut', 'Luduș', 'Miercurea Nirajului', 'Sărmașu', 'Sovata', 'Ungheni'],
-      'Neamț': ['Piatra Neamț', 'Roman', 'Târgu Neamț', 'Bicaz', 'Roznov'],
-      'Olt': ['Slatina', 'Caracal', 'Balș', 'Corabia', 'Drăgănești-Olt', 'Piatra-Olt', 'Potcoava', 'Scornicești'],
-      'Prahova': ['Ploiești', 'Câmpina', 'Azuga', 'Băicoi', 'Boldești-Scăeni', 'Breaza', 'Bușteni', 'Comarnic', 'Mizil', 'Plopeni', 'Sinaia', 'Slănic', 'Urlați', 'Vălenii de Munte'],
-      'Satu Mare': ['Satu Mare', 'Carei', 'Negrești-Oaș', 'Ardud', 'Livada', 'Tășnad'],
-      'Sălaj': ['Zalău', 'Șimleu Silvaniei', 'Cehu Silvaniei', 'Jibou'],
-      'Sibiu': ['Sibiu', 'Mediaș', 'Agnita', 'Avrig', 'Cisnădie', 'Copșa Mică', 'Dumbrăveni', 'Miercurea Sibiului', 'Ocna Sibiului', 'Săliște', 'Tălmaciu'],
-      'Suceava': ['Suceava', 'Fălticeni', 'Rădăuți', 'Câmpulung Moldovenesc', 'Vatra Dornei', 'Gura Humorului', 'Siret', 'Solca', 'Vicovu de Sus', 'Dolhasca', 'Frasin', 'Liteni', 'Milișăuți', 'Salcea'],
-      'Teleorman': ['Alexandria', 'Roșiori de Vede', 'Turnu Măgurele', 'Videle', 'Zimnicea'],
-      'Timiș': ['Timișoara', 'Lugoj', 'Sânnicolau Mare', 'Buziaș', 'Ciacova', 'Deta', 'Făget', 'Gătaia', 'Jimbolia', 'Recaș'],
-      'Tulcea': ['Tulcea', 'Babadag', 'Isaccea', 'Măcin', 'Sulina'],
-      'Vaslui': ['Vaslui', 'Bârlad', 'Huși', 'Murgeni', 'Negrești'],
-      'Vâlcea': ['Râmnicu Vâlcea', 'Drăgășani', 'Băbeni', 'Băile Govora', 'Băile Olănești', 'Bălcești', 'Berbești', 'Brezoi', 'Călimănești', 'Horezu', 'Ocnele Mari'],
-      'Vrancea': ['Focșani', 'Adjud', 'Mărășești', 'Odobești', 'Panciu']
-    };
-
-    const t = {
-      ro: {
-        home: 'Acasă', post: 'Postează', profile: 'Profil', search: 'Caută service, tractări, piese...', categories: 'Categorii', allCategories: 'Toate categoriile', allCounties: 'Toate județele', allCities: 'Toate orașele', county: 'Județ', city: 'Oraș', listings: 'Anunțuri', noResults: 'Nu am găsit anunțuri pentru filtrele alese.', call: 'Sună', whatsapp: 'WhatsApp', promoted: 'Promovat', premium: 'Premium', free: 'Gratuit', rating: 'Rating', schedule: 'Program', price: 'Preț', heroTitle: 'Găsește rapid servicii auto lângă tine.', heroText: 'Tractări, vulcanizare, ITP, service auto, diagnoză și piese auto într-un singur loc.', addTitle: 'Publică un anunț', addNote: 'Completează datele firmei. În demo se salvează pe telefonul tău.', companyName: 'Nume firmă', category: 'Categorie', phone: 'Telefon', address: 'Adresă', description: 'Descriere', optionalPrice: 'Preț orientativ, opțional', uploadLogo: 'Poză sau logo', uploadHint: 'Alege o imagine pentru cardul anunțului.', promotionPlan: 'Plan de promovare', publish: 'Publică anunțul', publishSuccess: 'Anunțul a fost publicat.', requiredFields: 'Completează numele firmei, categoria, județul, orașul și telefonul.', profileSettings: 'Setări aplicație', preferences: 'Preferințe', myListings: 'Anunțurile mele', saved: 'Salvate', inbox: 'Inbox', feedback: 'Spune-ne părerea ta', appDetails: 'Detalii aplicație', terms: 'Termeni și condiții', editProfile: 'Editează profilul', changePhoto: 'Schimbare poză profil', changeName: 'Schimbare nume', changeLanguage: 'Schimbă limba', darkMode: 'Mod întunecat', lightMode: 'Mod luminos', clearData: 'Șterge date demo', support: 'Contact suport', about: 'Despre aplicație', feedbackTitle: 'Dă-ne feedback', feedbackCategory: 'Despre ce vrei să ne dai feedback?', feedbackDescription: 'Descriere feedback', sendFeedback: 'Trimite feedback', feedbackThanks: 'Mulțumim! Feedback-ul tău a fost trimis.', technicalProblem: 'Problemă tehnică', appSuggestion: 'Sugestie aplicație', listingProblem: 'Problemă cu un anunț', profileProblem: 'Problemă cu profilul', languageProblem: 'Problemă cu limba aplicației', themeProblem: 'Problemă cu tema întunecată/luminoasă', other: 'Altceva', new: 'Nou', markRead: 'Marchează ca citit', noSaved: 'Nu ai niciun anunț salvat momentan.', saveAdded: 'Anunț salvat.', saveRemoved: 'Anunț scos de la salvate.', nameSaved: 'Numele a fost salvat.', themeSaved: 'Tema a fost schimbată.', languageSaved: 'Limba a fost schimbată.', resetDone: 'Datele demo au fost șterse.', noMyListings: 'Nu ai publicat niciun anunț încă.', chooseCountyFirst: 'Alege județul mai întâi', selectImage: 'Alege imaginea', welcome: 'Bine ai venit pe AutoRapid RO!', planFree: 'Gratuit', plan7: 'Promovat 7 zile - 30 lei', plan30: 'Promovat 30 zile - 100 lei', planPremium: 'Premium - 150 lei/lună', planPreview: 'Plata este simulată în acest demo. Pe viitor se poate conecta la plăți reale.', appAboutText: 'AutoRapid RO este un marketplace auto demo pentru servicii locale. Datele sunt salvate temporar în browser prin localStorage.', termsText: 'Această versiune este demo. Anunțurile și plățile nu sunt verificate real. Pentru lansare publică sunt necesare conturi reale, moderare, politici de confidențialitate și procesator de plăți.', profilePlaceholder: 'Utilizator AutoRapid', emailDemo: 'utilizator@autorapid.ro', phoneDemo: '07xx xxx xxx' },
-      en: { home: 'Home', post: 'Post', profile: 'Profile', search: 'Search service, towing, parts...', categories: 'Categories', allCategories: 'All categories', allCounties: 'All counties', allCities: 'All cities', county: 'County', city: 'City', listings: 'Listings', noResults: 'No listings found for these filters.', call: 'Call', whatsapp: 'WhatsApp', promoted: 'Promoted', premium: 'Premium', free: 'Free', rating: 'Rating', schedule: 'Schedule', price: 'Price', heroTitle: 'Find auto services near you fast.', heroText: 'Towing, tire repair, inspection, auto service, diagnostics and parts in one place.', addTitle: 'Post a listing', addNote: 'Fill in company details. In this demo it saves on your device.', companyName: 'Company name', category: 'Category', phone: 'Phone', address: 'Address', description: 'Description', optionalPrice: 'Optional estimated price', uploadLogo: 'Photo or logo', uploadHint: 'Choose an image for the listing card.', promotionPlan: 'Promotion plan', publish: 'Publish listing', publishSuccess: 'Listing published.', requiredFields: 'Fill company name, category, county, city and phone.', profileSettings: 'App settings', preferences: 'Preferences', myListings: 'My listings', saved: 'Saved', inbox: 'Inbox', feedback: 'Tell us your opinion', appDetails: 'App details', terms: 'Terms and conditions', editProfile: 'Edit profile', changePhoto: 'Change profile photo', changeName: 'Change name', changeLanguage: 'Change language', darkMode: 'Dark mode', lightMode: 'Light mode', clearData: 'Clear demo data', support: 'Support contact', about: 'About the app', feedbackTitle: 'Give feedback', feedbackCategory: 'What do you want to give feedback about?', feedbackDescription: 'Feedback description', sendFeedback: 'Send feedback', feedbackThanks: 'Thank you! Your feedback was sent.', technicalProblem: 'Technical problem', appSuggestion: 'App suggestion', listingProblem: 'Listing problem', profileProblem: 'Profile problem', languageProblem: 'Language problem', themeProblem: 'Dark/light theme problem', other: 'Other', new: 'New', markRead: 'Mark as read', noSaved: 'You have no saved listings yet.', saveAdded: 'Listing saved.', saveRemoved: 'Listing removed from saved.', nameSaved: 'Name saved.', themeSaved: 'Theme changed.', languageSaved: 'Language changed.', resetDone: 'Demo data cleared.', noMyListings: 'You have not posted any listing yet.', chooseCountyFirst: 'Choose county first', selectImage: 'Choose image', welcome: 'Welcome to AutoRapid RO!', planFree: 'Free', plan7: 'Promoted 7 days - 30 lei', plan30: 'Promoted 30 days - 100 lei', planPremium: 'Premium - 150 lei/month', planPreview: 'Payment is simulated in this demo. It can later connect to real payments.', appAboutText: 'AutoRapid RO is a demo auto marketplace for local services. Data is temporarily saved in browser localStorage.', termsText: 'This version is a demo. Listings and payments are not verified. A public launch needs real accounts, moderation, privacy policy and a payment processor.', profilePlaceholder: 'AutoRapid user', emailDemo: 'user@autorapid.ro', phoneDemo: '07xx xxx xxx' },
-      it: { home: 'Home', post: 'Pubblica', profile: 'Profilo', search: 'Cerca officina, soccorso, ricambi...', categories: 'Categorie', allCategories: 'Tutte le categorie', allCounties: 'Tutte le province', allCities: 'Tutte le città', county: 'Provincia', city: 'Città', listings: 'Annunci', noResults: 'Nessun annuncio trovato.', call: 'Chiama', whatsapp: 'WhatsApp', promoted: 'Promosso', premium: 'Premium', free: 'Gratis', rating: 'Valutazione', schedule: 'Orario', price: 'Prezzo', heroTitle: 'Trova servizi auto vicino a te rapidamente.', heroText: 'Soccorso, gomme, revisione, officina, diagnosi e ricambi in un solo posto.', addTitle: 'Pubblica un annuncio', addNote: 'Compila i dati. Nel demo vengono salvati sul dispositivo.', companyName: 'Nome azienda', category: 'Categoria', phone: 'Telefono', address: 'Indirizzo', description: 'Descrizione', optionalPrice: 'Prezzo indicativo opzionale', uploadLogo: 'Foto o logo', uploadHint: 'Scegli un’immagine per l’annuncio.', promotionPlan: 'Piano promozione', publish: 'Pubblica annuncio', publishSuccess: 'Annuncio pubblicato.', requiredFields: 'Compila nome, categoria, provincia, città e telefono.', profileSettings: 'Impostazioni app', preferences: 'Preferenze', myListings: 'I miei annunci', saved: 'Salvati', inbox: 'Inbox', feedback: 'Dicci la tua opinione', appDetails: 'Dettagli app', terms: 'Termini e condizioni', editProfile: 'Modifica profilo', changePhoto: 'Cambia foto profilo', changeName: 'Cambia nome', changeLanguage: 'Cambia lingua', darkMode: 'Modalità scura', lightMode: 'Modalità chiara', clearData: 'Cancella dati demo', support: 'Contatto supporto', about: 'Info app', feedbackTitle: 'Dai feedback', feedbackCategory: 'Su cosa vuoi darci feedback?', feedbackDescription: 'Descrizione feedback', sendFeedback: 'Invia feedback', feedbackThanks: 'Grazie! Feedback inviato.', technicalProblem: 'Problema tecnico', appSuggestion: 'Suggerimento app', listingProblem: 'Problema annuncio', profileProblem: 'Problema profilo', languageProblem: 'Problema lingua app', themeProblem: 'Problema tema scuro/chiaro', other: 'Altro', new: 'Nuovo', markRead: 'Segna come letto', noSaved: 'Non hai annunci salvati.', saveAdded: 'Annuncio salvato.', saveRemoved: 'Annuncio rimosso.', nameSaved: 'Nome salvato.', themeSaved: 'Tema cambiato.', languageSaved: 'Lingua cambiata.', resetDone: 'Dati demo cancellati.', noMyListings: 'Non hai ancora pubblicato annunci.', chooseCountyFirst: 'Scegli prima la provincia', selectImage: 'Scegli immagine', welcome: 'Benvenuto su AutoRapid RO!', planFree: 'Gratis', plan7: 'Promosso 7 giorni - 30 lei', plan30: 'Promosso 30 giorni - 100 lei', planPremium: 'Premium - 150 lei/mese', planPreview: 'Il pagamento è simulato nel demo.', appAboutText: 'AutoRapid RO è un marketplace auto demo per servizi locali.', termsText: 'Versione demo. Annunci e pagamenti non sono verificati.', profilePlaceholder: 'Utente AutoRapid', emailDemo: 'utente@autorapid.ro', phoneDemo: '07xx xxx xxx' },
-      es: { home: 'Inicio', post: 'Publicar', profile: 'Perfil', search: 'Busca taller, grúa, piezas...', categories: 'Categorías', allCategories: 'Todas las categorías', allCounties: 'Todas las provincias', allCities: 'Todas las ciudades', county: 'Provincia', city: 'Ciudad', listings: 'Anuncios', noResults: 'No hay anuncios para estos filtros.', call: 'Llamar', whatsapp: 'WhatsApp', promoted: 'Promocionado', premium: 'Premium', free: 'Gratis', rating: 'Valoración', schedule: 'Horario', price: 'Precio', heroTitle: 'Encuentra servicios auto cerca de ti rápido.', heroText: 'Grúas, neumáticos, inspección, taller, diagnóstico y piezas en un solo lugar.', addTitle: 'Publicar anuncio', addNote: 'Completa los datos. En demo se guarda en tu dispositivo.', companyName: 'Nombre empresa', category: 'Categoría', phone: 'Teléfono', address: 'Dirección', description: 'Descripción', optionalPrice: 'Precio orientativo opcional', uploadLogo: 'Foto o logo', uploadHint: 'Elige una imagen para el anuncio.', promotionPlan: 'Plan de promoción', publish: 'Publicar anuncio', publishSuccess: 'Anuncio publicado.', requiredFields: 'Completa nombre, categoría, provincia, ciudad y teléfono.', profileSettings: 'Ajustes de app', preferences: 'Preferencias', myListings: 'Mis anuncios', saved: 'Guardados', inbox: 'Inbox', feedback: 'Danos tu opinión', appDetails: 'Detalles app', terms: 'Términos y condiciones', editProfile: 'Editar perfil', changePhoto: 'Cambiar foto', changeName: 'Cambiar nombre', changeLanguage: 'Cambiar idioma', darkMode: 'Modo oscuro', lightMode: 'Modo claro', clearData: 'Borrar datos demo', support: 'Contacto soporte', about: 'Sobre la app', feedbackTitle: 'Enviar feedback', feedbackCategory: '¿Sobre qué quieres dar feedback?', feedbackDescription: 'Descripción feedback', sendFeedback: 'Enviar feedback', feedbackThanks: 'Gracias. Feedback enviado.', technicalProblem: 'Problema técnico', appSuggestion: 'Sugerencia app', listingProblem: 'Problema con anuncio', profileProblem: 'Problema perfil', languageProblem: 'Problema idioma', themeProblem: 'Problema tema oscuro/claro', other: 'Otro', new: 'Nuevo', markRead: 'Marcar leído', noSaved: 'No tienes anuncios guardados.', saveAdded: 'Anuncio guardado.', saveRemoved: 'Anuncio eliminado.', nameSaved: 'Nombre guardado.', themeSaved: 'Tema cambiado.', languageSaved: 'Idioma cambiado.', resetDone: 'Datos demo borrados.', noMyListings: 'Aún no has publicado anuncios.', chooseCountyFirst: 'Elige primero provincia', selectImage: 'Elegir imagen', welcome: 'Bienvenido a AutoRapid RO!', planFree: 'Gratis', plan7: 'Promocionado 7 días - 30 lei', plan30: 'Promocionado 30 días - 100 lei', planPremium: 'Premium - 150 lei/mes', planPreview: 'Pago simulado en esta demo.', appAboutText: 'AutoRapid RO es un marketplace auto demo para servicios locales.', termsText: 'Versión demo. Anuncios y pagos no verificados.', profilePlaceholder: 'Usuario AutoRapid', emailDemo: 'usuario@autorapid.ro', phoneDemo: '07xx xxx xxx' },
-      ru: { home: 'Главная', post: 'Добавить', profile: 'Профиль', search: 'Поиск сервиса, эвакуатора, запчастей...', categories: 'Категории', allCategories: 'Все категории', allCounties: 'Все регионы', allCities: 'Все города', county: 'Регион', city: 'Город', listings: 'Объявления', noResults: 'Объявления не найдены.', call: 'Позвонить', whatsapp: 'WhatsApp', promoted: 'Продвигается', premium: 'Премиум', free: 'Бесплатно', rating: 'Рейтинг', schedule: 'График', price: 'Цена', heroTitle: 'Быстро найдите автоуслуги рядом.', heroText: 'Эвакуатор, шины, техосмотр, сервис, диагностика и запчасти в одном месте.', addTitle: 'Добавить объявление', addNote: 'Заполните данные. В демо сохраняется на устройстве.', companyName: 'Название компании', category: 'Категория', phone: 'Телефон', address: 'Адрес', description: 'Описание', optionalPrice: 'Ориентировочная цена', uploadLogo: 'Фото или логотип', uploadHint: 'Выберите изображение.', promotionPlan: 'План продвижения', publish: 'Опубликовать', publishSuccess: 'Объявление опубликовано.', requiredFields: 'Заполните название, категорию, регион, город и телефон.', profileSettings: 'Настройки', preferences: 'Предпочтения', myListings: 'Мои объявления', saved: 'Сохраненные', inbox: 'Входящие', feedback: 'Ваше мнение', appDetails: 'О приложении', terms: 'Условия', editProfile: 'Изменить профиль', changePhoto: 'Сменить фото', changeName: 'Сменить имя', changeLanguage: 'Сменить язык', darkMode: 'Темный режим', lightMode: 'Светлый режим', clearData: 'Очистить демо-данные', support: 'Поддержка', about: 'О приложении', feedbackTitle: 'Оставить отзыв', feedbackCategory: 'О чем отзыв?', feedbackDescription: 'Описание отзыва', sendFeedback: 'Отправить', feedbackThanks: 'Спасибо! Отзыв отправлен.', technicalProblem: 'Техническая проблема', appSuggestion: 'Предложение', listingProblem: 'Проблема объявления', profileProblem: 'Проблема профиля', languageProblem: 'Проблема языка', themeProblem: 'Проблема темы', other: 'Другое', new: 'Новое', markRead: 'Отметить прочитанным', noSaved: 'Пока нет сохраненных объявлений.', saveAdded: 'Сохранено.', saveRemoved: 'Удалено из сохраненных.', nameSaved: 'Имя сохранено.', themeSaved: 'Тема изменена.', languageSaved: 'Язык изменен.', resetDone: 'Демо-данные очищены.', noMyListings: 'Вы еще не публиковали объявления.', chooseCountyFirst: 'Сначала выберите регион', selectImage: 'Выбрать изображение', welcome: 'Добро пожаловать в AutoRapid RO!', planFree: 'Бесплатно', plan7: 'Продвижение 7 дней - 30 lei', plan30: 'Продвижение 30 дней - 100 lei', planPremium: 'Премиум - 150 lei/месяц', planPreview: 'Оплата в демо симулируется.', appAboutText: 'AutoRapid RO — демо маркетплейса автоуслуг.', termsText: 'Демо версия. Объявления и платежи не проверены.', profilePlaceholder: 'Пользователь AutoRapid', emailDemo: 'user@autorapid.ro', phoneDemo: '07xx xxx xxx' },
-      de: { home: 'Start', post: 'Inserieren', profile: 'Profil', search: 'Service, Abschleppen, Teile suchen...', categories: 'Kategorien', allCategories: 'Alle Kategorien', allCounties: 'Alle Kreise', allCities: 'Alle Städte', county: 'Kreis', city: 'Stadt', listings: 'Anzeigen', noResults: 'Keine Anzeigen gefunden.', call: 'Anrufen', whatsapp: 'WhatsApp', promoted: 'Beworben', premium: 'Premium', free: 'Kostenlos', rating: 'Bewertung', schedule: 'Öffnungszeiten', price: 'Preis', heroTitle: 'Finde Auto-Services in deiner Nähe schnell.', heroText: 'Abschleppen, Reifen, Prüfung, Service, Diagnose und Teile an einem Ort.', addTitle: 'Anzeige erstellen', addNote: 'Daten ausfüllen. Im Demo lokal gespeichert.', companyName: 'Firmenname', category: 'Kategorie', phone: 'Telefon', address: 'Adresse', description: 'Beschreibung', optionalPrice: 'Optionaler Richtpreis', uploadLogo: 'Foto oder Logo', uploadHint: 'Bild für die Anzeige wählen.', promotionPlan: 'Promotionplan', publish: 'Anzeige veröffentlichen', publishSuccess: 'Anzeige veröffentlicht.', requiredFields: 'Name, Kategorie, Kreis, Stadt und Telefon ausfüllen.', profileSettings: 'App-Einstellungen', preferences: 'Einstellungen', myListings: 'Meine Anzeigen', saved: 'Gespeichert', inbox: 'Postfach', feedback: 'Sag uns deine Meinung', appDetails: 'App-Details', terms: 'Nutzungsbedingungen', editProfile: 'Profil bearbeiten', changePhoto: 'Profilfoto ändern', changeName: 'Name ändern', changeLanguage: 'Sprache ändern', darkMode: 'Dunkelmodus', lightMode: 'Hellmodus', clearData: 'Demo-Daten löschen', support: 'Support', about: 'Über die App', feedbackTitle: 'Feedback geben', feedbackCategory: 'Wozu möchtest du Feedback geben?', feedbackDescription: 'Feedback-Beschreibung', sendFeedback: 'Feedback senden', feedbackThanks: 'Danke! Feedback gesendet.', technicalProblem: 'Technisches Problem', appSuggestion: 'App-Vorschlag', listingProblem: 'Problem mit Anzeige', profileProblem: 'Profilproblem', languageProblem: 'Sprachproblem', themeProblem: 'Theme-Problem', other: 'Sonstiges', new: 'Neu', markRead: 'Als gelesen markieren', noSaved: 'Keine gespeicherten Anzeigen.', saveAdded: 'Anzeige gespeichert.', saveRemoved: 'Anzeige entfernt.', nameSaved: 'Name gespeichert.', themeSaved: 'Theme geändert.', languageSaved: 'Sprache geändert.', resetDone: 'Demo-Daten gelöscht.', noMyListings: 'Du hast noch keine Anzeigen erstellt.', chooseCountyFirst: 'Erst Kreis wählen', selectImage: 'Bild wählen', welcome: 'Willkommen bei AutoRapid RO!', planFree: 'Kostenlos', plan7: 'Beworben 7 Tage - 30 lei', plan30: 'Beworben 30 Tage - 100 lei', planPremium: 'Premium - 150 lei/Monat', planPreview: 'Zahlung ist im Demo simuliert.', appAboutText: 'AutoRapid RO ist ein Demo-Marktplatz für lokale Auto-Services.', termsText: 'Demo-Version. Anzeigen und Zahlungen sind nicht verifiziert.', profilePlaceholder: 'AutoRapid Nutzer', emailDemo: 'nutzer@autorapid.ro', phoneDemo: '07xx xxx xxx' },
-      fr: { home: 'Accueil', post: 'Publier', profile: 'Profil', search: 'Chercher garage, remorquage, pièces...', categories: 'Catégories', allCategories: 'Toutes les catégories', allCounties: 'Tous les départements', allCities: 'Toutes les villes', county: 'Département', city: 'Ville', listings: 'Annonces', noResults: 'Aucune annonce trouvée.', call: 'Appeler', whatsapp: 'WhatsApp', promoted: 'Promu', premium: 'Premium', free: 'Gratuit', rating: 'Note', schedule: 'Horaire', price: 'Prix', heroTitle: 'Trouvez vite des services auto près de vous.', heroText: 'Remorquage, pneus, contrôle, garage, diagnostic et pièces au même endroit.', addTitle: 'Publier une annonce', addNote: 'Remplissez les détails. En démo, cela se sauvegarde sur votre appareil.', companyName: 'Nom entreprise', category: 'Catégorie', phone: 'Téléphone', address: 'Adresse', description: 'Description', optionalPrice: 'Prix indicatif optionnel', uploadLogo: 'Photo ou logo', uploadHint: 'Choisissez une image pour l’annonce.', promotionPlan: 'Plan de promotion', publish: 'Publier annonce', publishSuccess: 'Annonce publiée.', requiredFields: 'Remplissez nom, catégorie, département, ville et téléphone.', profileSettings: 'Réglages app', preferences: 'Préférences', myListings: 'Mes annonces', saved: 'Sauvegardées', inbox: 'Inbox', feedback: 'Donnez votre avis', appDetails: 'Détails app', terms: 'Conditions', editProfile: 'Modifier profil', changePhoto: 'Changer photo', changeName: 'Changer nom', changeLanguage: 'Changer langue', darkMode: 'Mode sombre', lightMode: 'Mode clair', clearData: 'Effacer données démo', support: 'Contact support', about: 'À propos', feedbackTitle: 'Donner feedback', feedbackCategory: 'Sur quoi voulez-vous donner feedback?', feedbackDescription: 'Description feedback', sendFeedback: 'Envoyer feedback', feedbackThanks: 'Merci! Feedback envoyé.', technicalProblem: 'Problème technique', appSuggestion: 'Suggestion app', listingProblem: 'Problème annonce', profileProblem: 'Problème profil', languageProblem: 'Problème langue', themeProblem: 'Problème thème sombre/clair', other: 'Autre', new: 'Nouveau', markRead: 'Marquer lu', noSaved: 'Aucune annonce sauvegardée.', saveAdded: 'Annonce sauvegardée.', saveRemoved: 'Annonce retirée.', nameSaved: 'Nom sauvegardé.', themeSaved: 'Thème changé.', languageSaved: 'Langue changée.', resetDone: 'Données démo effacées.', noMyListings: 'Vous n’avez pas encore publié.', chooseCountyFirst: 'Choisissez d’abord le département', selectImage: 'Choisir image', welcome: 'Bienvenue sur AutoRapid RO!', planFree: 'Gratuit', plan7: 'Promu 7 jours - 30 lei', plan30: 'Promu 30 jours - 100 lei', planPremium: 'Premium - 150 lei/mois', planPreview: 'Le paiement est simulé dans cette démo.', appAboutText: 'AutoRapid RO est un marketplace auto démo pour services locaux.', termsText: 'Version démo. Annonces et paiements non vérifiés.', profilePlaceholder: 'Utilisateur AutoRapid', emailDemo: 'utilisateur@autorapid.ro', phoneDemo: '07xx xxx xxx' }
-    };
-
-    const defaultInbox = [
-      { id: 'n1', title: 'Bine ai venit pe AutoRapid RO!', body: 'Aplicația este pregătită pentru servicii auto locale.', date: '2026-06-07' },
-      { id: 'n2', title: 'Acum poți salva anunțurile preferate.', body: 'Apasă pe inimă și găsești anunțurile în Profil, la Salvate.', date: '2026-06-07' },
-      { id: 'n3', title: 'În curând: promovare reală pentru firme.', body: 'Planurile sunt demo acum, dar pot fi conectate la plăți reale.', date: '2026-06-07' },
-      { id: 'n4', title: 'Actualizare filtre orașe.', body: 'Poți filtra anunțurile după județ și oraș.', date: '2026-06-07' }
-    ];
-
-    const demoListings = [
-      { id: 'demo-1', company: 'Tractări Buzău Rapid', category: 'tractari', county: 'Buzău', city: 'Buzău', phone: '0722000001', whatsapp: '40722000001', address: 'Buzău, zona centrală', schedule: 'Non-stop', description: 'Tractări auto rapide pentru mașini defecte, accidente și transport pe platformă.', price: 'de la 150 lei', plan: 'premium', rating: '4.9', image: '' },
-      { id: 'demo-2', company: 'Vulcanizare Mobilă 24/7', category: 'vulcanizare', county: 'București', city: 'Sector 3', phone: '0722000002', whatsapp: '40722000002', address: 'București', schedule: '24/7', description: 'Intervenții rapide pentru pană, schimb anvelope și vulcanizare mobilă.', price: 'de la 80 lei', plan: 'promoted7', rating: '4.8', image: '' },
-      { id: 'demo-3', company: 'ITP Auto Verificat', category: 'itp', county: 'Brașov', city: 'Brașov', phone: '0722000003', whatsapp: '40722000003', address: 'Brașov, Calea București', schedule: 'Luni - Vineri, 09:00 - 18:00', description: 'Stație ITP pentru autoturisme, programare rapidă și verificare documente.', price: 'de la 150 lei', plan: 'free', rating: '4.7', image: '' },
-      { id: 'demo-4', company: 'Service Pro Auto', category: 'service', county: 'Cluj', city: 'Cluj-Napoca', phone: '0722000004', whatsapp: '40722000004', address: 'Cluj-Napoca', schedule: 'Luni - Sâmbătă', description: 'Service auto pentru mecanică, revizii, frâne, distribuție și întreținere completă.', price: 'estimare la cerere', plan: 'promoted30', rating: '4.9', image: '' },
-      { id: 'demo-5', company: 'Diagnoză Expert', category: 'diagnoza', county: 'Iași', city: 'Iași', phone: '0722000005', whatsapp: '40722000005', address: 'Iași', schedule: '10:00 - 19:00', description: 'Diagnoză computerizată, erori motor, senzori, DPF, ABS și electronică auto.', price: 'de la 100 lei', plan: 'free', rating: '4.6', image: '' },
-      { id: 'demo-6', company: 'Piese Auto Direct', category: 'piese', county: 'Constanța', city: 'Constanța', phone: '0722000006', whatsapp: '40722000006', address: 'Constanța', schedule: 'Luni - Vineri', description: 'Piese auto noi și la comandă, filtre, uleiuri, consumabile și accesorii.', price: 'prețuri variabile', plan: 'promoted7', rating: '4.8', image: '' }
-    ];
-
-    const state = {
-      page: 'home',
-      lang: read(storageKeys.lang, 'ro'),
-      theme: read(storageKeys.theme, 'light'),
-      filters: { query: '', category: 'all', county: 'all', city: 'all' },
-      formImage: '',
-      profileImageTemp: '',
-      listingImageTemp: '',
-      profile: read(storageKeys.profile, { name: '', photo: '' }),
-      favorites: read(storageKeys.favorites, []),
-      inboxRead: read(storageKeys.inboxRead, []),
-      userListings: read(storageKeys.userListings, []),
-      feedbacks: read(storageKeys.feedback, [])
-    };
-
-    function read(key, fallback) {
-      try {
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
-      } catch (e) {
-        return fallback;
-      }
-    }
-
-    function write(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-
-    function tr(key) {
-      return (t[state.lang] && t[state.lang][key]) || t.ro[key] || key;
-    }
-
-    function icon(name, size = 20) {
-      const attrs = `width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"`;
-      const common = `stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"`;
-      const icons = {
-        home: `<svg ${attrs}><path ${common} d="M3.5 10.8 12 4l8.5 6.8"/><path ${common} d="M5.5 10v9h13v-9"/><path ${common} d="M9.5 19v-5h5v5"/></svg>`,
-        plus: `<svg ${attrs}><path ${common} d="M12 5v14M5 12h14"/></svg>`,
-        profile: `<svg ${attrs}><path ${common} d="M20 21a8 8 0 0 0-16 0"/><path ${common} d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>`,
-        search: `<svg ${attrs}><path ${common} d="m21 21-4.35-4.35"/><circle ${common} cx="11" cy="11" r="7"/></svg>`,
-        car: `<svg ${attrs}><path ${common} d="M5 16h14"/><path ${common} d="M6.5 16l1.4-5.2A3 3 0 0 1 10.8 8h2.4a3 3 0 0 1 2.9 2.8L17.5 16"/><path ${common} d="M7 16v2M17 16v2"/><circle ${common} cx="8" cy="18" r="1"/><circle ${common} cx="16" cy="18" r="1"/></svg>`,
-        tire: `<svg ${attrs}><circle ${common} cx="12" cy="12" r="8"/><circle ${common} cx="12" cy="12" r="3"/><path ${common} d="M12 4v3M12 17v3M4 12h3M17 12h3"/></svg>`,
-        check: `<svg ${attrs}><path ${common} d="m5 12 4 4 10-10"/></svg>`,
-        tool: `<svg ${attrs}><path ${common} d="M14.7 6.3a4 4 0 0 0-5 5L4 17l3 3 5.7-5.7a4 4 0 0 0 5-5l-2.5 2.5-2.9-2.9 2.4-2.6Z"/></svg>`,
-        chip: `<svg ${attrs}><rect ${common} x="7" y="7" width="10" height="10" rx="2"/><path ${common} d="M9 3v4M15 3v4M9 17v4M15 17v4M3 9h4M3 15h4M17 9h4M17 15h4"/></svg>`,
-        box: `<svg ${attrs}><path ${common} d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z"/><path ${common} d="M12 12 4.5 8.7M12 12l7.5-3.3M12 12v8"/></svg>`,
-        heart: `<svg ${attrs}><path ${common} d="M20.5 8.7c0 5.3-8.5 10-8.5 10s-8.5-4.7-8.5-10A4.7 4.7 0 0 1 12 5.8a4.7 4.7 0 0 1 8.5 2.9Z"/></svg>`,
-        phone: `<svg ${attrs}><path ${common} d="M22 16.9v3a2 2 0 0 1-2.2 2 19.6 19.6 0 0 1-8.5-3 19.2 19.2 0 0 1-6-6A19.6 19.6 0 0 1 2.3 4.4 2 2 0 0 1 4.3 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.7.6 2.5a2 2 0 0 1-.5 2.1L8.1 9.6a16 16 0 0 0 6.3 6.3l1.3-1.3a2 2 0 0 1 2.1-.5c.8.3 1.6.5 2.5.6A2 2 0 0 1 22 16.9Z"/></svg>`,
-        message: `<svg ${attrs}><path ${common} d="M21 12a8 8 0 0 1-8 8H6l-3 2 1.2-4A8 8 0 1 1 21 12Z"/></svg>`,
-        gear: `<svg ${attrs}><path ${common} d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path ${common} d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 0 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.2a1.7 1.7 0 0 0-1.4 1Z"/></svg>`,
-        mail: `<svg ${attrs}><path ${common} d="M4 6h16v12H4z"/><path ${common} d="m4 7 8 6 8-6"/></svg>`,
-        info: `<svg ${attrs}><circle ${common} cx="12" cy="12" r="9"/><path ${common} d="M12 11v5M12 8h.01"/></svg>`,
-        trash: `<svg ${attrs}><path ${common} d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>`,
-        chevron: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        camera: `<svg ${attrs}><path ${common} d="M4 8h3l1.5-2h7L17 8h3v11H4V8Z"/><circle ${common} cx="12" cy="13.5" r="3.5"/></svg>`
-      };
-      return icons[name] || icons.info;
-    }
-
-    function categoryIcon(categoryId) {
-      return { tractari: 'car', vulcanizare: 'tire', itp: 'check', service: 'tool', diagnoza: 'chip', piese: 'box' }[categoryId] || 'car';
-    }
-
-    function setIconPlaceholders() {
-      document.querySelectorAll('[data-icon]').forEach(el => {
-        el.innerHTML = icon(el.dataset.icon, el.classList.contains('nav-plus') ? 21 : 20);
-      });
-    }
-
-    function allListings() {
-      return [...demoListings, ...state.userListings];
-    }
-
-    function planRank(plan) {
-      if (plan === 'premium') return 3;
-      if (plan === 'promoted30') return 2;
-      if (plan === 'promoted7') return 1;
-      return 0;
-    }
-
-    function isPromoted(plan) {
-      return ['premium', 'promoted30', 'promoted7'].includes(plan);
-    }
-
-    function planLabel(plan) {
-      if (plan === 'premium') return tr('premium');
-      if (plan === 'promoted30' || plan === 'promoted7') return tr('promoted');
-      return tr('free');
-    }
-
-    function categoryLabel(id) {
-      const cat = categories.find(c => c.id === id);
-      return cat ? (cat.label[state.lang] || cat.label.ro) : id;
-    }
-
-    function categoryDesc(cat) {
-      return cat.desc[state.lang] || cat.desc.ro;
-    }
-
-    function initials(text) {
-      const cleaned = String(text || 'AR').trim();
-      return cleaned.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'AR';
-    }
-
-    function getCitiesForCounty(county) {
-      if (!county || county === 'all') return [];
-      return cityData[county] || [];
-    }
-
-    function countyOptions(selected, includeAll = false) {
-      const entries = Object.keys(cityData).sort((a,b) => a.localeCompare(b, 'ro'));
-      return `${includeAll ? `<option value="all">${tr('allCounties')}</option>` : `<option value="">${tr('county')}</option>`}${entries.map(c => `<option value="${escapeHtml(c)}" ${selected === c ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}`;
-    }
-
-    function cityOptions(county, selected, includeAll = false) {
-      if (!county || county === 'all') {
-        return includeAll ? `<option value="all">${tr('allCities')}</option>` : `<option value="">${tr('chooseCountyFirst')}</option>`;
-      }
-      const list = getCitiesForCounty(county);
-      return `${includeAll ? `<option value="all">${tr('allCities')}</option>` : `<option value="">${tr('city')}</option>`}${list.map(c => `<option value="${escapeHtml(c)}" ${selected === c ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}`;
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
-    }
-
-    function normalizePhone(phone) {
-      return String(phone || '').replace(/\D/g, '');
-    }
-
-    function whatsappLink(listing) {
-      const raw = normalizePhone(listing.whatsapp || listing.phone);
-      const phone = raw.startsWith('40') ? raw : raw.startsWith('0') ? '4' + raw : raw;
-      return `https://wa.me/${phone}`;
-    }
-
-    function render() {
-      document.documentElement.dataset.theme = state.theme;
-      document.documentElement.lang = state.lang;
-      renderHome();
-      renderPost();
-      renderProfile();
-      updateNav();
-      setIconPlaceholders();
-    }
-
-    function renderHome() {
-      const filtered = allListings()
-        .filter(item => state.filters.category === 'all' || item.category === state.filters.category)
-        .filter(item => state.filters.county === 'all' || item.county === state.filters.county)
-        .filter(item => state.filters.city === 'all' || item.city === state.filters.city)
-        .filter(item => {
-          const q = state.filters.query.trim().toLowerCase();
-          if (!q) return true;
-          return [item.company, item.city, item.county, categoryLabel(item.category), item.description].join(' ').toLowerCase().includes(q);
-        })
-        .sort((a,b) => planRank(b.plan) - planRank(a.plan));
-
-      document.getElementById('homeScreen').innerHTML = `
-        <div class="top-card">
-          <div class="brand-row">
-            <div class="brand">
-              <div class="logo-mark">${icon('car', 24)}</div>
-              <div class="brand-title">AutoRapid RO</div>
+                <div class="v-filters-row">
+                    <div class="select-wrapper">
+                        <select id="filter-judet">
+                            <option value="" data-i18n="all_counties">Toate județele</option>
+                        </select>
+                    </div>
+                    <div class="select-wrapper">
+                        <select id="filter-oras" disabled>
+                            <option value="" data-i18n="all_cities">Toate orașele</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div class="pill">Demo marketplace</div>
-          </div>
-          <h1 class="hero-title">${tr('heroTitle')}</h1>
-          <p class="hero-text">${tr('heroText')}</p>
+
+            <!-- Categories -->
+            <div class="v-categories-scroll" id="categories-grid">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Ads List -->
+            <div class="flex justify-between items-center mb-3 px-1">
+                <h3 style="font-size:1.1rem;" data-i18n="results">Rezultate</h3>
+                <span class="text-xs text-muted" id="results-count">0 anunțuri</span>
+            </div>
+            
+            <div class="v-ads-grid" id="ads-list">
+                <!-- Injected via JS -->
+            </div>
         </div>
 
-        <div class="desktop-grid">
-          <div>
-            <section class="section flat">
-              <div class="filters three">
-                <div class="search-wrap">
-                  ${icon('search', 20)}
-                  <input id="homeSearch" type="search" value="${escapeHtml(state.filters.query)}" placeholder="${tr('search')}" autocomplete="off" />
-                </div>
-                <select id="homeCounty">${countyOptions(state.filters.county, true)}</select>
-                <select id="homeCity">${cityOptions(state.filters.county, state.filters.city, true)}</select>
-              </div>
-            </section>
+        <div id="page-post" class="container page-view hidden">
+            <div class="header-top">
+                <h1 data-i18n="post_ad_title">Adaugă anunț</h1>
+                <p class="text-muted text-sm mt-1" data-i18n="post_ad_sub">Ai o firmă auto? Adaugă-ți serviciile pe AutoRapid RO.</p>
+            </div>
 
-            <section class="section">
-              <div class="section-head">
-                <div>
-                  <h2 class="section-title">${tr('categories')}</h2>
-                  <p class="section-note">${tr('allCategories')}</p>
-                </div>
-              </div>
-              <div class="grid category-grid">
-                <button class="category-card ${state.filters.category === 'all' ? 'active' : ''}" type="button" data-category="all">
-                  <span class="cat-icon">${icon('car', 19)}</span>
-                  <span><span class="cat-title">${tr('allCategories')}</span><p class="cat-desc">${tr('heroText')}</p></span>
-                </button>
-                ${categories.map(cat => `
-                  <button class="category-card ${state.filters.category === cat.id ? 'active' : ''}" type="button" data-category="${cat.id}">
-                    <span class="cat-icon">${icon(categoryIcon(cat.id), 19)}</span>
-                    <span><span class="cat-title">${categoryLabel(cat.id)}</span><p class="cat-desc">${categoryDesc(cat)}</p></span>
-                  </button>
-                `).join('')}
-              </div>
-            </section>
-          </div>
+            <form id="post-form" class="pb-4">
+                <div class="card">
+                    <div class="input-group">
+                        <label data-i18n="company_name">Nume firmă / Serviciu</label>
+                        <input type="text" id="post-name" class="form-control" required>
+                    </div>
 
-          <div class="desktop-only-note section">
-            <h2 class="section-title">AutoRapid RO</h2>
-            <p class="section-note">${tr('appAboutText')}</p>
-            <div class="divider"></div>
-            <button class="primary-btn" type="button" onclick="goTo('post')">${icon('plus', 18)} ${tr('publish')}</button>
-          </div>
+                    <div class="input-group">
+                        <label data-i18n="category">Categorie</label>
+                        <select id="post-category" class="form-control" required>
+                            <option value="" disabled selected data-i18n="select_category">Alege o categorie</option>
+                            <option value="Tractări auto" data-i18n="cat_tractari">Tractări auto</option>
+                            <option value="Vulcanizare" data-i18n="cat_vulcanizare">Vulcanizare</option>
+                            <option value="ITP" data-i18n="cat_itp">ITP</option>
+                            <option value="Service auto" data-i18n="cat_service">Service auto</option>
+                            <option value="Diagnoză auto" data-i18n="cat_diagnoza">Diagnoză auto</option>
+                            <option value="Piese auto" data-i18n="cat_piese">Piese auto</option>
+                        </select>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <div class="input-group w-full">
+                            <label data-i18n="county">Județ</label>
+                            <select id="post-judet" class="form-control" required></select>
+                        </div>
+                        <div class="input-group w-full">
+                            <label data-i18n="city">Oraș</label>
+                            <select id="post-oras" class="form-control" required disabled></select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label data-i18n="address">Adresă exactă (opțional)</label>
+                        <input type="text" id="post-address" class="form-control">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="input-group">
+                        <label data-i18n="phone">Telefon</label>
+                        <input type="tel" id="post-phone" class="form-control" required>
+                    </div>
+                    <div class="input-group">
+                        <label data-i18n="whatsapp">WhatsApp (opțional)</label>
+                        <input type="tel" id="post-whatsapp" class="form-control">
+                    </div>
+                    <div class="input-group">
+                        <label data-i18n="schedule">Program</label>
+                        <input type="text" id="post-schedule" class="form-control" placeholder="Ex: L-V 08:00 - 18:00">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="input-group">
+                        <label data-i18n="description">Descriere firmă</label>
+                        <textarea id="post-desc" class="form-control" required></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label data-i18n="price">Preț orientativ (opțional)</label>
+                        <input type="text" id="post-price" class="form-control" placeholder="Ex: de la 100 RON">
+                    </div>
+                    <div class="input-group">
+                        <label data-i18n="upload_photo">Poză / Logo</label>
+                        <div class="upload-box" id="upload-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:32px;height:32px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span data-i18n="click_to_upload">Apasă pentru a încărca</span>
+                            <img id="upload-preview" src="" alt="Preview">
+                            <input type="file" id="file-input" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="mb-4" data-i18n="promotion">Promovare</h3>
+                    
+                    <label class="promo-option">
+                        <input type="radio" name="promo" value="0" checked>
+                        <div class="promo-info">
+                            <div class="font-bold" data-i18n="free">Gratuit</div>
+                            <div class="text-xs text-muted" data-i18n="free_desc">Apare normal în listă</div>
+                        </div>
+                        <div class="promo-price">0 lei</div>
+                    </label>
+
+                    <label class="promo-option">
+                        <input type="radio" name="promo" value="1">
+                        <div class="promo-info">
+                            <div class="font-bold" data-i18n="promo_7">Promovat 7 zile</div>
+                            <div class="text-xs text-muted" data-i18n="promo_7_desc">Apare mai sus în categorie</div>
+                        </div>
+                        <div class="promo-price">30 lei</div>
+                    </label>
+
+                    <label class="promo-option">
+                        <input type="radio" name="promo" value="2">
+                        <div class="promo-info">
+                            <div class="font-bold" data-i18n="promo_30">Promovat 30 zile</div>
+                            <div class="text-xs text-muted" data-i18n="promo_30_desc">Apare sus în județ/oraș</div>
+                        </div>
+                        <div class="promo-price">100 lei</div>
+                    </label>
+
+                    <label class="promo-option">
+                        <input type="radio" name="promo" value="3">
+                        <div class="promo-info">
+                            <div class="font-bold" data-i18n="premium">Premium</div>
+                            <div class="text-xs text-muted" data-i18n="premium_desc">Apare printre primele mereu</div>
+                        </div>
+                        <div class="promo-price">150 lei/lună</div>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary mb-4" data-i18n="publish_ad">Publică anunțul</button>
+            </form>
         </div>
 
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">${tr('listings')}</h2>
-              <p class="section-note">${filtered.length} ${tr('listings').toLowerCase()}</p>
-            </div>
-          </div>
-          <div class="grid listing-grid">
-            ${filtered.length ? filtered.map(renderListingCard).join('') : `<div class="empty-state">${tr('noResults')}</div>`}
-          </div>
-        </section>
-      `;
-
-      document.getElementById('homeSearch').addEventListener('input', e => {
-        state.filters.query = e.target.value;
-        renderHome();
-      });
-      document.getElementById('homeCounty').addEventListener('change', e => {
-        state.filters.county = e.target.value;
-        state.filters.city = 'all';
-        renderHome();
-      });
-      document.getElementById('homeCity').addEventListener('change', e => {
-        state.filters.city = e.target.value;
-        renderHome();
-      });
-      document.querySelectorAll('[data-category]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          state.filters.category = btn.dataset.category;
-          renderHome();
-        });
-      });
-    }
-
-    function renderListingCard(item) {
-      const saved = state.favorites.includes(item.id);
-      const promotedClass = isPromoted(item.plan) ? 'promoted' : '';
-      const planTagClass = item.plan === 'premium' ? 'warning' : isPromoted(item.plan) ? 'primary' : '';
-      return `
-        <article class="listing-card ${promotedClass}">
-          <div class="listing-top">
-            <div class="listing-image">${item.image ? `<img src="${item.image}" alt="${escapeHtml(item.company)}" />` : initials(item.company)}</div>
-            <div class="listing-main">
-              <div class="listing-title-row">
-                <h3 class="listing-title">${escapeHtml(item.company)}</h3>
-                <button class="heart-btn ${saved ? 'saved' : ''}" type="button" aria-label="${tr('saved')}" onclick="toggleFavorite('${item.id}')">${icon('heart', 20)}</button>
-              </div>
-              <div class="meta-line">
-                <span class="tag primary">${escapeHtml(categoryLabel(item.category))}</span>
-                <span class="tag">${escapeHtml(item.city)}, ${escapeHtml(item.county)}</span>
-                <span class="tag ${planTagClass}">${escapeHtml(planLabel(item.plan))}</span>
-              </div>
-            </div>
-          </div>
-          <p class="listing-desc">${escapeHtml(item.description)}</p>
-          <div class="meta-line">
-            <span class="tag">${tr('schedule')}: ${escapeHtml(item.schedule || '-')}</span>
-            <span class="tag">${tr('rating')}: ${escapeHtml(item.rating || '4.7')}</span>
-            ${item.price ? `<span class="tag">${tr('price')}: ${escapeHtml(item.price)}</span>` : ''}
-          </div>
-          <div class="action-row">
-            <a class="primary-btn" href="tel:${escapeHtml(item.phone)}">${icon('phone', 18)} ${tr('call')}</a>
-            <a class="ghost-btn" href="${whatsappLink(item)}" target="_blank" rel="noopener">${icon('message', 18)} ${tr('whatsapp')}</a>
-          </div>
-        </article>
-      `;
-    }
-
-    function renderPost() {
-      const selectedCounty = document.getElementById('postCounty')?.value || '';
-      const selectedCity = document.getElementById('postCity')?.value || '';
-      document.getElementById('postScreen').innerHTML = `
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h1 class="section-title">${tr('addTitle')}</h1>
-              <p class="section-note">${tr('addNote')}</p>
-            </div>
-          </div>
-          <form id="postForm" class="form-grid">
-            <div class="form-grid two">
-              <div class="form-field">
-                <label for="company">${tr('companyName')}</label>
-                <input id="company" name="company" type="text" autocomplete="organization" />
-              </div>
-              <div class="form-field">
-                <label for="category">${tr('category')}</label>
-                <select id="category" name="category">
-                  <option value="">${tr('category')}</option>
-                  ${categories.map(cat => `<option value="${cat.id}">${categoryLabel(cat.id)}</option>`).join('')}
-                </select>
-              </div>
-            </div>
-            <div class="form-grid two">
-              <div class="form-field">
-                <label for="postCounty">${tr('county')}</label>
-                <select id="postCounty" name="county">${countyOptions(selectedCounty, false)}</select>
-              </div>
-              <div class="form-field">
-                <label for="postCity">${tr('city')}</label>
-                <select id="postCity" name="city">${cityOptions(selectedCounty, selectedCity, false)}</select>
-              </div>
-            </div>
-            <div class="form-grid two">
-              <div class="form-field">
-                <label for="phone">${tr('phone')}</label>
-                <input id="phone" name="phone" type="tel" inputmode="tel" />
-              </div>
-              <div class="form-field">
-                <label for="whatsapp">WhatsApp</label>
-                <input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" />
-              </div>
-            </div>
-            <div class="form-grid two">
-              <div class="form-field">
-                <label for="address">${tr('address')}</label>
-                <input id="address" name="address" type="text" />
-              </div>
-              <div class="form-field">
-                <label for="schedule">${tr('schedule')}</label>
-                <input id="schedule" name="schedule" type="text" placeholder="Luni - Vineri, 09:00 - 18:00" />
-              </div>
-            </div>
-            <div class="form-field">
-              <label for="description">${tr('description')}</label>
-              <textarea id="description" name="description"></textarea>
-            </div>
-            <div class="form-grid two">
-              <div class="form-field">
-                <label for="price">${tr('optionalPrice')}</label>
-                <input id="price" name="price" type="text" />
-              </div>
-              <div class="form-field">
-                <label for="plan">${tr('promotionPlan')}</label>
-                <select id="plan" name="plan">
-                  <option value="free">${tr('planFree')}</option>
-                  <option value="promoted7">${tr('plan7')}</option>
-                  <option value="promoted30">${tr('plan30')}</option>
-                  <option value="premium">${tr('planPremium')}</option>
-                </select>
-              </div>
-            </div>
-            <div class="plan-preview">${tr('planPreview')}</div>
-            <div class="form-field">
-              <label>${tr('uploadLogo')}</label>
-              <label class="upload-box" for="listingImageInput">
-                <span class="upload-preview" id="listingPreview">${state.listingImageTemp ? `<img src="${state.listingImageTemp}" alt="preview" />` : icon('camera', 24)}</span>
-                <span class="upload-copy"><span>${tr('selectImage')}</span>${tr('uploadHint')}</span>
-              </label>
-              <input class="hide-input" id="listingImageInput" type="file" accept="image/*" />
-            </div>
-            <button class="primary-btn" type="submit">${icon('plus', 18)} ${tr('publish')}</button>
-          </form>
-        </section>
-      `;
-
-      const countySelect = document.getElementById('postCounty');
-      const citySelect = document.getElementById('postCity');
-      countySelect.addEventListener('change', () => {
-        citySelect.innerHTML = cityOptions(countySelect.value, '', false);
-      });
-      document.getElementById('listingImageInput').addEventListener('change', e => handleImage(e, value => {
-        state.listingImageTemp = value;
-        document.getElementById('listingPreview').innerHTML = `<img src="${value}" alt="preview" />`;
-      }));
-      document.getElementById('postForm').addEventListener('submit', handlePostSubmit);
-    }
-
-    function handlePostSubmit(event) {
-      event.preventDefault();
-      const data = Object.fromEntries(new FormData(event.target));
-      if (!data.company || !data.category || !data.county || !data.city || !data.phone) {
-        showToast(tr('requiredFields'));
-        return;
-      }
-      const item = {
-        id: `user-${Date.now()}`,
-        company: data.company.trim(),
-        category: data.category,
-        county: data.county,
-        city: data.city,
-        phone: data.phone.trim(),
-        whatsapp: data.whatsapp.trim() || data.phone.trim(),
-        address: data.address.trim(),
-        schedule: data.schedule.trim() || '-',
-        description: data.description.trim() || '-',
-        price: data.price.trim(),
-        plan: data.plan || 'free',
-        rating: 'Nou',
-        image: state.listingImageTemp || ''
-      };
-      state.userListings.push(item);
-      write(storageKeys.userListings, state.userListings);
-      state.listingImageTemp = '';
-      showToast(tr('publishSuccess'));
-      state.filters.category = 'all';
-      state.filters.county = 'all';
-      state.filters.city = 'all';
-      state.filters.query = '';
-      goTo('home');
-    }
-
-    function renderProfile() {
-      const profileName = state.profile.name || tr('profilePlaceholder');
-      const unreadCount = defaultInbox.filter(n => !state.inboxRead.includes(n.id)).length;
-      const myListings = state.userListings;
-      const savedListings = allListings().filter(item => state.favorites.includes(item.id));
-
-      document.getElementById('profileScreen').innerHTML = `
-        <section class="section">
-          <div class="profile-card">
-            <label class="avatar" for="profilePhotoInput" aria-label="${tr('changePhoto')}">
-              ${state.profile.photo ? `<img src="${state.profile.photo}" alt="${escapeHtml(profileName)}" />` : icon('profile', 28)}
-            </label>
-            <input class="hide-input" id="profilePhotoInput" type="file" accept="image/*" />
-            <div style="min-width:0; flex:1;">
-              <h1 class="profile-name">${escapeHtml(profileName)}</h1>
-              <p class="profile-detail">${tr('emailDemo')}</p>
-              <p class="profile-detail">${tr('phoneDemo')}</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">${tr('profileSettings')}</h2>
-              <p class="section-note">${tr('preferences')}</p>
-            </div>
-          </div>
-          <div class="profile-list">
-            ${profileAction('editPanel', 'profile', tr('editProfile'), tr('changeName'))}
-            <div id="editPanel" class="panel">
-              <div class="form-grid">
-                <div class="form-field"><label for="profileNameInput">${tr('changeName')}</label><input id="profileNameInput" type="text" value="${escapeHtml(state.profile.name || '')}" placeholder="${tr('profilePlaceholder')}" /></div>
-                <button class="primary-btn" type="button" id="saveProfileName">${tr('editProfile')}</button>
-              </div>
+        <div id="page-profile" class="container page-view hidden">
+            <div class="header-top">
+                <h1 data-i18n="profile">Profil</h1>
             </div>
 
-            ${profileAction('langPanel', 'gear', tr('changeLanguage'), 'Română, English, Italiano, Español, Русский, Deutsch, Français')}
-            <div id="langPanel" class="panel">
-              <select id="langSelect">
-                <option value="ro" ${state.lang === 'ro' ? 'selected' : ''}>Română</option>
-                <option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option>
-                <option value="it" ${state.lang === 'it' ? 'selected' : ''}>Italiano</option>
-                <option value="es" ${state.lang === 'es' ? 'selected' : ''}>Español</option>
-                <option value="ru" ${state.lang === 'ru' ? 'selected' : ''}>Русский</option>
-                <option value="de" ${state.lang === 'de' ? 'selected' : ''}>Deutsch</option>
-                <option value="fr" ${state.lang === 'fr' ? 'selected' : ''}>Français</option>
-              </select>
-            </div>
-
-            ${profileAction('themePanel', 'gear', state.theme === 'dark' ? tr('lightMode') : tr('darkMode'), tr('preferences'))}
-            <div id="themePanel" class="panel">
-              <button class="primary-btn" type="button" id="themeToggle">${state.theme === 'dark' ? tr('lightMode') : tr('darkMode')}</button>
-            </div>
-
-            ${profileAction('savedPanel', 'heart', `${tr('saved')} (${savedListings.length})`, tr('noSaved'))}
-            <div id="savedPanel" class="panel">
-              <div class="grid">${savedListings.length ? savedListings.map(renderListingCard).join('') : `<div class="empty-state">${tr('noSaved')}</div>`}</div>
-            </div>
-
-            ${profileAction('myListingsPanel', 'car', `${tr('myListings')} (${myListings.length})`, tr('publish'))}
-            <div id="myListingsPanel" class="panel">
-              <div class="grid">${myListings.length ? myListings.map(renderListingCard).join('') : `<div class="empty-state">${tr('noMyListings')}</div>`}</div>
-            </div>
-
-            ${profileAction('inboxPanel', 'mail', `${tr('inbox')} (${unreadCount})`, tr('new'))}
-            <div id="inboxPanel" class="panel">
-              <div class="notice-list">
-                ${defaultInbox.map(notice => renderNotice(notice)).join('')}
-              </div>
-            </div>
-
-            ${profileAction('feedbackPanel', 'message', tr('feedback'), tr('feedbackTitle'))}
-            <div id="feedbackPanel" class="panel">
-              <form id="feedbackForm" class="form-grid">
-                <div class="form-field">
-                  <label for="feedbackCategory">${tr('feedbackCategory')}</label>
-                  <select id="feedbackCategory" name="category">
-                    <option value="technicalProblem">${tr('technicalProblem')}</option>
-                    <option value="appSuggestion">${tr('appSuggestion')}</option>
-                    <option value="listingProblem">${tr('listingProblem')}</option>
-                    <option value="profileProblem">${tr('profileProblem')}</option>
-                    <option value="languageProblem">${tr('languageProblem')}</option>
-                    <option value="themeProblem">${tr('themeProblem')}</option>
-                    <option value="other">${tr('other')}</option>
-                  </select>
+            <div class="card flex flex-col items-center text-center">
+                <div class="upload-box" style="width:80px;height:80px;border-radius:50%;padding:0;overflow:hidden;margin-bottom:1rem;border:2px solid var(--primary);" id="profile-img-box">
+                    <img id="profile-preview" src="" alt="Profile" style="display:none;width:100%;height:100%;object-fit:cover;">
+                    <svg id="profile-placeholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:40px;height:40px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
-                <div class="form-field">
-                  <label for="feedbackDescription">${tr('feedbackDescription')}</label>
-                  <textarea id="feedbackDescription" name="description" maxlength="500"></textarea>
-                  <div class="char-row"><span>0/500</span><span>${tr('sendFeedback')}</span></div>
+                <input type="file" id="profile-file-input" accept="image/*" style="display:none;">
+                <h2 id="profile-name-display">Utilizator Demo</h2>
+                <p class="text-muted text-sm mt-1">demo@autorapid.ro</p>
+                <button class="btn btn-outline mt-3 text-sm" style="padding:0.5rem 1rem; width:auto;" id="edit-profile-btn" data-i18n="edit_profile">Editează profilul</button>
+            </div>
+
+            <div id="edit-profile-form" class="card hidden">
+                <div class="input-group">
+                    <label data-i18n="name">Nume</label>
+                    <input type="text" id="edit-name-input" class="form-control">
                 </div>
-                <button class="primary-btn" type="submit">${tr('sendFeedback')}</button>
-              </form>
+                <button id="save-profile-btn" class="btn btn-primary" data-i18n="save">Salvează</button>
             </div>
 
-            ${profileAction('aboutPanel', 'info', tr('appDetails'), tr('about'))}
-            <div id="aboutPanel" class="panel"><p class="about-text">${tr('appAboutText')}</p></div>
-
-            ${profileAction('termsPanel', 'info', tr('terms'), tr('appDetails'))}
-            <div id="termsPanel" class="panel"><p class="terms-text">${tr('termsText')}</p></div>
-
-            <button class="profile-action" type="button" id="clearDataBtn">
-              <span class="small-icon">${icon('trash', 18)}</span>
-              <span><span class="profile-action-title">${tr('clearData')}</span><span class="profile-action-note">localStorage</span></span>
-              <span class="chev">${icon('chevron', 18)}</span>
-            </button>
-          </div>
-        </section>
-      `;
-
-      bindProfileEvents();
-    }
-
-    function profileAction(panelId, iconName, title, note) {
-      return `
-        <button class="profile-action" type="button" data-panel="${panelId}">
-          <span class="small-icon">${icon(iconName, 18)}</span>
-          <span><span class="profile-action-title">${escapeHtml(title)}</span><span class="profile-action-note">${escapeHtml(note || '')}</span></span>
-          <span class="chev">${icon('chevron', 18)}</span>
-        </button>
-      `;
-    }
-
-    function renderNotice(notice) {
-      const read = state.inboxRead.includes(notice.id);
-      return `
-        <div class="notice-card">
-          <div class="notice-head">
-            <div>
-              <h3 class="notice-title">${escapeHtml(notice.title)}</h3>
-              ${!read ? `<span class="tag primary">${tr('new')}</span>` : ''}
+            <!-- Profile Sections -->
+            <div class="section-title" data-i18n="activity">Activitate</div>
+            <div class="profile-menu">
+                <div class="profile-item" onclick="app.showSubPage('page-saved')">
+                    <div class="profile-item-left">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-width="2" stroke-linejoin="round"/></svg>
+                        <span data-i18n="saved_ads">Salvate</span>
+                    </div>
+                    <div class="profile-item-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-width="2"/></svg></div>
+                </div>
+                <div class="profile-item" onclick="app.showSubPage('page-inbox')">
+                    <div class="profile-item-left relative">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span data-i18n="inbox">Inbox</span>
+                        <div id="profile-inbox-badge" class="badge-count" style="position:static;display:inline-flex;margin-left:8px;display:none;">0</div>
+                    </div>
+                    <div class="profile-item-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-width="2"/></svg></div>
+                </div>
             </div>
-            <span class="notice-date">${escapeHtml(notice.date)}</span>
-          </div>
-          <p class="notice-body">${escapeHtml(notice.body)}</p>
-          ${!read ? `<button class="mini-btn" type="button" onclick="markNoticeRead('${notice.id}')">${tr('markRead')}</button>` : ''}
+
+            <div class="section-title" data-i18n="preferences">Preferințe</div>
+            <div class="profile-menu">
+                <div class="profile-item" id="theme-toggle-btn">
+                    <div class="profile-item-left">
+                        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span id="theme-text" data-i18n="dark_mode">Mod întunecat</span>
+                    </div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-item-left">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        <span data-i18n="change_language">Schimbă limba</span>
+                    </div>
+                    <div class="profile-item-right">
+                        <select id="lang-select" style="background:transparent;color:var(--primary);font-weight:bold;font-size:1rem;">
+                            <option value="ro">RO</option>
+                            <option value="en">EN</option>
+                            <option value="it">IT</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title" data-i18n="app_details">Detalii aplicație</div>
+            <div class="profile-menu mb-4">
+                <div class="profile-item" onclick="app.showSubPage('page-feedback')">
+                    <div class="profile-item-left">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke-width="2"/></svg>
+                        <span data-i18n="feedback">Spune-ne părerea ta</span>
+                    </div>
+                </div>
+                <div class="profile-item" onclick="app.resetDemoData()">
+                    <div class="profile-item-left" style="color:var(--danger)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-width="2"/></svg>
+                        <span data-i18n="delete_data">Ștergere date demo</span>
+                    </div>
+                </div>
+            </div>
         </div>
-      `;
-    }
 
-    function bindProfileEvents() {
-      document.querySelectorAll('[data-panel]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const panel = document.getElementById(btn.dataset.panel);
-          if (panel) panel.classList.toggle('active');
-        });
-      });
+        <div id="page-saved" class="container page-view hidden" style="position:fixed;top:0;left:0;right:0;bottom:var(--bottom-nav-height);background:var(--bg);z-index:100;overflow-y:auto;padding-bottom:2rem;">
+            <div class="page-header sticky top-0 bg-white">
+                <button class="back-btn" onclick="app.hideSubPages()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:24px;height:24px;"><line x1="19" y1="12" x2="5" y2="12" stroke-width="2"/><polyline points="12 19 5 12 12 5" stroke-width="2"/></svg></button>
+                <h2 data-i18n="saved_ads">Salvate</h2>
+            </div>
+            <div id="saved-list" class="v-ads-grid mt-2">
+                <!-- Injected via JS -->
+            </div>
+            <div id="empty-saved" class="text-center text-muted mt-4 hidden">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:64px;height:64px;margin:2rem auto;opacity:0.3;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-width="2"/></svg>
+                <p data-i18n="no_saved">Nu ai niciun anunț salvat momentan.</p>
+            </div>
+        </div>
 
-      document.getElementById('profilePhotoInput').addEventListener('change', e => handleImage(e, value => {
-        state.profile.photo = value;
-        write(storageKeys.profile, state.profile);
-        renderProfile();
-      }));
+        <div id="page-inbox" class="container page-view hidden" style="position:fixed;top:0;left:0;right:0;bottom:var(--bottom-nav-height);background:var(--bg);z-index:100;overflow-y:auto;padding-bottom:2rem;">
+            <div class="page-header">
+                <button class="back-btn" onclick="app.hideSubPages()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:24px;height:24px;"><line x1="19" y1="12" x2="5" y2="12" stroke-width="2"/><polyline points="12 19 5 12 12 5" stroke-width="2"/></svg></button>
+                <h2 data-i18n="inbox">Inbox</h2>
+            </div>
+            <div id="inbox-list" class="flex flex-col gap-2">
+                <!-- Injected via JS -->
+            </div>
+        </div>
 
-      document.getElementById('saveProfileName')?.addEventListener('click', () => {
-        const input = document.getElementById('profileNameInput');
-        state.profile.name = input.value.trim();
-        write(storageKeys.profile, state.profile);
-        showToast(tr('nameSaved'));
-        renderProfile();
-      });
+        <div id="page-feedback" class="container page-view hidden" style="position:fixed;top:0;left:0;right:0;bottom:var(--bottom-nav-height);background:var(--bg);z-index:100;overflow-y:auto;padding-bottom:2rem;">
+            <div class="page-header">
+                <button class="back-btn" onclick="app.hideSubPages()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:24px;height:24px;"><line x1="19" y1="12" x2="5" y2="12" stroke-width="2"/><polyline points="12 19 5 12 12 5" stroke-width="2"/></svg></button>
+                <h2 data-i18n="give_feedback">Dă-ne feedback</h2>
+            </div>
+            <form id="feedback-form" class="card mt-4">
+                <div class="input-group">
+                    <label data-i18n="feedback_about">Despre ce vrei să ne dai feedback?</label>
+                    <select id="feedback-type" class="form-control" required>
+                        <option value="" disabled selected>Alege motivul...</option>
+                        <option value="Problemă tehnică">Problemă tehnică</option>
+                        <option value="Sugestie aplicație">Sugestie aplicație</option>
+                        <option value="Altceva">Altceva</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="flex justify-between">
+                        <span data-i18n="feedback_desc">Descriere feedback</span>
+                        <span id="char-count" class="text-xs text-muted">0/500</span>
+                    </label>
+                    <textarea id="feedback-text" class="form-control" maxlength="500" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary mt-4" data-i18n="send_feedback">Trimite feedback</button>
+            </form>
+        </div>
 
-      document.getElementById('langSelect')?.addEventListener('change', e => {
-        state.lang = e.target.value;
-        write(storageKeys.lang, state.lang);
-        showToast(tr('languageSaved'));
-        render();
-      });
 
-      document.getElementById('themeToggle')?.addEventListener('click', () => {
-        state.theme = state.theme === 'dark' ? 'light' : 'dark';
-        write(storageKeys.theme, state.theme);
-        showToast(tr('themeSaved'));
-        render();
-      });
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-target="page-home" id="nav-home">
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span data-i18n="nav_home">Acasă</span>
+            </div>
+            <div class="nav-item" data-target="page-post" id="nav-post">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="8" x2="12" y2="16" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="12" x2="16" y2="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span data-i18n="nav_post">+ Postează</span>
+            </div>
+            <div class="nav-item" data-target="page-profile" id="nav-profile">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span data-i18n="nav_profile">Profil</span>
+                <div id="nav-inbox-badge" class="badge-count hidden">0</div>
+            </div>
+        </nav>
 
-      const feedbackText = document.getElementById('feedbackDescription');
-      feedbackText?.addEventListener('input', () => {
-        const row = feedbackText.parentElement.querySelector('.char-row span:first-child');
-        row.textContent = `${feedbackText.value.length}/500`;
-      });
+    </div>
 
-      document.getElementById('feedbackForm')?.addEventListener('submit', e => {
-        e.preventDefault();
-        const data = Object.fromEntries(new FormData(e.target));
-        state.feedbacks.push({ id: Date.now(), category: data.category, description: data.description, date: new Date().toISOString() });
-        write(storageKeys.feedback, state.feedbacks);
-        e.target.reset();
-        e.target.querySelector('.char-row span:first-child').textContent = '0/500';
-        showToast(tr('feedbackThanks'));
-      });
+    <script>
+        const judeteOrase = {
+            "București": ["Sector 1", "Sector 2", "Sector 3", "Sector 4", "Sector 5", "Sector 6"],
+            "Cluj": ["Cluj-Napoca", "Turda", "Dej"],
+            "Timiș": ["Timișoara", "Lugoj"],
+            "Iași": ["Iași", "Pașcani"],
+            "Brașov": ["Brașov", "Făgăraș", "Săcele"],
+            "Constanța": ["Constanța", "Mangalia", "Năvodari"],
+            "Buzău": ["Buzău", "Râmnicu Sărat", "Nehoiu"]
+        };
 
-      document.getElementById('clearDataBtn')?.addEventListener('click', () => {
-        if (!confirm(tr('clearData') + '?')) return;
-        Object.values(storageKeys).forEach(key => localStorage.removeItem(key));
-        state.lang = 'ro';
-        state.theme = 'light';
-        state.profile = { name: '', photo: '' };
-        state.favorites = [];
-        state.inboxRead = [];
-        state.userListings = [];
-        state.feedbacks = [];
-        showToast(tr('resetDone'));
-        render();
-      });
-    }
+        const categories = [
+            { id: "Tractări auto", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h18M5 17h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2z" stroke-width="2"/><circle cx="7" cy="17" r="2" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke-width="2"/><path d="M12 6v7M2 13l3-3" stroke-width="2"/></svg>', i18n: "cat_tractari" },
+            { id: "Vulcanizare", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke-width="2"/><path d="M12 2v2M12 20v2M22 12h-2M4 12H2M19.07 4.93l-1.41 1.41M6.34 17.66l-1.41 1.41M19.07 19.07l-1.41-1.41M6.34 6.34L4.93 4.93" stroke-width="2"/></svg>', i18n: "cat_vulcanizare" },
+            { id: "ITP", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4" stroke-width="2" stroke-linecap="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke-width="2" stroke-linecap="round"/></svg>', i18n: "cat_itp" },
+            { id: "Service auto", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke-width="2"/></svg>', i18n: "cat_service" },
+            { id: "Diagnoză auto", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>', i18n: "cat_diagnoza" },
+            { id: "Piese auto", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke-width="2"/><polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke-width="2"/><line x1="12" y1="22.08" x2="12" y2="12" stroke-width="2"/></svg>', i18n: "cat_piese" }
+        ];
 
-    function handleImage(event, callback) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => callback(reader.result);
-      reader.readAsDataURL(file);
-    }
+        const translations = {
+            ro: {
+                nav_home: "Acasă", nav_post: "+ Postează", nav_profile: "Profil",
+                search_placeholder: "Caută service, tractări...", all_counties: "Toate județele", all_cities: "Toate orașele",
+                categories: "Categorii", results: "Rezultate", post_ad_title: "Adaugă anunț", post_ad_sub: "Fii găsit mai ușor de clienți.",
+                company_name: "Nume firmă", category: "Categorie", select_category: "Alege o categorie",
+                cat_tractari: "Tractări auto", cat_vulcanizare: "Vulcanizare", cat_itp: "ITP",
+                cat_service: "Service auto", cat_diagnoza: "Diagnoză auto", cat_piese: "Piese auto",
+                county: "Județ", city: "Oraș", address: "Adresă exactă", phone: "Telefon", whatsapp: "WhatsApp",
+                schedule: "Program", description: "Descriere firmă", price: "Preț (opțional)",
+                upload_photo: "Poză / Logo", click_to_upload: "Apasă pentru a încărca", promotion: "Promovare",
+                free: "Gratuit", promo_7: "Promovat 7 zile", promo_30: "Promovat 30 zile", premium: "Premium",
+                publish_ad: "Publică anunțul", profile: "Profil", edit_profile: "Editează profilul", name: "Nume",
+                save: "Salvează", activity: "Activitate", saved_ads: "Salvate", inbox: "Inbox", preferences: "Preferințe",
+                dark_mode: "Mod întunecat", light_mode: "Mod luminos", change_language: "Schimbă limba",
+                app_details: "Detalii aplicație", feedback: "Spune-ne părerea ta", delete_data: "Ștergere date demo",
+                no_saved: "Nu ai anunțuri salvate.", give_feedback: "Dă-ne feedback",
+                toast_success: "Acțiune realizată!", toast_feedback: "Feedback trimis cu succes."
+            },
+            en: {
+                nav_home: "Home", nav_post: "+ Post", nav_profile: "Profile", search_placeholder: "Search service...",
+                all_counties: "All counties", all_cities: "All cities", categories: "Categories", results: "Results",
+                post_ad_title: "Post Ad", post_ad_sub: "Be easily found by clients.", company_name: "Company Name",
+                category: "Category", select_category: "Select category", cat_tractari: "Towing", cat_vulcanizare: "Tire service",
+                cat_itp: "MOT", cat_service: "Auto Service", cat_diagnoza: "Diagnostics", cat_piese: "Auto Parts",
+                county: "County", city: "City", address: "Exact Address", phone: "Phone", whatsapp: "WhatsApp",
+                schedule: "Schedule", description: "Description", price: "Price (optional)", upload_photo: "Photo / Logo",
+                click_to_upload: "Click to upload", promotion: "Promotion", free: "Free", promo_7: "Promoted 7 days",
+                promo_30: "Promoted 30 days", premium: "Premium", publish_ad: "Publish Ad", profile: "Profile",
+                edit_profile: "Edit Profile", name: "Name", save: "Save", activity: "Activity", saved_ads: "Saved",
+                inbox: "Inbox", preferences: "Preferences", dark_mode: "Dark Mode", light_mode: "Light Mode",
+                change_language: "Change Language", app_details: "App Details", feedback: "Give us feedback",
+                delete_data: "Delete Demo Data", no_saved: "No saved ads.", give_feedback: "Feedback",
+                toast_success: "Action completed!", toast_feedback: "Feedback sent successfully."
+            }
+        };
 
-    window.toggleFavorite = function(id) {
-      if (state.favorites.includes(id)) {
-        state.favorites = state.favorites.filter(item => item !== id);
-        showToast(tr('saveRemoved'));
-      } else {
-        state.favorites.push(id);
-        showToast(tr('saveAdded'));
-      }
-      write(storageKeys.favorites, state.favorites);
-      render();
-    };
+        const initialDemoAds = [
+            { id: 1, name: "Tractări Buzău", category: "Tractări auto", judet: "Buzău", oras: "Buzău", desc: "Tractări auto non-stop.", phone: "0700111", whatsapp: "0700111", schedule: "Non-Stop", promo: 3, image: null, rating: 4.8 },
+            { id: 2, name: "Vulcanizare 24/7", category: "Vulcanizare", judet: "București", oras: "Sector 1", desc: "Schimb anvelope rapid.", phone: "0700222", whatsapp: "", schedule: "Non-Stop", promo: 2, image: null, rating: 4.9 },
+            { id: 3, name: "Service Pro", category: "Service auto", judet: "Cluj", oras: "Cluj-Napoca", desc: "Reparații motoare și revizii.", phone: "0700333", whatsapp: "0700333", schedule: "L-V 09-17", promo: 0, image: null, rating: 4.7 }
+        ];
 
-    window.markNoticeRead = function(id) {
-      if (!state.inboxRead.includes(id)) {
-        state.inboxRead.push(id);
-        write(storageKeys.inboxRead, state.inboxRead);
-      }
-      renderProfile();
-    };
+        const app = {
+            data: { ads: [], savedAds: [], notifications: [], profile: { name: "Utilizator Demo", image: null }, theme: "light", lang: "ro", activeCategory: "" },
 
-    window.goTo = function(page) {
-      state.page = page;
-      document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
-      document.getElementById(`${page}Screen`).classList.add('active');
-      updateNav();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+            init() {
+                this.loadData();
+                this.applyTheme();
+                this.applyLanguage();
+                this.populateDropdowns();
+                this.renderCategories();
+                this.renderAds();
+                this.renderProfile();
+                this.updateInboxBadges();
+                this.bindEvents();
+            },
 
-    function updateNav() {
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.nav === state.page));
-      document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = tr(el.dataset.i18n));
-    }
+            loadData() {
+                const lsAds = localStorage.getItem('ar_ads'); this.data.ads = lsAds ? JSON.parse(lsAds) : [...initialDemoAds];
+                const lsSaved = localStorage.getItem('ar_saved'); this.data.savedAds = lsSaved ? JSON.parse(lsSaved) : [];
+                const lsNotifs = localStorage.getItem('ar_notifs'); this.data.notifications = lsNotifs ? JSON.parse(lsNotifs) : [{ id: 1, title: "Bine ai venit!", desc: "Găsește rapid servicii.", date: new Date().toISOString(), read: false }];
+                const lsProfile = localStorage.getItem('ar_profile'); if (lsProfile) this.data.profile = JSON.parse(lsProfile);
+                this.data.theme = localStorage.getItem('ar_theme') || "light";
+                this.data.lang = localStorage.getItem('ar_lang') || "ro";
+            },
 
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.classList.add('show');
-      clearTimeout(showToast.timer);
-      showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
-    }
+            saveData(key, value) { localStorage.setItem(`ar_${key}`, JSON.stringify(value)); },
 
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-      btn.addEventListener('click', () => goTo(btn.dataset.nav));
-    });
+            resetDemoData() { if(confirm("Ștergi datele?")){ localStorage.clear(); location.reload(); } },
 
-    render();
-  </script>
+            switchPage(targetId) {
+                document.querySelectorAll('.page-view').forEach(p => { if(!p.id.startsWith('page-') || ['page-saved','page-inbox','page-feedback'].includes(p.id)) return; p.classList.add('hidden'); });
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.getElementById(targetId).classList.remove('hidden');
+                document.querySelector(`[data-target="${targetId}"]`).classList.add('active');
+                this.hideSubPages(); window.scrollTo(0,0);
+            },
+            showSubPage(targetId) { document.getElementById(targetId).classList.remove('hidden'); if(targetId === 'page-saved') this.renderSavedAds(); if(targetId === 'page-inbox') this.renderInbox(); },
+            hideSubPages() { ['page-saved', 'page-inbox', 'page-feedback'].forEach(id => document.getElementById(id).classList.add('hidden')); },
+
+            populateDropdowns() {
+                const jKeys = Object.keys(judeteOrase).sort();
+                document.getElementById('filter-judet').innerHTML = `<option value="" data-i18n="all_counties">${this.t('all_counties')}</option>` + jKeys.map(j => `<option value="${j}">${j}</option>`).join('');
+                document.getElementById('post-judet').innerHTML = `<option value="" disabled selected>Alege județul</option>` + jKeys.map(j => `<option value="${j}">${j}</option>`).join('');
+            },
+
+            updateOrasDropdown(judetValue, targetOrasId) {
+                const oSel = document.getElementById(targetOrasId);
+                if (!judetValue) { oSel.innerHTML = `<option value="" data-i18n="all_cities">${this.t('all_cities')}</option>`; oSel.disabled = true; return; }
+                const orase = judeteOrase[judetValue] || [];
+                oSel.innerHTML = (targetOrasId==='filter-oras'?`<option value="" data-i18n="all_cities">${this.t('all_cities')}</option>`:`<option value="" disabled selected>Alege orașul</option>`) + orase.map(o => `<option value="${o}">${o}</option>`).join('');
+                oSel.disabled = false;
+            },
+
+            renderCategories() {
+                document.getElementById('categories-grid').innerHTML = categories.map(c => `
+                    <div class="v-cat-pill ${this.data.activeCategory === c.id ? 'active' : ''}" data-cat="${c.id}">
+                        <div class="v-cat-icon">${c.icon}</div>
+                        <div class="v-cat-text" data-i18n="${c.i18n}">${this.t(c.i18n)}</div>
+                    </div>
+                `).join('');
+            },
+
+            generateAdCardHTML(ad) {
+                const isSaved = this.data.savedAds.includes(ad.id);
+                const isPremium = ad.promo === 3;
+                const badgeHTML = ad.promo > 0 ? `<div class="badge-promoted ${isPremium ? 'badge-premium' : ''}">${isPremium ? 'Premium' : 'Promovat'}</div>` : '';
+                const imgHTML = ad.image ? `<img src="${ad.image}" alt="${ad.name}">` : `<div style="width:100%;height:100%;background:linear-gradient(45deg, var(--primary-light), var(--border));display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:bold;font-size:3rem;text-transform:uppercase;">${ad.name.charAt(0)}</div>`;
+                
+                return `
+                    <div class="v-card" data-id="${ad.id}">
+                        <div class="v-img-box">
+                            ${badgeHTML}
+                            ${imgHTML}
+                            <div class="v-heart-btn ${isSaved ? 'saved' : ''}" onclick="app.toggleSave(${ad.id}, event)">
+                                <svg viewBox="0 0 24 24" fill="${isSaved ? 'currentColor' : 'none'}" stroke="currentColor" style="width:18px;height:18px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                        </div>
+                        <div class="v-price">${ad.price || (ad.rating ? '<span style="color:#eab308;font-size:0.8rem;">★</span> ' + ad.rating : 'Nou')}</div>
+                        <div class="v-title">${ad.name}</div>
+                        <div class="v-meta">${ad.oras}, ${ad.judet}</div>
+                        <div class="v-actions">
+                            <button class="v-btn" onclick="window.location.href='tel:${ad.phone}'; event.stopPropagation();">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke-width="2"/></svg>
+                            </button>
+                            ${ad.whatsapp ? `
+                            <button class="v-btn v-btn-wa" onclick="window.open('https://wa.me/4${ad.whatsapp}','_blank'); event.stopPropagation();">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderAds() {
+                const list = document.getElementById('ads-list');
+                const sq = document.getElementById('search-input').value.toLowerCase();
+                const jf = document.getElementById('filter-judet').value;
+                const of = document.getElementById('filter-oras').value;
+
+                let f = this.data.ads.filter(a => {
+                    return (this.data.activeCategory ? a.category === this.data.activeCategory : true) &&
+                           (a.name.toLowerCase().includes(sq) || a.desc.toLowerCase().includes(sq)) &&
+                           (jf ? a.judet === jf : true) && (of ? a.oras === of : true);
+                });
+
+                f.sort((a, b) => b.promo !== a.promo ? b.promo - a.promo : b.id - a.id);
+                document.getElementById('results-count').textContent = `${f.length} anunțuri`;
+                list.innerHTML = f.map(a => this.generateAdCardHTML(a)).join('');
+            },
+
+            renderSavedAds() {
+                const saved = this.data.ads.filter(a => this.data.savedAds.includes(a.id));
+                if(saved.length === 0) { document.getElementById('saved-list').innerHTML=''; document.getElementById('empty-saved').classList.remove('hidden'); } 
+                else { document.getElementById('empty-saved').classList.add('hidden'); document.getElementById('saved-list').innerHTML = saved.map(a => this.generateAdCardHTML(a)).join(''); }
+            },
+
+            toggleSave(id, e) {
+                e.stopPropagation();
+                const idx = this.data.savedAds.indexOf(id);
+                if(idx > -1) this.data.savedAds.splice(idx, 1); else this.data.savedAds.push(id);
+                this.saveData('saved', this.data.savedAds);
+                this.renderAds();
+                if(!document.getElementById('page-saved').classList.contains('hidden')) this.renderSavedAds();
+            },
+
+            renderInbox() {
+                document.getElementById('inbox-list').innerHTML = this.data.notifications.map(n => `
+                    <div class="card" style="margin-bottom:0; opacity:${n.read?0.6:1}" onclick="app.markNotifRead(${n.id})">
+                        <div class="font-bold mb-1">${n.title} ${!n.read?'<span style="color:var(--primary);font-size:10px;">● NOU</span>':''}</div>
+                        <div class="text-sm text-muted mb-2">${n.desc}</div>
+                    </div>
+                `).join('');
+                this.updateInboxBadges();
+            },
+
+            markNotifRead(id) {
+                const n = this.data.notifications.find(x => x.id === id);
+                if(n && !n.read) { n.read = true; this.saveData('notifs', this.data.notifications); this.renderInbox(); }
+            },
+
+            updateInboxBadges() {
+                const unread = this.data.notifications.filter(n => !n.read).length;
+                [document.getElementById('nav-inbox-badge'), document.getElementById('profile-inbox-badge')].forEach(b => {
+                    b.textContent = unread; b.classList.toggle('hidden', unread === 0); b.style.display = unread > 0 ? (b.id.includes('nav')?'flex':'inline-flex') : 'none';
+                });
+            },
+
+            renderProfile() {
+                document.getElementById('profile-name-display').textContent = this.data.profile.name;
+                if(this.data.profile.image) {
+                    document.getElementById('profile-preview').src = this.data.profile.image;
+                    document.getElementById('profile-preview').style.display = 'block';
+                    document.getElementById('profile-placeholder').style.display = 'none';
+                }
+            },
+
+            toggleTheme() {
+                this.data.theme = this.data.theme === 'light' ? 'dark' : 'light';
+                this.saveData('theme', this.data.theme); this.applyTheme();
+            },
+
+            applyTheme() {
+                document.body.setAttribute('data-theme', this.data.theme);
+                const txt = document.getElementById('theme-text');
+                txt.setAttribute('data-i18n', this.data.theme === 'dark' ? 'light_mode' : 'dark_mode');
+                txt.textContent = this.t(txt.getAttribute('data-i18n'));
+            },
+
+            setLanguage(l) { this.data.lang = l; this.saveData('lang', l); this.applyLanguage(); this.populateDropdowns(); this.renderCategories(); this.renderAds(); },
+            t(k) { return (translations[this.data.lang] || translations['en'])[k] || translations['ro'][k] || k; },
+            applyLanguage() {
+                document.getElementById('lang-select').value = this.data.lang;
+                document.querySelectorAll('[data-i18n]').forEach(e => e.textContent = this.t(e.getAttribute('data-i18n')));
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(e => e.placeholder = this.t(e.getAttribute('data-i18n-placeholder')));
+                document.getElementById('theme-text').textContent = this.t(document.getElementById('theme-text').getAttribute('data-i18n'));
+            },
+
+            showToast(k) { const t = document.getElementById('toast'); t.textContent = this.t(k); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); },
+
+            bindEvents() {
+                document.querySelectorAll('.nav-item').forEach(n => n.addEventListener('click', () => this.switchPage(n.dataset.target)));
+                document.getElementById('search-input').addEventListener('input', () => this.renderAds());
+                document.getElementById('filter-judet').addEventListener('change', e => { this.updateOrasDropdown(e.target.value, 'filter-oras'); this.renderAds(); });
+                document.getElementById('filter-oras').addEventListener('change', () => this.renderAds());
+                
+                document.getElementById('categories-grid').addEventListener('click', e => {
+                    const c = e.target.closest('.v-cat-pill');
+                    if(c) { this.data.activeCategory = this.data.activeCategory === c.dataset.cat ? "" : c.dataset.cat; this.renderCategories(); this.renderAds(); }
+                });
+
+                document.getElementById('post-judet').addEventListener('change', e => this.updateOrasDropdown(e.target.value, 'post-oras'));
+
+                const upBox = document.getElementById('upload-box');
+                const fi = document.getElementById('file-input');
+                upBox.addEventListener('click', () => fi.click());
+                fi.addEventListener('change', e => {
+                    if(e.target.files[0]) {
+                        const r = new FileReader();
+                        r.onload = ev => { document.getElementById('upload-preview').src = ev.target.result; document.getElementById('upload-preview').style.display = 'block'; upBox.querySelector('svg').style.display='none'; upBox.querySelector('span').style.display='none'; };
+                        r.readAsDataURL(e.target.files[0]);
+                    }
+                });
+
+                document.getElementById('post-form').addEventListener('submit', e => {
+                    e.preventDefault();
+                    const nAd = {
+                        id: Date.now(), name: document.getElementById('post-name').value, category: document.getElementById('post-category').value,
+                        judet: document.getElementById('post-judet').value, oras: document.getElementById('post-oras').value, phone: document.getElementById('post-phone').value,
+                        whatsapp: document.getElementById('post-whatsapp').value, schedule: document.getElementById('post-schedule').value,
+                        desc: document.getElementById('post-desc').value, price: document.getElementById('post-price').value,
+                        promo: parseInt(document.querySelector('input[name="promo"]:checked').value), image: document.getElementById('upload-preview').src || null, rating: 0
+                    };
+                    this.data.ads.push(nAd); this.saveData('ads', this.data.ads); e.target.reset();
+                    document.getElementById('upload-preview').style.display='none'; upBox.querySelector('svg').style.display='block'; upBox.querySelector('span').style.display='block';
+                    document.getElementById('post-oras').disabled=true; this.showToast('toast_success'); this.switchPage('page-home'); this.renderAds();
+                });
+
+                document.getElementById('profile-img-box').addEventListener('click', () => document.getElementById('profile-file-input').click());
+                document.getElementById('profile-file-input').addEventListener('change', e => {
+                    if(e.target.files[0]) { const r=new FileReader(); r.onload=ev=>{this.data.profile.image=ev.target.result; this.saveData('profile',this.data.profile); this.renderProfile();}; r.readAsDataURL(e.target.files[0]); }
+                });
+
+                document.getElementById('edit-profile-btn').addEventListener('click', () => { document.getElementById('edit-profile-form').classList.toggle('hidden'); document.getElementById('edit-name-input').value = this.data.profile.name; });
+                document.getElementById('save-profile-btn').addEventListener('click', () => {
+                    const v = document.getElementById('edit-name-input').value.trim();
+                    if(v) { this.data.profile.name = v; this.saveData('profile', this.data.profile); this.renderProfile(); document.getElementById('edit-profile-form').classList.add('hidden'); }
+                });
+
+                document.getElementById('theme-toggle-btn').addEventListener('click', () => this.toggleTheme());
+                document.getElementById('lang-select').addEventListener('change', e => this.setLanguage(e.target.value));
+
+                document.getElementById('feedback-text').addEventListener('input', e => document.getElementById('char-count').textContent = `${e.target.value.length}/500`);
+                document.getElementById('feedback-form').addEventListener('submit', e => { e.preventDefault(); this.showToast('toast_feedback'); e.target.reset(); document.getElementById('char-count').textContent='0/500'; setTimeout(()=>this.hideSubPages(), 1500); });
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
 </body>
 </html>
