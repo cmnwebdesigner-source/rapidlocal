@@ -34,18 +34,18 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         body { -webkit-tap-highlight-color: transparent; }
         
-        /* Ascundere scrollbar pentru caruselul de categorii */
+        /* Ascundere scrollbar pentru caruselul de categorii (Aspect nativ de mobil) */
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Scrollbar personalizat pentru restul paginii */
+        /* Scrollbar general minimalist */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #E6D28A; border-radius: 10px; }
         .dark ::-webkit-scrollbar-thumb { background: #665118; }
     </style>
 </head>
-<body class="antialiased selection:bg-gold-500 selection:text-black text-sm">
+<body class="antialiased selection:bg-gold-500 selection:text-black text-sm bg-gray-50 dark:bg-[#121212]">
 
     <div id="root"></div>
 
@@ -79,6 +79,9 @@
         const Moon = (p) => <SvgIcon {...p}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></SvgIcon>;
         const Sun = (p) => <SvgIcon {...p}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></SvgIcon>;
         const Trash2 = (p) => <SvgIcon {...p}><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></SvgIcon>;
+        const Camera = (p) => <SvgIcon {...p}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></SvgIcon>;
+        const Edit3 = (p) => <SvgIcon {...p}><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></SvgIcon>;
+        const ImageIcon = (p) => <SvgIcon {...p}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></SvgIcon>;
 
         const CATEGORIES = [
         "Tractări auto", "Vulcanizare", "Service auto", "ITP", "Diagnoză auto", 
@@ -90,7 +93,7 @@
 
         const ROMANIA_LOCATIONS = {
         "București": ["Sector 1", "Sector 2", "Sector 3", "Sector 4", "Sector 5", "Sector 6"],
-        "Alba": ["Alba Iulia", "Sebeș", "Aiud", "Blaj"],
+        "Alba": ["Alba Iulia", "Sebeș", "Aiud"],
         "Arad": ["Arad", "Pecica", "Sântana"],
         "Argeș": ["Pitești", "Mioveni", "Câmpulung"],
         "Bacău": ["Bacău", "Onești", "Moinești"],
@@ -100,24 +103,22 @@
         "Brașov": ["Brașov", "Făgăraș", "Săcele", "Zărnești"],
         "Brăila": ["Brăila", "Ianca"],
         "Buzău": ["Buzău", "Râmnicu Sărat"],
-        "Cluj": ["Cluj-Napoca", "Turda", "Dej", "Câmpia Turzii"],
+        "Cluj": ["Cluj-Napoca", "Turda", "Dej"],
         "Constanța": ["Constanța", "Medgidia", "Mangalia"],
         "Dolj": ["Craiova", "Băilești"],
         "Galați": ["Galați", "Tecuci"],
-        "Iași": ["Iași", "Pașcani", "Hârlău"],
-        "Ilfov": ["Voluntari", "Pantelimon", "Buftea", "Otopeni"],
-        "Prahova": ["Ploiești", "Câmpina", "Băicoi", "Sinaia"],
+        "Iași": ["Iași", "Pașcani"],
+        "Ilfov": ["Voluntari", "Pantelimon", "Otopeni"],
+        "Prahova": ["Ploiești", "Câmpina", "Sinaia"],
         "Sibiu": ["Sibiu", "Mediaș", "Cisnădie"],
-        "Timiș": ["Timișoara", "Lugoj", "Sânnicolau Mare"]
+        "Timiș": ["Timișoara", "Lugoj"]
         };
 
         const DEMO_ADS = [
         { id: '1', title: 'Tractări Auto NON-STOP București', firmName: 'Tractari Rapid', category: 'Tractări auto', county: 'București', city: 'Sector 3', phone: '0700 123 456', whatsapp: '0700 123 456', schedule: 'NON-STOP', price: 'De la 150 RON', description: 'Oferim servicii de tractări auto non-stop pe toată raza municipiului București și Ilfov. Intervenție în maxim 30 de minute.', rating: 4.8, promoted: true, image: 'https://images.unsplash.com/photo-1605810753063-4876b051c5f3?auto=format&fit=crop&q=80&w=400' },
         { id: '2', title: 'Vulcanizare Mobilă 24/7', firmName: 'Vulcanizare Mobilă', category: 'Vulcanizare', county: 'Cluj', city: 'Cluj-Napoca', phone: '0711 222 333', whatsapp: '0711 222 333', schedule: '24/7', price: 'De la 100 RON', description: 'Pană pe drum? Venim noi la tine! Vulcanizare mobilă, schimb anvelope, echilibrare roți la domiciliu.', rating: 4.9, promoted: true, image: 'https://images.unsplash.com/photo-1580274455135-021b181db8f8?auto=format&fit=crop&q=80&w=400' },
         { id: '3', title: 'Service Auto Multi-Marca', firmName: 'Auto Master', category: 'Service auto', county: 'Brașov', city: 'Brașov', phone: '0722 444 555', schedule: '08:00 - 18:00', price: 'Diagnoză 80 RON', description: 'Service auto autorizat RAR. Reparații mecanice, revizii, schimb distribuție.', rating: 4.6, promoted: false, image: 'https://images.unsplash.com/photo-1625047509168-a71c6f937d2f?auto=format&fit=crop&q=80&w=400' },
-        { id: '4', title: 'Stație ITP Categoria II', firmName: 'ITP Sibiu', category: 'ITP', county: 'Sibiu', city: 'Sibiu', phone: '0733 666 777', whatsapp: '0733 666 777', schedule: '08:00 - 16:00', price: '120 RON', description: 'Efectuăm Inspecția Tehnică Periodică (ITP) rapid și profesionist pentru autoturisme până în 3.5t.', rating: 4.7, promoted: false, image: 'https://images.unsplash.com/photo-1599839619722-39751411ea63?auto=format&fit=crop&q=80&w=400' },
-        { id: '5', title: 'Diagnoză Auto Profesională', firmName: 'Timișoara Diagnoză', category: 'Diagnoză auto', county: 'Timiș', city: 'Timișoara', phone: '0744 888 999', whatsapp: '0744 888 999', schedule: '09:00 - 19:00', price: '100 RON', description: 'Diagnoză auto computerizată cu testere originale pentru BMW, VAG, Mercedes.', rating: 5.0, promoted: true, image: 'https://images.unsplash.com/photo-1632733711679-529326f6db12?auto=format&fit=crop&q=80&w=400' },
-        { id: '6', title: 'Schimb Ulei și Filtre Rapid', firmName: 'Oil Service', category: 'Schimb ulei', county: 'Constanța', city: 'Constanța', phone: '0755 111 222', schedule: '08:30 - 17:30', price: 'Manoperă Gratuită', description: 'Schimb ulei motor, cutie viteze, filtre. Uleiuri Castrol, Motul, Liqui Moly în stoc.', rating: 4.5, promoted: false, image: 'https://images.unsplash.com/photo-1610647752706-b333a4ed02eb?auto=format&fit=crop&q=80&w=400' }
+        { id: '4', title: 'Stație ITP Categoria II', firmName: 'ITP Sibiu', category: 'ITP', county: 'Sibiu', city: 'Sibiu', phone: '0733 666 777', whatsapp: '0733 666 777', schedule: '08:00 - 16:00', price: '120 RON', description: 'Efectuăm Inspecția Tehnică Periodică (ITP) rapid și profesionist pentru autoturisme până în 3.5t.', rating: 4.7, promoted: false, image: 'https://images.unsplash.com/photo-1599839619722-39751411ea63?auto=format&fit=crop&q=80&w=400' }
         ];
 
         function App() {
@@ -127,6 +128,22 @@
             const [selectedAd, setSelectedAd] = useState(null);
             const [currentView, setCurrentView] = useState('main'); 
             
+            // Stare globală profil utilizator
+            const defaultProfile = {
+                photo: '',
+                name: 'Utilizator Nou',
+                nameEditsLeft: 2,
+                about: '',
+                country: 'România',
+                city: '',
+                language: 'Română'
+            };
+            const [userProfile, setUserProfile] = useState(() => {
+                const savedProfile = localStorage.getItem('autorapid_profile');
+                return savedProfile ? JSON.parse(savedProfile) : defaultProfile;
+            });
+
+            // Bug fix: Stocare anunțuri cu limitare și fallback
             const [allAds, setAllAds] = useState(() => {
                 const savedAllAds = localStorage.getItem('autorapid_allAds');
                 return savedAllAds ? JSON.parse(savedAllAds) : DEMO_ADS;
@@ -143,12 +160,16 @@
                 }
             }, []);
 
+            useEffect(() => localStorage.setItem('autorapid_saved', JSON.stringify(savedAds)), [savedAds]);
+            useEffect(() => localStorage.setItem('autorapid_profile', JSON.stringify(userProfile)), [userProfile]);
+            
+            // Măsură de siguranță: Când se salvează imagini base64, memoria poate depăși cota.
             useEffect(() => {
-                localStorage.setItem('autorapid_saved', JSON.stringify(savedAds));
-            }, [savedAds]);
-
-            useEffect(() => {
-                localStorage.setItem('autorapid_allAds', JSON.stringify(allAds));
+                try {
+                    localStorage.setItem('autorapid_allAds', JSON.stringify(allAds));
+                } catch (e) {
+                    console.warn("Memoria LocalStorage este plină. Anunțurile noi vor funcționa doar temporar în această sesiune.");
+                }
             }, [allAds]);
 
             const toggleSaveAd = (id, e) => {
@@ -174,14 +195,13 @@
                 window.scrollTo(0, 0);
             };
 
-            // Clase comune pentru o tematică unitară
             const themeClasses = {
                 bgApp: 'bg-gray-50 dark:bg-[#121212]',
                 bgCard: 'bg-white dark:bg-[#1e1e1e] border-gray-100 dark:border-gray-800',
                 textMain: 'text-gray-900 dark:text-gray-100',
                 textMuted: 'text-gray-500 dark:text-gray-400',
                 borderMuted: 'border-gray-200 dark:border-gray-800',
-                inputBg: 'bg-gray-50 dark:bg-[#2a2a2a] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:border-gold-500 focus:bg-white dark:focus:bg-[#1e1e1e]',
+                inputBg: 'bg-gray-50 dark:bg-[#2a2a2a] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:border-gold-500',
                 goldAccents: 'text-gold-500',
                 goldBg: 'bg-gradient-to-r from-gold-400 to-gold-600 text-black',
                 goldBgHover: 'hover:from-gold-300 hover:to-gold-500',
@@ -191,7 +211,6 @@
             return (
                 <div className={`min-h-screen pb-16 md:pb-0 ${themeClasses.bgApp} ${themeClasses.textMain} font-sans transition-colors duration-200`}>
                 
-                {/* Antet mai compact */}
                 <header className={`sticky top-0 z-40 w-full shadow-sm bg-white dark:bg-[#1e1e1e] border-b border-gray-200 dark:border-gray-800 pt-safe transition-colors`}>
                     <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleTabChange('home')}>
@@ -229,14 +248,15 @@
                         <SavedView allAds={allAds} savedAds={savedAds} themeClasses={themeClasses} toggleSaveAd={toggleSaveAd} openAdDetails={setSelectedAd} />
                     )}
                     {activeTab === 'profile' && currentView === 'main' && (
-                        <ProfileMenu themeClasses={themeClasses} setCurrentView={setCurrentView} toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
+                        <ProfileMenu themeClasses={themeClasses} profile={userProfile} setCurrentView={setCurrentView} toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
                     )}
-                    {activeTab === 'profile' && currentView === 'settings' && <SettingsView themeClasses={themeClasses} onBack={() => setCurrentView('main')} />}
+                    {activeTab === 'profile' && currentView === 'editProfile' && (
+                        <EditProfileView themeClasses={themeClasses} profile={userProfile} setProfile={setUserProfile} onBack={() => setCurrentView('main')} />
+                    )}
                     {activeTab === 'profile' && currentView === 'feedback' && <FeedbackView themeClasses={themeClasses} onBack={() => setCurrentView('main')} />}
                     {activeTab === 'profile' && currentView === 'inbox' && <InboxView themeClasses={themeClasses} onBack={() => setCurrentView('main')} />}
                 </main>
 
-                {/* Navigație inferioară (Mobile) */}
                 <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 ${themeClasses.bottomNav} pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.03)]`}>
                     <div className="flex justify-around items-center h-14 px-1">
                     <NavItem icon={<Home size={20} />} label="Acasă" isActive={activeTab === 'home'} onClick={() => handleTabChange('home')} themeClasses={themeClasses} />
@@ -277,7 +297,7 @@
             const [selectedCategory, setSelectedCategory] = useState('');
 
             const filteredAds = allAds.filter(ad => {
-                const matchSearch = ad.title.toLowerCase().includes(searchTerm.toLowerCase()) || ad.firmName.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchSearch = ad.title.toLowerCase().includes(searchTerm.toLowerCase()) || (ad.firmName && ad.firmName.toLowerCase().includes(searchTerm.toLowerCase()));
                 const matchCounty = selectedCounty ? ad.county === selectedCounty : true;
                 const matchCity = selectedCity ? ad.city === selectedCity : true;
                 const matchCategory = selectedCategory ? ad.category === selectedCategory : true;
@@ -287,32 +307,30 @@
             return (
                 <div className="space-y-4 pb-4 animate-fadeIn">
                 
-                {/* Secțiune Căutare Compactă */}
                 <div className={`p-3 md:p-4 rounded-xl ${themeClasses.bgCard} shadow-sm border`}>
                     <div className="relative mb-3">
                         <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
                         <input 
                         type="text" 
                         placeholder="Caută servicii (ex: ITP, Diagnoză)..." 
-                        className={`w-full pl-9 pr-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg} transition-all`}
+                        className={`w-full pl-9 pr-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg} focus:ring-1 focus:ring-gold-500 outline-none transition-all`}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                     
                     <div className="grid grid-cols-2 gap-2 mb-3">
-                        <select className={`w-full px-2 py-2 rounded-lg border text-xs md:text-sm ${themeClasses.inputBg}`} value={selectedCounty} onChange={(e) => { setSelectedCounty(e.target.value); setSelectedCity(''); }}>
+                        <select className={`w-full px-2 py-2 rounded-lg border text-xs md:text-sm ${themeClasses.inputBg} outline-none`} value={selectedCounty} onChange={(e) => { setSelectedCounty(e.target.value); setSelectedCity(''); }}>
                             <option value="">Orice Județ</option>
                             {Object.keys(ROMANIA_LOCATIONS).sort().map(judet => <option key={judet} value={judet}>{judet}</option>)}
                         </select>
 
-                        <select className={`w-full px-2 py-2 rounded-lg border text-xs md:text-sm ${themeClasses.inputBg} disabled:opacity-50`} value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} disabled={!selectedCounty}>
+                        <select className={`w-full px-2 py-2 rounded-lg border text-xs md:text-sm ${themeClasses.inputBg} outline-none disabled:opacity-50`} value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} disabled={!selectedCounty}>
                             <option value="">Orice Oraș</option>
                             {selectedCounty && ROMANIA_LOCATIONS[selectedCounty].sort().map(oras => <option key={oras} value={oras}>{oras}</option>)}
                         </select>
                     </div>
 
-                    {/* Carusel Categorii (Stil mobil modern) */}
                     <div className="flex overflow-x-auto hide-scroll gap-2 pb-1 -mx-1 px-1">
                         <button onClick={() => setSelectedCategory('')} className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${selectedCategory === '' ? 'bg-gray-800 text-white dark:bg-gray-100 dark:text-black border-transparent' : `${themeClasses.bgApp} ${themeClasses.borderMuted}`}`}>
                             Toate
@@ -351,7 +369,8 @@
         };
 
         const PublishView = ({ themeClasses, onPublish }) => {
-            const [formData, setFormData] = useState({ firmName: '', category: '', county: '', city: '', address: '', phone: '', whatsapp: '', schedule: '', price: '', description: '', plan: 'free' });
+            const [formData, setFormData] = useState({ firmName: '', category: '', county: '', city: '', phone: '', whatsapp: '', schedule: '', price: '', description: '', plan: 'free' });
+            const [adImage, setAdImage] = useState(null); // Bug fix: Poza incarcata de utilizator
             const [errorMsg, setErrorMsg] = useState('');
             const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -362,26 +381,38 @@
                 if (errorMsg && name === 'category') setErrorMsg('');
             };
 
+            const handleImageUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => setAdImage(reader.result);
+                    reader.readAsDataURL(file);
+                }
+            };
+
             const handleSubmit = (e) => {
                 e.preventDefault();
                 if (!formData.category) {
-                setErrorMsg('Selectează o categorie pentru anunț.');
-                window.scrollTo(0, 0);
-                return;
+                    setErrorMsg('Selectează o categorie pentru anunț.');
+                    window.scrollTo(0, 0);
+                    return;
                 }
                 
                 setIsSubmitting(true);
                 setTimeout(() => {
-                const newAd = { 
-                    id: Date.now().toString(), 
-                    title: `${formData.category} ${formData.city}`, 
-                    ...formData, 
-                    rating: 0, 
-                    promoted: formData.plan !== 'free', 
-                    image: 'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&q=80&w=400' 
-                };
-                onPublish(newAd);
-                setIsSubmitting(false);
+                    // Generăm link placeholder dacă nu a fost urcată o imagine
+                    const finalImage = adImage || 'https://placehold.co/400x300/E6D28A/000000?text=Fara+Imagine';
+                    
+                    const newAd = { 
+                        id: Date.now().toString(), 
+                        title: `${formData.category} ${formData.city}`, 
+                        ...formData, 
+                        rating: 0, 
+                        promoted: formData.plan !== 'free', 
+                        image: finalImage 
+                    };
+                    onPublish(newAd);
+                    setIsSubmitting(false);
                 }, 800);
             };
 
@@ -401,29 +432,45 @@
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className={`p-4 rounded-xl ${themeClasses.bgCard} border shadow-sm space-y-3`}>
-                        <h2 className="text-sm font-bold text-gold-600 dark:text-gold-500 uppercase tracking-wide">1. Bază</h2>
+                        <h2 className="text-sm font-bold text-gold-600 dark:text-gold-500 uppercase tracking-wide">1. Imagine Anunț</h2>
+                        
+                        <div className={`w-full h-32 border-2 border-dashed rounded-xl flex flex-col items-center justify-center relative overflow-hidden transition-colors ${adImage ? 'border-transparent' : themeClasses.borderMuted} hover:border-gold-500`}>
+                            {adImage ? (
+                                <img src={adImage} alt="Previzualizare" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-center p-4">
+                                    <ImageIcon className="mx-auto text-gray-400 mb-1" size={24} />
+                                    <span className={`text-xs font-medium ${themeClasses.textMuted}`}>Apasă pentru a adăuga o fotografie</span>
+                                </div>
+                            )}
+                            <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                        </div>
+                    </div>
+
+                    <div className={`p-4 rounded-xl ${themeClasses.bgCard} border shadow-sm space-y-3`}>
+                        <h2 className="text-sm font-bold text-gold-600 dark:text-gold-500 uppercase tracking-wide">2. Bază</h2>
                         <div>
                             <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Categorie *</label>
-                            <select name="category" value={formData.category} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm ${!formData.category && errorMsg ? 'border-red-500' : themeClasses.borderMuted} ${themeClasses.inputBg}`}>
+                            <select name="category" value={formData.category} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${!formData.category && errorMsg ? 'border-red-500' : themeClasses.borderMuted} ${themeClasses.inputBg}`}>
                             <option value="">Alege categoria</option>
                             {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                             </select>
                         </div>
                         <div>
                             <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Nume Firmă / Service</label>
-                            <input type="text" name="firmName" required placeholder="Ex: Auto Garage SRL" value={formData.firmName} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg}`} />
+                            <input type="text" name="firmName" required placeholder="Ex: Auto Garage SRL" value={formData.firmName} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg}`} />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                             <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Județ</label>
-                            <select name="county" required value={formData.county} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg}`}>
+                            <select name="county" required value={formData.county} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg}`}>
                                 <option value="">Alege</option>
                                 {Object.keys(ROMANIA_LOCATIONS).sort().map(judet => <option key={judet} value={judet}>{judet}</option>)}
                             </select>
                             </div>
                             <div>
                             <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Oraș</label>
-                            <select name="city" required value={formData.city} onChange={handleInputChange} disabled={!formData.county} className={`w-full px-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg} disabled:opacity-50`}>
+                            <select name="city" required value={formData.city} onChange={handleInputChange} disabled={!formData.county} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg} disabled:opacity-50`}>
                                 <option value="">Alege</option>
                                 {formData.county && ROMANIA_LOCATIONS[formData.county].sort().map(oras => <option key={oras} value={oras}>{oras}</option>)}
                             </select>
@@ -432,35 +479,35 @@
                     </div>
 
                     <div className={`p-4 rounded-xl ${themeClasses.bgCard} border shadow-sm space-y-3`}>
-                        <h2 className="text-sm font-bold text-gold-600 dark:text-gold-500 uppercase tracking-wide">2. Detalii</h2>
+                        <h2 className="text-sm font-bold text-gold-600 dark:text-gold-500 uppercase tracking-wide">3. Detalii</h2>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Telefon</label>
-                                <input type="tel" name="phone" required placeholder="07XX..." value={formData.phone} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg}`} />
+                                <input type="tel" name="phone" required placeholder="07XX..." value={formData.phone} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg}`} />
                             </div>
                             <div>
                                 <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">WhatsApp</label>
-                                <input type="tel" name="whatsapp" placeholder="07XX..." value={formData.whatsapp} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg}`} />
+                                <input type="tel" name="whatsapp" placeholder="07XX..." value={formData.whatsapp} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg}`} />
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Program</label>
-                                <input type="text" name="schedule" placeholder="Ex: 08-18" value={formData.schedule} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg}`} />
+                                <input type="text" name="schedule" placeholder="Ex: 08-18" value={formData.schedule} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg}`} />
                             </div>
                             <div>
                                 <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Preț</label>
-                                <input type="text" name="price" placeholder="Ex: 100 RON" value={formData.price} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg}`} />
+                                <input type="text" name="price" placeholder="Ex: 100 RON" value={formData.price} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg}`} />
                             </div>
                         </div>
                         <div>
                             <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Descriere</label>
-                            <textarea name="description" required rows="3" placeholder="Descrie serviciile..." value={formData.description} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg} resize-none`}></textarea>
+                            <textarea name="description" required rows="3" placeholder="Descrie serviciile..." value={formData.description} onChange={handleInputChange} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg} resize-none`}></textarea>
                         </div>
                     </div>
 
                     <div className={`p-4 rounded-xl ${themeClasses.bgCard} border shadow-sm`}>
-                    <h2 className="text-sm font-bold text-gold-600 dark:text-gold-500 uppercase tracking-wide mb-3">3. Promovare</h2>
+                    <h2 className="text-sm font-bold text-gold-600 dark:text-gold-500 uppercase tracking-wide mb-3">4. Promovare</h2>
                     <div className="grid grid-cols-2 gap-3">
                         <label className={`relative p-3 rounded-xl border cursor-pointer transition-all ${formData.plan === 'free' ? 'bg-gray-50 dark:bg-gray-800 border-gray-400 dark:border-gray-600' : themeClasses.borderMuted}`}>
                         <input type="radio" name="plan" value="free" checked={formData.plan === 'free'} onChange={handleInputChange} className="sr-only" />
@@ -478,7 +525,7 @@
                             <span className="font-bold text-sm text-gold-600 dark:text-gold-500">Premium</span>
                             {formData.plan === 'premium' && <CheckCircle2 className="text-gold-500" size={16} />}
                         </div>
-                        <div className="text-xs font-bold">49 RON <span className="font-normal text-gray-500">/luna</span></div>
+                        <div className="text-xs font-bold">49 RON <span className="font-normal text-gray-500">/lună</span></div>
                         </label>
                     </div>
                     </div>
@@ -512,16 +559,22 @@
             );
         };
 
-        const ProfileMenu = ({ themeClasses, setCurrentView, toggleTheme, isDarkMode }) => (
+        const ProfileMenu = ({ themeClasses, profile, setCurrentView, toggleTheme, isDarkMode }) => (
             <div className="max-w-md mx-auto animate-fadeIn">
                 <div className={`p-4 rounded-xl ${themeClasses.bgCard} border mb-4 flex items-center gap-3 shadow-sm`}>
-                    <div className="w-12 h-12 bg-gradient-to-br from-gold-400 to-gold-600 rounded-full flex items-center justify-center"><User size={24} className="text-black" /></div>
-                    <div><h2 className="text-lg font-bold leading-tight">Salut, User</h2><p className={`text-xs ${themeClasses.textMuted}`}>Membru din 2026</p></div>
+                    <div className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center shrink-0 bg-gradient-to-br from-gold-400 to-gold-600">
+                        {profile.photo ? <img src={profile.photo} alt="Profil" className="w-full h-full object-cover" /> : <User size={26} className="text-black" />}
+                    </div>
+                    <div className="overflow-hidden">
+                        <h2 className="text-lg font-bold leading-tight truncate">{profile.name}</h2>
+                        <p className={`text-xs ${themeClasses.textMuted}`}>{profile.city ? `${profile.city}, ${profile.country}` : 'Membru din 2026'}</p>
+                    </div>
                 </div>
 
                 <div className={`rounded-xl ${themeClasses.bgCard} border shadow-sm overflow-hidden`}>
                     <MenuButton icon={<Bell size={18}/>} label="Mesaje" onClick={() => setCurrentView('inbox')} themeClasses={themeClasses} badge="2" />
-                    <MenuButton icon={<Settings size={18}/>} label="Setări Cont" onClick={() => setCurrentView('settings')} themeClasses={themeClasses} />
+                    {/* Aici am înlocuit butonul "Setări Cont" cu "Editează Profil" cerut */}
+                    <MenuButton icon={<Edit3 size={18}/>} label="Editează Profil" onClick={() => setCurrentView('editProfile')} themeClasses={themeClasses} />
                     
                     <div className={`border-t ${themeClasses.borderMuted} px-4 py-3 flex items-center justify-between`}>
                         <div className="flex items-center gap-3">
@@ -539,6 +592,128 @@
             </div>
         );
 
+        const EditProfileView = ({ themeClasses, profile, setProfile, onBack }) => {
+            const [formData, setFormData] = useState({ ...profile });
+            const [error, setError] = useState('');
+
+            const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+            const handlePhotoUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => setFormData({ ...formData, photo: reader.result });
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const handleSave = () => {
+                let updatedProfile = { ...formData };
+                
+                // Logică pentru limitarea editării numelui (Maxim de 2 ori)
+                if (formData.name !== profile.name) {
+                    if (profile.nameEditsLeft <= 0) {
+                        setError('Ai atins limita maximă de modificări ale numelui.');
+                        return;
+                    }
+                    updatedProfile.nameEditsLeft = profile.nameEditsLeft - 1;
+                }
+                
+                setProfile(updatedProfile);
+                onBack();
+            };
+
+            return (
+                <div className="max-w-md mx-auto animate-fadeIn pb-6">
+                    <button onClick={onBack} className="flex items-center gap-1 mb-4 hover:text-gold-500 transition-colors font-medium text-sm">
+                        <ChevronLeft size={18} /> Înapoi
+                    </button>
+                    <h1 className="text-xl font-bold mb-4 px-1">Editează Profil</h1>
+                    
+                    {error && (
+                        <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl flex items-center gap-2 text-sm font-medium border border-red-200">
+                            <AlertTriangle size={16} /> {error}
+                        </div>
+                    )}
+
+                    <div className={`p-4 rounded-xl ${themeClasses.bgCard} border space-y-4 shadow-sm`}>
+                        
+                        {/* Fotografia ta */}
+                        <div className="flex flex-col items-center mb-2">
+                            <div className="relative w-20 h-20 rounded-full mb-2 bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center overflow-hidden">
+                                {formData.photo ? (
+                                    <img src={formData.photo} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    <Camera size={24} className={themeClasses.textMuted} />
+                                )}
+                                <input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                            </div>
+                            <span className="text-xs font-medium text-gold-600 dark:text-gold-500">Alege fotografia</span>
+                        </div>
+
+                        {/* Nume - Limitare 2 editări */}
+                        <div>
+                            <div className="flex justify-between items-end mb-1">
+                                <label className="text-xs font-bold text-gray-500 uppercase">Nume</label>
+                                <span className="text-[10px] text-gray-400">Modificări rămase: {profile.nameEditsLeft}</span>
+                            </div>
+                            <input 
+                                type="text" 
+                                name="name"
+                                value={formData.name} 
+                                onChange={handleChange}
+                                disabled={profile.nameEditsLeft === 0 && formData.name === profile.name}
+                                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg} disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-900`} 
+                            />
+                        </div>
+
+                        {/* Despre Tine */}
+                        <div>
+                            <div className="flex justify-between items-end mb-1">
+                                <label className="text-xs font-bold text-gray-500 uppercase">Despre tine</label>
+                                <span className="text-[10px] text-gray-400">{formData.about?.length || 0}/100</span>
+                            </div>
+                            <textarea 
+                                name="about"
+                                maxLength="100"
+                                rows="2"
+                                placeholder="Câteva cuvinte despre tine..."
+                                value={formData.about} 
+                                onChange={handleChange}
+                                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg} resize-none`} 
+                            ></textarea>
+                        </div>
+
+                        {/* Țară și Oraș */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Țară</label>
+                                <input type="text" name="country" value={formData.country} onChange={handleChange} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg}`} />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Oraș</label>
+                                <input type="text" name="city" placeholder="Ex: București" value={formData.city} onChange={handleChange} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg}`} />
+                            </div>
+                        </div>
+
+                        {/* Limba */}
+                        <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Limbă</label>
+                            <select name="language" value={formData.language} onChange={handleChange} className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg}`}>
+                                <option value="Română">Română</option>
+                                <option value="Engleză">Engleză</option>
+                                <option value="Maghiară">Maghiară</option>
+                            </select>
+                        </div>
+
+                        <button onClick={handleSave} className={`w-full mt-4 py-2.5 rounded-lg text-sm font-bold shadow-md ${themeClasses.goldBg}`}>
+                            Salvează Profilul
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
         const MenuButton = ({ icon, label, onClick, themeClasses, badge, hideArrow, className = "" }) => (
             <button onClick={onClick} className={`w-full px-4 py-3 flex items-center justify-between border-t first:border-0 ${themeClasses.borderMuted} hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${className}`}>
                 <div className="flex items-center gap-3">
@@ -552,24 +727,12 @@
             </button>
         );
 
-        const SettingsView = ({ themeClasses, onBack }) => (
-            <div className="max-w-md mx-auto animate-fadeIn">
-            <button onClick={onBack} className="flex items-center gap-1 mb-4 hover:text-gold-500 transition-colors font-medium text-sm"><ChevronLeft size={18} /> Înapoi</button>
-            <h1 className="text-xl font-bold mb-4">Setări</h1>
-            <div className={`p-4 rounded-xl ${themeClasses.bgCard} border space-y-3 mb-4 shadow-sm`}>
-                <label className="text-xs font-bold text-gray-500 uppercase">Nume</label>
-                <input type="text" defaultValue="Utilizator" className={`w-full px-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg}`} />
-                <button className={`mt-2 px-4 py-2 rounded-lg text-sm font-bold shadow-sm ${themeClasses.goldBg}`}>Salvează</button>
-            </div>
-            </div>
-        );
-
         const FeedbackView = ({ themeClasses, onBack }) => (
             <div className="max-w-md mx-auto animate-fadeIn">
                 <button onClick={onBack} className="flex items-center gap-1 mb-4 hover:text-gold-500 transition-colors font-medium text-sm"><ChevronLeft size={18} /> Înapoi</button>
                 <div className={`p-4 rounded-xl ${themeClasses.bgCard} border shadow-sm`}>
                     <h1 className="text-xl font-bold mb-3">Feedback</h1>
-                    <textarea rows="4" placeholder="Ce putem îmbunătăți?" className={`w-full px-3 py-2 rounded-lg border text-sm ${themeClasses.inputBg} mb-3 resize-none`}></textarea>
+                    <textarea rows="4" placeholder="Ce putem îmbunătăți?" className={`w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-1 focus:ring-gold-500 ${themeClasses.inputBg} mb-3 resize-none`}></textarea>
                     <button onClick={onBack} className={`w-full py-2.5 rounded-lg text-sm font-bold shadow-md ${themeClasses.goldBg}`}>Trimite</button>
                 </div>
             </div>
