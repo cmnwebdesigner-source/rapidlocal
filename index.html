@@ -1,858 +1,1055 @@
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AutoRapid RO</title>
-    <style>
-        :root {
-            --bg: #ffffff;
-            --surface: #ffffff;
-            --text-main: #111111;
-            --text-muted: #757575;
-            --primary: #007782; /* Vinted Teal */
-            --primary-light: #e0f4f5;
-            --secondary: #007782;
-            --danger: #c20000;
-            --border: #ededed;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --radius: 8px;
-            --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            --bottom-nav-height: 60px;
-        }
+import React, { useState, useEffect } from 'react';
+import { 
+  Home, Search, PlusCircle, Heart, User, MapPin, Phone, MessageCircle, 
+  Star, Clock, Shield, Settings, MessageSquare, Bell, ChevronRight, X, 
+  Image as ImageIcon, AlertTriangle, CheckCircle2, ChevronLeft, LogOut,
+  Mail, Globe, Moon, Sun, Trash2
+} from 'lucide-react';
 
-        [data-theme="dark"] {
-            --bg: #121212;
-            --surface: #1e1e1e;
-            --text-main: #f5f5f5;
-            --text-muted: #a0a0a0;
-            --primary: #00a8b5;
-            --primary-light: #003e44;
-            --secondary: #00a8b5;
-            --border: #333333;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-        }
+// --- DATE MOCK ȘI CONSTANTE ---
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: var(--font); background-color: var(--bg); color: var(--text-main);
-            padding-bottom: calc(var(--bottom-nav-height) + 20px); transition: background-color 0.3s, color 0.3s;
-            overflow-x: hidden;
-        }
-        a { text-decoration: none; color: inherit; }
-        button, select, input, textarea { font-family: inherit; outline: none; border: none; }
-        ul { list-style: none; }
+const CATEGORIES = [
+  "Tractări auto", "Vulcanizare", "Service auto", "ITP", "Diagnoză auto", 
+  "Schimb ulei", "Piese auto", "Spălătorie auto", "Detailing auto", 
+  "Tinichigerie", "Vopsitorie", "Electrician auto", "Închirieri auto", 
+  "Dezmembrări auto", "Anvelope", "Asigurări auto", "Platformă auto", 
+  "Mecanic la domiciliu"
+];
 
-        h1, h2, h3 { font-weight: 700; color: var(--text-main); }
-        .text-muted { color: var(--text-muted); }
-        .text-sm { font-size: 0.875rem; }
-        .text-xs { font-size: 0.75rem; }
-        .font-bold { font-weight: 700; }
-        .text-center { text-align: center; }
-        
-        .hidden { display: none !important; }
-        .flex { display: flex; }
-        .flex-col { display: flex; flex-direction: column; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .gap-2 { gap: 0.5rem; }
-        .p-4 { padding: 1rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mt-4 { margin-top: 1rem; }
-        .w-full { width: 100%; }
+// O listă reprezentativă și bogată de județe și orașe
+const ROMANIA_LOCATIONS = {
+  "București": ["Sector 1", "Sector 2", "Sector 3", "Sector 4", "Sector 5", "Sector 6"],
+  "Alba": ["Alba Iulia", "Sebeș", "Aiud", "Blaj", "Cugir"],
+  "Arad": ["Arad", "Pecica", "Sântana", "Lipova"],
+  "Argeș": ["Pitești", "Mioveni", "Câmpulung", "Curtea de Argeș"],
+  "Bacău": ["Bacău", "Onești", "Moinești", "Comănești"],
+  "Bihor": ["Oradea", "Salonta", "Marghita", "Beiuș"],
+  "Bistrița-Năsăud": ["Bistrița", "Năsăud", "Sângeorz-Băi"],
+  "Botoșani": ["Botoșani", "Dorohoi", "Darabani"],
+  "Brașov": ["Brașov", "Făgăraș", "Săcele", "Zărnești", "Codlea", "Râșnov"],
+  "Brăila": ["Brăila", "Ianca", "Făurei"],
+  "Buzău": ["Buzău", "Râmnicu Sărat", "Nehoiu"],
+  "Caraș-Severin": ["Reșița", "Caransebeș", "Bocșa"],
+  "Călărași": ["Călărași", "Oltenița"],
+  "Cluj": ["Cluj-Napoca", "Turda", "Dej", "Câmpia Turzii", "Gherla"],
+  "Constanța": ["Constanța", "Medgidia", "Mangalia", "Năvodari", "Cernavodă"],
+  "Covasna": ["Sfântu Gheorghe", "Târgu Secuiesc", "Covasna"],
+  "Dâmbovița": ["Târgoviște", "Moreni", "Pucioasa"],
+  "Dolj": ["Craiova", "Băilești", "Calafat"],
+  "Galați": ["Galați", "Tecuci", "Târgu Bujor"],
+  "Giurgiu": ["Giurgiu", "Bolintin-Vale", "Mihăilești"],
+  "Gorj": ["Târgu Jiu", "Motru", "Rovinari"],
+  "Harghita": ["Miercurea Ciuc", "Odorheiu Secuiesc", "Gheorgheni"],
+  "Hunedoara": ["Deva", "Hunedoara", "Petroșani", "Vulcan", "Lupeni"],
+  "Ialomița": ["Slobozia", "Fetești", "Urziceni"],
+  "Iași": ["Iași", "Pașcani", "Hârlău"],
+  "Ilfov": ["Voluntari", "Pantelimon", "Buftea", "Popești-Leordeni", "Otopeni", "Bragadiru"],
+  "Maramureș": ["Baia Mare", "Sighetu Marmației", "Borșa"],
+  "Mehedinți": ["Drobeta-Turnu Severin", "Orșova", "Strehaia"],
+  "Mureș": ["Târgu Mureș", "Reghin", "Sighișoara", "Târnăveni"],
+  "Neamț": ["Piatra Neamț", "Roman", "Târgu Neamț"],
+  "Olt": ["Slatina", "Caracal", "Balș"],
+  "Prahova": ["Ploiești", "Câmpina", "Băicoi", "Breaza", "Sinaia"],
+  "Satu Mare": ["Satu Mare", "Carei", "Negrești-Oaș"],
+  "Sălaj": ["Zalău", "Șimleu Silvaniei", "Jibou"],
+  "Sibiu": ["Sibiu", "Mediaș", "Cisnădie", "Avrig"],
+  "Suceava": ["Suceava", "Fălticeni", "Rădăuți", "Câmpulung Moldovenesc", "Vatra Dornei"],
+  "Teleorman": ["Alexandria", "Roșiori de Vede", "Turnu Măgurele"],
+  "Timiș": ["Timișoara", "Lugoj", "Sânnicolau Mare", "Jimbolia"],
+  "Tulcea": ["Tulcea", "Măcin", "Babadag"],
+  "Vaslui": ["Vaslui", "Bârlad", "Huși"],
+  "Vâlcea": ["Râmnicu Vâlcea", "Drăgășani", "Călimănești"],
+  "Vrancea": ["Focșani", "Adjud", "Mărășești"]
+};
 
-        .container { max-width: 600px; margin: 0 auto; padding: 0 1rem; } 
-        
-        .input-group { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
-        .input-group label { font-size: 0.875rem; font-weight: 600; color: var(--text-main); }
-        .form-control {
-            width: 100%; padding: 0.8rem 1rem; border-radius: 8px;
-            background-color: var(--surface); border: 1px solid var(--border);
-            color: var(--text-main); font-size: 1rem; transition: border-color 0.2s;
-        }
-        .form-control:focus { border-color: var(--primary); }
-        textarea.form-control { resize: vertical; min-height: 100px; }
-        
-        .btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 0.8rem 1rem; border-radius: 8px; font-weight: 600; font-size: 1rem;
-            cursor: pointer; transition: transform 0.1s, opacity 0.2s; width: 100%; gap: 0.5rem;
-        }
-        .btn:active { transform: scale(0.98); }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-outline { background-color: transparent; border: 1px solid var(--border); color: var(--text-main); }
-        
-        .card {
-            background-color: var(--surface); border-radius: var(--radius);
-            padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
-        }
-        
-        .v-header-sticky {
-            position: sticky; top: 0; background: var(--bg); z-index: 50;
-            padding: 1rem 0; border-bottom: 1px solid var(--border);
-            margin: 0 -1rem 1rem -1rem; padding-left: 1rem; padding-right: 1rem;
-        }
-        .v-logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.75rem; letter-spacing: -0.5px; }
-        .v-search-bar { position: relative; margin-bottom: 0.75rem; }
-        .v-search-bar input {
-            width: 100%; background: var(--surface); border-radius: 8px;
-            padding: 0.6rem 1rem 0.6rem 2.5rem; border: 1px solid var(--border); font-size: 1rem; color: var(--text-main);
-            box-shadow: var(--shadow-sm);
-        }
-        .v-search-bar input:focus { border-color: var(--primary); outline: none; }
-        .v-search-bar svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-muted); }
-        
-        .v-filters-row { display: flex; gap: 0.5rem; }
-        .v-filters-row .select-wrapper { flex: 1; position: relative; }
-        .v-filters-row .select-wrapper::after {
-            content: "▼"; font-size: 0.6rem; color: var(--text-muted);
-            position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none;
-        }
-        .v-filters-row select { 
-            background: var(--surface); border: 1px solid var(--border); padding: 0.5rem; 
-            border-radius: 6px; font-size: 0.85rem; width: 100%; color: var(--text-main);
-            appearance: none; -webkit-appearance: none;
-        }
+const DEMO_ADS = [
+  {
+    id: '1',
+    title: 'Tractări Auto NON-STOP București',
+    firmName: 'Tractari Rapid SRL',
+    category: 'Tractări auto',
+    county: 'București',
+    city: 'Sector 3',
+    address: 'Bd. Camil Ressu, Nr. 12',
+    phone: '0700 123 456',
+    whatsapp: '0700 123 456',
+    schedule: 'Luni - Duminică: NON-STOP',
+    price: 'De la 150 RON',
+    description: 'Oferim servicii de tractări auto non-stop pe toată raza municipiului București și Ilfov. Intervenție rapidă în maxim 30 de minute. Platformă hidraulică, transport auto în siguranță.',
+    rating: 4.8,
+    promoted: true,
+    image: 'https://images.unsplash.com/photo-1605810753063-4876b051c5f3?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: '2',
+    title: 'Vulcanizare Mobilă 24/7',
+    firmName: 'Vulcanizare Mobilă Cluj',
+    category: 'Vulcanizare',
+    county: 'Cluj',
+    city: 'Cluj-Napoca',
+    address: 'Intervenții pe traseu',
+    phone: '0711 222 333',
+    whatsapp: '0711 222 333',
+    schedule: 'Luni - Duminică: 24/7',
+    price: 'De la 100 RON',
+    description: 'Pană pe drum? Venim noi la tine! Vulcanizare mobilă, schimb anvelope, echilibrare roți la domiciliu sau pe autostradă.',
+    rating: 4.9,
+    promoted: true,
+    image: 'https://images.unsplash.com/photo-1580274455135-021b181db8f8?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: '3',
+    title: 'Service Auto Multi-Marca',
+    firmName: 'Auto Master Brașov',
+    category: 'Service auto',
+    county: 'Brașov',
+    city: 'Brașov',
+    address: 'Calea București, Nr. 105',
+    phone: '0722 444 555',
+    whatsapp: '',
+    schedule: 'Luni - Vineri: 08:00 - 18:00',
+    price: 'Diagnoză 80 RON',
+    description: 'Service auto autorizat RAR. Reparații mecanice, revizii periodice, schimb distribuție, reparații frâne. Echipă profesionistă și piese de calitate.',
+    rating: 4.6,
+    promoted: false,
+    image: 'https://images.unsplash.com/photo-1625047509168-a71c6f937d2f?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: '4',
+    title: 'Stație ITP Categoria II',
+    firmName: 'ITP Sibiu Center',
+    category: 'ITP',
+    county: 'Sibiu',
+    city: 'Sibiu',
+    address: 'Str. Alba Iulia, Nr. 40',
+    phone: '0733 666 777',
+    whatsapp: '0733 666 777',
+    schedule: 'Luni - Sâmbătă: 08:00 - 16:00',
+    price: '120 RON Autoturisme',
+    description: 'Efectuăm Inspecția Tehnică Periodică (ITP) rapid și profesionist pentru autoturisme și autoutilitare până în 3.5t. Fără programare obligatorie.',
+    rating: 4.7,
+    promoted: false,
+    image: 'https://images.unsplash.com/photo-1599839619722-39751411ea63?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: '5',
+    title: 'Diagnoză Auto Profesională',
+    firmName: 'Timișoara Diagnoză',
+    category: 'Diagnoză auto',
+    county: 'Timiș',
+    city: 'Timișoara',
+    address: 'Bd. Liviu Rebreanu',
+    phone: '0744 888 999',
+    whatsapp: '0744 888 999',
+    schedule: 'Luni - Vineri: 09:00 - 19:00',
+    price: '100 RON',
+    description: 'Diagnoză auto computerizată cu testere originale pentru BMW, VAG, Mercedes. Ștergere erori, adaptări, regenerare DPF.',
+    rating: 5.0,
+    promoted: true,
+    image: 'https://images.unsplash.com/photo-1632733711679-529326f6db12?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: '6',
+    title: 'Schimb Ulei și Filtre Rapid',
+    firmName: 'Oil Service Constanța',
+    category: 'Schimb ulei',
+    county: 'Constanța',
+    city: 'Constanța',
+    address: 'Bd. Aurel Vlaicu',
+    phone: '0755 111 222',
+    whatsapp: '',
+    schedule: 'Luni - Vineri: 08:30 - 17:30',
+    price: 'Manoperă Gratuită la uleiul nostru',
+    description: 'Schimb ulei motor, cutie viteze, filtre (aer, habitaclu, combustibil). Avem pe stoc uleiuri Castrol, Motul, Liqui Moly, Ravenol.',
+    rating: 4.5,
+    promoted: false,
+    image: 'https://images.unsplash.com/photo-1610647752706-b333a4ed02eb?auto=format&fit=crop&q=80&w=400',
+  }
+];
 
-        .v-categories-scroll {
-            display: flex; overflow-x: auto; gap: 1rem; padding-bottom: 1rem;
-            margin: 0 -1rem 1.5rem -1rem; padding-left: 1rem; padding-right: 1rem;
-            scrollbar-width: none;
-        }
-        .v-categories-scroll::-webkit-scrollbar { display: none; }
-        .v-cat-pill {
-            display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-            min-width: 64px; cursor: pointer;
-        }
-        .v-cat-icon {
-            width: 56px; height: 56px; border-radius: 50%; background: var(--surface);
-            border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
-            color: var(--primary); transition: all 0.2s; box-shadow: var(--shadow-sm);
-        }
-        .v-cat-pill.active .v-cat-icon { border-color: var(--primary); border-width: 2px; }
-        .v-cat-icon svg { width: 24px; height: 24px; }
-        .v-cat-text { font-size: 0.75rem; text-align: center; color: var(--text-main); white-space: nowrap; font-weight: 500; }
+// --- COMPONENTA PRINCIPALĂ ---
 
-        .v-ads-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem 0.5rem; }
-        .v-card { display: flex; flex-direction: column; cursor: pointer; }
-        .v-img-box {
-            width: 100%; aspect-ratio: 3/4; border-radius: 6px; background: var(--border);
-            position: relative; overflow: hidden; margin-bottom: 0.5rem; border: 1px solid var(--border);
-        }
-        .v-img-box img { width: 100%; height: 100%; object-fit: cover; }
-        .v-heart-btn {
-            position: absolute; bottom: 8px; right: 8px; background: rgba(255,255,255,0.9);
-            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: var(--text-muted); border: 1px solid #e5e5e5; z-index: 2; cursor: pointer;
-        }
-        [data-theme="dark"] .v-heart-btn { background: rgba(30,30,30,0.9); border-color: #444; }
-        .v-heart-btn.saved { color: var(--primary); }
-        
-        .badge-promoted {
-            position: absolute; top: 8px; left: 8px; background: var(--surface);
-            color: var(--primary); font-size: 0.65rem; font-weight: 700; padding: 2px 6px;
-            border-radius: 4px; text-transform: uppercase; z-index: 2; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        .badge-premium { background: #eab308; color: white; border: none; }
-        
-        .v-price { font-weight: 700; font-size: 1rem; color: var(--text-main); margin-bottom: 2px; }
-        .v-title { font-size: 0.8rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 2px; }
-        .v-meta { font-size: 0.75rem; color: var(--text-muted); }
-        .v-actions { display: flex; gap: 0.25rem; margin-top: 0.5rem; }
-        .v-btn { flex: 1; padding: 0.4rem; border-radius: 4px; border: 1px solid var(--primary); background: transparent; color: var(--primary); display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        .v-btn-wa { border-color: #25D366; color: #25D366; }
-        .v-btn svg { width: 16px; height: 16px; }
+export default function App() {
+  const [activeTab, setActiveTab] = useState('home');
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [savedAds, setSavedAds] = useState([]);
+  const [allAds, setAllAds] = useState(DEMO_ADS);
+  const [selectedAd, setSelectedAd] = useState(null);
+  
+  // Stări pentru Navigație Secundară
+  const [currentView, setCurrentView] = useState('main'); // main, settings, feedback, inbox
+  
+  // Inițializare din LocalStorage
+  useEffect(() => {
+    const localSaved = localStorage.getItem('autorapid_saved');
+    if (localSaved) {
+      setSavedAds(JSON.parse(localSaved));
+    }
+    const localTheme = localStorage.getItem('autorapid_theme');
+    if (localTheme === 'dark') setIsDarkMode(true);
+  }, []);
 
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav-height);
-            background-color: var(--surface); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 1000; padding-bottom: env(safe-area-inset-bottom);
-        }
-        
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer;
-            padding: 0.5rem; flex: 1; position: relative;
-        }
-        .nav-item.active { color: var(--primary); }
-        .nav-item svg { width: 24px; height: 24px; stroke-width: 2; fill: none; stroke: currentColor; }
-        .nav-item.active svg { stroke: var(--primary); }
-        
-        .badge-count {
-            position: absolute; top: 2px; right: 20%; background-color: var(--danger);
-            color: white; font-size: 0.6rem; font-weight: bold; width: 16px; height: 16px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        }
+  // Salvare în LocalStorage
+  useEffect(() => {
+    localStorage.setItem('autorapid_saved', JSON.stringify(savedAds));
+  }, [savedAds]);
 
-        .profile-menu { margin-top: 1rem; }
-        .profile-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 1rem; background-color: var(--surface); border: 1px solid var(--border);
-            margin-bottom: 0.5rem; border-radius: 8px; cursor: pointer;
-        }
-        .profile-item-left { display: flex; align-items: center; gap: 1rem; font-weight: 600; }
-        .profile-item-left svg { width: 24px; height: 24px; color: var(--text-muted); }
-        .profile-item-right svg { width: 20px; height: 20px; color: var(--text-muted); }
-        .section-title { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin: 1.5rem 0 0.5rem 0; font-weight: 700; }
+  const toggleSaveAd = (id, e) => {
+    e.stopPropagation();
+    if (savedAds.includes(id)) {
+      setSavedAds(savedAds.filter(adId => adId !== id));
+    } else {
+      setSavedAds([...savedAds, id]);
+    }
+  };
 
-        .upload-box {
-            border: 1px dashed var(--border); border-radius: 8px; padding: 2rem;
-            text-align: center; cursor: pointer; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 0.5rem; color: var(--text-muted);
-            background-color: var(--surface);
-        }
-        .upload-box img { max-width: 100%; max-height: 150px; border-radius: 8px; display: none; }
-        #file-input { display: none; }
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    localStorage.setItem('autorapid_theme', !isDarkMode ? 'dark' : 'light');
+  };
 
-        .promo-option {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.5rem;
-            cursor: pointer; background-color: var(--surface);
-        }
-        .promo-option input[type="radio"] { width: 20px; height: 20px; accent-color: var(--primary); }
-        .promo-info { flex: 1; margin-left: 1rem; }
-        .promo-price { font-weight: 700; color: var(--primary); }
+  // Navigare sigură inter-taburi
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setCurrentView('main');
+    window.scrollTo(0, 0);
+  };
 
-        .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background-color: var(--primary); color: white; padding: 1rem 1.5rem;
-            border-radius: 30px; font-weight: 600; box-shadow: var(--shadow);
-            transition: transform 0.3s; z-index: 2000;
-        }
-        .toast.show { transform: translateX(-50%) translateY(0); }
+  // Clase CSS generice pentru temă (Auriu, Negru, Alb)
+  const themeClasses = {
+    bgApp: isDarkMode ? 'bg-gray-950' : 'bg-gray-50',
+    bgCard: isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100',
+    textMain: isDarkMode ? 'text-white' : 'text-gray-900',
+    textMuted: isDarkMode ? 'text-gray-400' : 'text-gray-500',
+    borderMuted: isDarkMode ? 'border-gray-800' : 'border-gray-200',
+    inputBg: isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900',
+    goldAccents: 'text-amber-500',
+    goldBg: 'bg-amber-500 text-black',
+    goldBgHover: 'hover:bg-amber-400',
+    bottomNav: isDarkMode ? 'bg-gray-900 border-t border-gray-800' : 'bg-white border-t border-gray-200'
+  };
 
-        .page-header { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
-        .back-btn { background: none; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: center; }
-        
-        .header-top { padding: 1.5rem 0 1rem; }
-    </style>
-</head>
-<body data-theme="light">
+  return (
+    <div className={`min-h-screen pb-20 md:pb-0 ${themeClasses.bgApp} ${themeClasses.textMain} font-sans transition-colors duration-200`}>
+      
+      {/* HEADER DESKTOP & MOBILE TOP */}
+      <header className={`sticky top-0 z-40 w-full shadow-sm ${isDarkMode ? 'bg-gray-900 border-b border-gray-800' : 'bg-white border-b border-gray-200'}`}>
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleTabChange('home')}>
+            <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center font-bold text-black text-xl">A</div>
+            <span className="font-bold text-xl tracking-tight">AutoRapid <span className="text-amber-500">RO</span></span>
+          </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast">Mesaj de succes</div>
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-6 font-medium">
+            <button onClick={() => handleTabChange('home')} className={`hover:${themeClasses.goldAccents} transition-colors ${activeTab === 'home' ? themeClasses.goldAccents : ''}`}>Acasă</button>
+            <button onClick={() => handleTabChange('search')} className={`hover:${themeClasses.goldAccents} transition-colors ${activeTab === 'search' ? themeClasses.goldAccents : ''}`}>Caută</button>
+            <button onClick={() => handleTabChange('saved')} className={`hover:${themeClasses.goldAccents} transition-colors ${activeTab === 'saved' ? themeClasses.goldAccents : ''}`}>Salvate <span className="ml-1 text-xs bg-amber-500 text-black px-1.5 py-0.5 rounded-full">{savedAds.length}</span></button>
+            <button onClick={() => handleTabChange('profile')} className={`hover:${themeClasses.goldAccents} transition-colors flex items-center gap-1 ${activeTab === 'profile' ? themeClasses.goldAccents : ''}`}><User size={18} /> Contul meu</button>
+            <button onClick={() => handleTabChange('publish')} className={`${themeClasses.goldBg} ${themeClasses.goldBgHover} px-4 py-2 rounded-lg font-bold shadow-md shadow-amber-500/20 transition-all flex items-center gap-2`}>
+              <PlusCircle size={18} /> Publică Anunț
+            </button>
+          </nav>
 
-    <!-- MAIN APP WRAPPER -->
-    <div id="app">
-
-        <div id="page-home" class="container page-view">
-            <div class="v-header-sticky">
-                <div class="v-logo">AutoRapid RO</div>
-                
-                <!-- Search & Filters -->
-                <div class="v-search-bar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="search-input" placeholder="Caută service, tractări..." data-i18n-placeholder="search_placeholder">
-                </div>
-
-                <div class="v-filters-row">
-                    <div class="select-wrapper">
-                        <select id="filter-judet">
-                            <option value="" data-i18n="all_counties">Toate județele</option>
-                        </select>
-                    </div>
-                    <div class="select-wrapper">
-                        <select id="filter-oras" disabled>
-                            <option value="" data-i18n="all_cities">Toate orașele</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Categories -->
-            <div class="v-categories-scroll" id="categories-grid">
-                <!-- Injected via JS -->
-            </div>
-
-            <!-- Ads List -->
-            <div class="flex justify-between items-center mb-3 px-1">
-                <h3 style="font-size:1.1rem;" data-i18n="results">Rezultate</h3>
-                <span class="text-xs text-muted" id="results-count">0 anunțuri</span>
-            </div>
-            
-            <div class="v-ads-grid" id="ads-list">
-                <!-- Injected via JS -->
-            </div>
+          {/* Mobile Top actions */}
+          <div className="md:hidden flex items-center gap-3">
+             <button onClick={() => { setActiveTab('profile'); setCurrentView('inbox'); }} className="relative p-2">
+                <Bell size={22} />
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white dark:border-gray-900"></span>
+             </button>
+          </div>
         </div>
+      </header>
 
-        <div id="page-post" class="container page-view hidden">
-            <div class="header-top">
-                <h1 data-i18n="post_ad_title">Adaugă anunț</h1>
-                <p class="text-muted text-sm mt-1" data-i18n="post_ad_sub">Ai o firmă auto? Adaugă-ți serviciile pe AutoRapid RO.</p>
-            </div>
+      {/* MAIN CONTENT AREA */}
+      <main className="max-w-6xl mx-auto w-full pt-4 px-4 sm:px-6 lg:px-8">
+        
+        {/* HOMEPAGE / SEARCH */}
+        {(activeTab === 'home' || activeTab === 'search') && currentView === 'main' && (
+          <HomeView 
+            allAds={allAds} 
+            themeClasses={themeClasses} 
+            toggleSaveAd={toggleSaveAd} 
+            savedAds={savedAds}
+            openAdDetails={setSelectedAd}
+          />
+        )}
 
-            <form id="post-form" class="pb-4">
-                <div class="card">
-                    <div class="input-group">
-                        <label data-i18n="company_name">Nume firmă / Serviciu</label>
-                        <input type="text" id="post-name" class="form-control" required>
-                    </div>
+        {/* PUBLISH AD */}
+        {activeTab === 'publish' && currentView === 'main' && (
+          <PublishView 
+            themeClasses={themeClasses}
+            onPublish={(newAd) => {
+              setAllAds([newAd, ...allAds]);
+              handleTabChange('home');
+            }}
+          />
+        )}
 
-                    <div class="input-group">
-                        <label data-i18n="category">Categorie</label>
-                        <select id="post-category" class="form-control" required>
-                            <option value="" disabled selected data-i18n="select_category">Alege o categorie</option>
-                            <option value="Tractări auto" data-i18n="cat_tractari">Tractări auto</option>
-                            <option value="Vulcanizare" data-i18n="cat_vulcanizare">Vulcanizare</option>
-                            <option value="ITP" data-i18n="cat_itp">ITP</option>
-                            <option value="Service auto" data-i18n="cat_service">Service auto</option>
-                            <option value="Diagnoză auto" data-i18n="cat_diagnoza">Diagnoză auto</option>
-                            <option value="Piese auto" data-i18n="cat_piese">Piese auto</option>
-                        </select>
-                    </div>
+        {/* SAVED ADS */}
+        {activeTab === 'saved' && currentView === 'main' && (
+          <SavedView 
+            allAds={allAds}
+            savedAds={savedAds}
+            themeClasses={themeClasses}
+            toggleSaveAd={toggleSaveAd}
+            openAdDetails={setSelectedAd}
+          />
+        )}
 
-                    <div class="flex gap-2">
-                        <div class="input-group w-full">
-                            <label data-i18n="county">Județ</label>
-                            <select id="post-judet" class="form-control" required></select>
-                        </div>
-                        <div class="input-group w-full">
-                            <label data-i18n="city">Oraș</label>
-                            <select id="post-oras" class="form-control" required disabled></select>
-                        </div>
-                    </div>
+        {/* PROFILE / MENU */}
+        {activeTab === 'profile' && currentView === 'main' && (
+          <ProfileMenu 
+            themeClasses={themeClasses}
+            setCurrentView={setCurrentView}
+            toggleTheme={toggleTheme}
+            isDarkMode={isDarkMode}
+          />
+        )}
 
-                    <div class="input-group">
-                        <label data-i18n="address">Adresă exactă (opțional)</label>
-                        <input type="text" id="post-address" class="form-control">
-                    </div>
-                </div>
+        {/* SUB-VIEWS pt Profil */}
+        {activeTab === 'profile' && currentView === 'settings' && <SettingsView themeClasses={themeClasses} onBack={() => setCurrentView('main')} />}
+        {activeTab === 'profile' && currentView === 'feedback' && <FeedbackView themeClasses={themeClasses} onBack={() => setCurrentView('main')} />}
+        {activeTab === 'profile' && currentView === 'inbox' && <InboxView themeClasses={themeClasses} onBack={() => setCurrentView('main')} />}
 
-                <div class="card">
-                    <div class="input-group">
-                        <label data-i18n="phone">Telefon</label>
-                        <input type="tel" id="post-phone" class="form-control" required>
-                    </div>
-                    <div class="input-group">
-                        <label data-i18n="whatsapp">WhatsApp (opțional)</label>
-                        <input type="tel" id="post-whatsapp" class="form-control">
-                    </div>
-                    <div class="input-group">
-                        <label data-i18n="schedule">Program</label>
-                        <input type="text" id="post-schedule" class="form-control" placeholder="Ex: L-V 08:00 - 18:00">
-                    </div>
-                </div>
+      </main>
 
-                <div class="card">
-                    <div class="input-group">
-                        <label data-i18n="description">Descriere firmă</label>
-                        <textarea id="post-desc" class="form-control" required></textarea>
-                    </div>
-                    <div class="input-group">
-                        <label data-i18n="price">Preț orientativ (opțional)</label>
-                        <input type="text" id="post-price" class="form-control" placeholder="Ex: de la 100 RON">
-                    </div>
-                    <div class="input-group">
-                        <label data-i18n="upload_photo">Poză / Logo</label>
-                        <div class="upload-box" id="upload-box">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:32px;height:32px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            <span data-i18n="click_to_upload">Apasă pentru a încărca</span>
-                            <img id="upload-preview" src="" alt="Preview">
-                            <input type="file" id="file-input" accept="image/*">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3 class="mb-4" data-i18n="promotion">Promovare</h3>
-                    
-                    <label class="promo-option">
-                        <input type="radio" name="promo" value="0" checked>
-                        <div class="promo-info">
-                            <div class="font-bold" data-i18n="free">Gratuit</div>
-                            <div class="text-xs text-muted" data-i18n="free_desc">Apare normal în listă</div>
-                        </div>
-                        <div class="promo-price">0 lei</div>
-                    </label>
-
-                    <label class="promo-option">
-                        <input type="radio" name="promo" value="1">
-                        <div class="promo-info">
-                            <div class="font-bold" data-i18n="promo_7">Promovat 7 zile</div>
-                            <div class="text-xs text-muted" data-i18n="promo_7_desc">Apare mai sus în categorie</div>
-                        </div>
-                        <div class="promo-price">30 lei</div>
-                    </label>
-
-                    <label class="promo-option">
-                        <input type="radio" name="promo" value="2">
-                        <div class="promo-info">
-                            <div class="font-bold" data-i18n="promo_30">Promovat 30 zile</div>
-                            <div class="text-xs text-muted" data-i18n="promo_30_desc">Apare sus în județ/oraș</div>
-                        </div>
-                        <div class="promo-price">100 lei</div>
-                    </label>
-
-                    <label class="promo-option">
-                        <input type="radio" name="promo" value="3">
-                        <div class="promo-info">
-                            <div class="font-bold" data-i18n="premium">Premium</div>
-                            <div class="text-xs text-muted" data-i18n="premium_desc">Apare printre primele mereu</div>
-                        </div>
-                        <div class="promo-price">150 lei/lună</div>
-                    </label>
-                </div>
-
-                <button type="submit" class="btn btn-primary mb-4" data-i18n="publish_ad">Publică anunțul</button>
-            </form>
+      {/* BOTTOM NAVIGATION (Mobile) */}
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 ${themeClasses.bottomNav} pb-safe shadow-[0_-4px_15px_rgba(0,0,0,0.05)]`}>
+        <div className="flex justify-around items-center h-16 px-2">
+          <NavItem icon={<Home size={22} />} label="Acasă" isActive={activeTab === 'home'} onClick={() => handleTabChange('home')} themeClasses={themeClasses} />
+          <NavItem icon={<Search size={22} />} label="Caută" isActive={activeTab === 'search'} onClick={() => handleTabChange('search')} themeClasses={themeClasses} />
+          <div className="relative -top-5">
+            <button 
+              onClick={() => handleTabChange('publish')}
+              className={`w-14 h-14 rounded-full ${themeClasses.goldBg} shadow-lg shadow-amber-500/30 flex items-center justify-center transform transition-transform active:scale-95`}
+            >
+              <PlusCircle size={28} className="text-black" />
+            </button>
+          </div>
+          <NavItem icon={<Heart size={22} />} label="Salvate" isActive={activeTab === 'saved'} onClick={() => handleTabChange('saved')} themeClasses={themeClasses} badge={savedAds.length} />
+          <NavItem icon={<User size={22} />} label="Profil" isActive={activeTab === 'profile'} onClick={() => handleTabChange('profile')} themeClasses={themeClasses} />
         </div>
+      </nav>
 
-        <div id="page-profile" class="container page-view hidden">
-            <div class="header-top">
-                <h1 data-i18n="profile">Profil</h1>
-            </div>
-
-            <div class="card flex flex-col items-center text-center">
-                <div class="upload-box" style="width:80px;height:80px;border-radius:50%;padding:0;overflow:hidden;margin-bottom:1rem;border:2px solid var(--primary);" id="profile-img-box">
-                    <img id="profile-preview" src="" alt="Profile" style="display:none;width:100%;height:100%;object-fit:cover;">
-                    <svg id="profile-placeholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:40px;height:40px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <input type="file" id="profile-file-input" accept="image/*" style="display:none;">
-                <h2 id="profile-name-display">Utilizator Demo</h2>
-                <p class="text-muted text-sm mt-1">demo@autorapid.ro</p>
-                <button class="btn btn-outline mt-3 text-sm" style="padding:0.5rem 1rem; width:auto;" id="edit-profile-btn" data-i18n="edit_profile">Editează profilul</button>
-            </div>
-
-            <div id="edit-profile-form" class="card hidden">
-                <div class="input-group">
-                    <label data-i18n="name">Nume</label>
-                    <input type="text" id="edit-name-input" class="form-control">
-                </div>
-                <button id="save-profile-btn" class="btn btn-primary" data-i18n="save">Salvează</button>
-            </div>
-
-            <!-- Profile Sections -->
-            <div class="section-title" data-i18n="activity">Activitate</div>
-            <div class="profile-menu">
-                <div class="profile-item" onclick="app.showSubPage('page-saved')">
-                    <div class="profile-item-left">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-width="2" stroke-linejoin="round"/></svg>
-                        <span data-i18n="saved_ads">Salvate</span>
-                    </div>
-                    <div class="profile-item-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-width="2"/></svg></div>
-                </div>
-                <div class="profile-item" onclick="app.showSubPage('page-inbox')">
-                    <div class="profile-item-left relative">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <span data-i18n="inbox">Inbox</span>
-                        <div id="profile-inbox-badge" class="badge-count" style="position:static;display:inline-flex;margin-left:8px;display:none;">0</div>
-                    </div>
-                    <div class="profile-item-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-width="2"/></svg></div>
-                </div>
-            </div>
-
-            <div class="section-title" data-i18n="preferences">Preferințe</div>
-            <div class="profile-menu">
-                <div class="profile-item" id="theme-toggle-btn">
-                    <div class="profile-item-left">
-                        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <span id="theme-text" data-i18n="dark_mode">Mod întunecat</span>
-                    </div>
-                </div>
-                <div class="profile-item">
-                    <div class="profile-item-left">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                        <span data-i18n="change_language">Schimbă limba</span>
-                    </div>
-                    <div class="profile-item-right">
-                        <select id="lang-select" style="background:transparent;color:var(--primary);font-weight:bold;font-size:1rem;">
-                            <option value="ro">RO</option>
-                            <option value="en">EN</option>
-                            <option value="it">IT</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section-title" data-i18n="app_details">Detalii aplicație</div>
-            <div class="profile-menu mb-4">
-                <div class="profile-item" onclick="app.showSubPage('page-feedback')">
-                    <div class="profile-item-left">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke-width="2"/></svg>
-                        <span data-i18n="feedback">Spune-ne părerea ta</span>
-                    </div>
-                </div>
-                <div class="profile-item" onclick="app.resetDemoData()">
-                    <div class="profile-item-left" style="color:var(--danger)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-width="2"/></svg>
-                        <span data-i18n="delete_data">Ștergere date demo</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="page-saved" class="container page-view hidden" style="position:fixed;top:0;left:0;right:0;bottom:var(--bottom-nav-height);background:var(--bg);z-index:100;overflow-y:auto;padding-bottom:2rem;">
-            <div class="page-header sticky top-0 bg-white">
-                <button class="back-btn" onclick="app.hideSubPages()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:24px;height:24px;"><line x1="19" y1="12" x2="5" y2="12" stroke-width="2"/><polyline points="12 19 5 12 12 5" stroke-width="2"/></svg></button>
-                <h2 data-i18n="saved_ads">Salvate</h2>
-            </div>
-            <div id="saved-list" class="v-ads-grid mt-2">
-                <!-- Injected via JS -->
-            </div>
-            <div id="empty-saved" class="text-center text-muted mt-4 hidden">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:64px;height:64px;margin:2rem auto;opacity:0.3;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-width="2"/></svg>
-                <p data-i18n="no_saved">Nu ai niciun anunț salvat momentan.</p>
-            </div>
-        </div>
-
-        <div id="page-inbox" class="container page-view hidden" style="position:fixed;top:0;left:0;right:0;bottom:var(--bottom-nav-height);background:var(--bg);z-index:100;overflow-y:auto;padding-bottom:2rem;">
-            <div class="page-header">
-                <button class="back-btn" onclick="app.hideSubPages()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:24px;height:24px;"><line x1="19" y1="12" x2="5" y2="12" stroke-width="2"/><polyline points="12 19 5 12 12 5" stroke-width="2"/></svg></button>
-                <h2 data-i18n="inbox">Inbox</h2>
-            </div>
-            <div id="inbox-list" class="flex flex-col gap-2">
-                <!-- Injected via JS -->
-            </div>
-        </div>
-
-        <div id="page-feedback" class="container page-view hidden" style="position:fixed;top:0;left:0;right:0;bottom:var(--bottom-nav-height);background:var(--bg);z-index:100;overflow-y:auto;padding-bottom:2rem;">
-            <div class="page-header">
-                <button class="back-btn" onclick="app.hideSubPages()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:24px;height:24px;"><line x1="19" y1="12" x2="5" y2="12" stroke-width="2"/><polyline points="12 19 5 12 12 5" stroke-width="2"/></svg></button>
-                <h2 data-i18n="give_feedback">Dă-ne feedback</h2>
-            </div>
-            <form id="feedback-form" class="card mt-4">
-                <div class="input-group">
-                    <label data-i18n="feedback_about">Despre ce vrei să ne dai feedback?</label>
-                    <select id="feedback-type" class="form-control" required>
-                        <option value="" disabled selected>Alege motivul...</option>
-                        <option value="Problemă tehnică">Problemă tehnică</option>
-                        <option value="Sugestie aplicație">Sugestie aplicație</option>
-                        <option value="Altceva">Altceva</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label class="flex justify-between">
-                        <span data-i18n="feedback_desc">Descriere feedback</span>
-                        <span id="char-count" class="text-xs text-muted">0/500</span>
-                    </label>
-                    <textarea id="feedback-text" class="form-control" maxlength="500" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary mt-4" data-i18n="send_feedback">Trimite feedback</button>
-            </form>
-        </div>
-
-
-        <nav class="bottom-nav">
-            <div class="nav-item active" data-target="page-home" id="nav-home">
-                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span data-i18n="nav_home">Acasă</span>
-            </div>
-            <div class="nav-item" data-target="page-post" id="nav-post">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="8" x2="12" y2="16" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="12" x2="16" y2="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span data-i18n="nav_post">+ Postează</span>
-            </div>
-            <div class="nav-item" data-target="page-profile" id="nav-profile">
-                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span data-i18n="nav_profile">Profil</span>
-                <div id="nav-inbox-badge" class="badge-count hidden">0</div>
-            </div>
-        </nav>
+      {/* AD DETAILS MODAL */}
+      {selectedAd && (
+        <AdDetailsModal 
+          ad={selectedAd} 
+          onClose={() => setSelectedAd(null)}
+          themeClasses={themeClasses}
+          toggleSaveAd={toggleSaveAd}
+          isSaved={savedAds.includes(selectedAd.id)}
+        />
+      )}
 
     </div>
+  );
+}
 
-    <script>
-        const judeteOrase = {
-            "București": ["Sector 1", "Sector 2", "Sector 3", "Sector 4", "Sector 5", "Sector 6"],
-            "Cluj": ["Cluj-Napoca", "Turda", "Dej"],
-            "Timiș": ["Timișoara", "Lugoj"],
-            "Iași": ["Iași", "Pașcani"],
-            "Brașov": ["Brașov", "Făgăraș", "Săcele"],
-            "Constanța": ["Constanța", "Mangalia", "Năvodari"],
-            "Buzău": ["Buzău", "Râmnicu Sărat", "Nehoiu"]
-        };
+// --- SUB-COMPONENTE ---
 
-        const categories = [
-            { id: "Tractări auto", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h18M5 17h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2z" stroke-width="2"/><circle cx="7" cy="17" r="2" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke-width="2"/><path d="M12 6v7M2 13l3-3" stroke-width="2"/></svg>', i18n: "cat_tractari" },
-            { id: "Vulcanizare", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke-width="2"/><path d="M12 2v2M12 20v2M22 12h-2M4 12H2M19.07 4.93l-1.41 1.41M6.34 17.66l-1.41 1.41M19.07 19.07l-1.41-1.41M6.34 6.34L4.93 4.93" stroke-width="2"/></svg>', i18n: "cat_vulcanizare" },
-            { id: "ITP", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4" stroke-width="2" stroke-linecap="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke-width="2" stroke-linecap="round"/></svg>', i18n: "cat_itp" },
-            { id: "Service auto", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke-width="2"/></svg>', i18n: "cat_service" },
-            { id: "Diagnoză auto", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>', i18n: "cat_diagnoza" },
-            { id: "Piese auto", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke-width="2"/><polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke-width="2"/><line x1="12" y1="22.08" x2="12" y2="12" stroke-width="2"/></svg>', i18n: "cat_piese" }
-        ];
+const NavItem = ({ icon, label, isActive, onClick, themeClasses, badge }) => (
+  <button onClick={onClick} className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors relative ${isActive ? themeClasses.goldAccents : themeClasses.textMuted}`}>
+    {icon}
+    <span className="text-[10px] font-medium">{label}</span>
+    {badge > 0 && (
+      <span className="absolute top-1 right-2 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+        {badge}
+      </span>
+    )}
+  </button>
+);
 
-        const translations = {
-            ro: {
-                nav_home: "Acasă", nav_post: "+ Postează", nav_profile: "Profil",
-                search_placeholder: "Caută service, tractări...", all_counties: "Toate județele", all_cities: "Toate orașele",
-                categories: "Categorii", results: "Rezultate", post_ad_title: "Adaugă anunț", post_ad_sub: "Fii găsit mai ușor de clienți.",
-                company_name: "Nume firmă", category: "Categorie", select_category: "Alege o categorie",
-                cat_tractari: "Tractări auto", cat_vulcanizare: "Vulcanizare", cat_itp: "ITP",
-                cat_service: "Service auto", cat_diagnoza: "Diagnoză auto", cat_piese: "Piese auto",
-                county: "Județ", city: "Oraș", address: "Adresă exactă", phone: "Telefon", whatsapp: "WhatsApp",
-                schedule: "Program", description: "Descriere firmă", price: "Preț (opțional)",
-                upload_photo: "Poză / Logo", click_to_upload: "Apasă pentru a încărca", promotion: "Promovare",
-                free: "Gratuit", promo_7: "Promovat 7 zile", promo_30: "Promovat 30 zile", premium: "Premium",
-                publish_ad: "Publică anunțul", profile: "Profil", edit_profile: "Editează profilul", name: "Nume",
-                save: "Salvează", activity: "Activitate", saved_ads: "Salvate", inbox: "Inbox", preferences: "Preferințe",
-                dark_mode: "Mod întunecat", light_mode: "Mod luminos", change_language: "Schimbă limba",
-                app_details: "Detalii aplicație", feedback: "Spune-ne părerea ta", delete_data: "Ștergere date demo",
-                no_saved: "Nu ai anunțuri salvate.", give_feedback: "Dă-ne feedback",
-                toast_success: "Acțiune realizată!", toast_feedback: "Feedback trimis cu succes."
-            },
-            en: {
-                nav_home: "Home", nav_post: "+ Post", nav_profile: "Profile", search_placeholder: "Search service...",
-                all_counties: "All counties", all_cities: "All cities", categories: "Categories", results: "Results",
-                post_ad_title: "Post Ad", post_ad_sub: "Be easily found by clients.", company_name: "Company Name",
-                category: "Category", select_category: "Select category", cat_tractari: "Towing", cat_vulcanizare: "Tire service",
-                cat_itp: "MOT", cat_service: "Auto Service", cat_diagnoza: "Diagnostics", cat_piese: "Auto Parts",
-                county: "County", city: "City", address: "Exact Address", phone: "Phone", whatsapp: "WhatsApp",
-                schedule: "Schedule", description: "Description", price: "Price (optional)", upload_photo: "Photo / Logo",
-                click_to_upload: "Click to upload", promotion: "Promotion", free: "Free", promo_7: "Promoted 7 days",
-                promo_30: "Promoted 30 days", premium: "Premium", publish_ad: "Publish Ad", profile: "Profile",
-                edit_profile: "Edit Profile", name: "Name", save: "Save", activity: "Activity", saved_ads: "Saved",
-                inbox: "Inbox", preferences: "Preferences", dark_mode: "Dark Mode", light_mode: "Light Mode",
-                change_language: "Change Language", app_details: "App Details", feedback: "Give us feedback",
-                delete_data: "Delete Demo Data", no_saved: "No saved ads.", give_feedback: "Feedback",
-                toast_success: "Action completed!", toast_feedback: "Feedback sent successfully."
-            }
-        };
+// VIEW: HOME & SEARCH
+const HomeView = ({ allAds, themeClasses, toggleSaveAd, savedAds, openAdDetails }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCounty, setSelectedCounty] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
 
-        const initialDemoAds = [
-            { id: 1, name: "Tractări Buzău", category: "Tractări auto", judet: "Buzău", oras: "Buzău", desc: "Tractări auto non-stop.", phone: "0700111", whatsapp: "0700111", schedule: "Non-Stop", promo: 3, image: null, rating: 4.8 },
-            { id: 2, name: "Vulcanizare 24/7", category: "Vulcanizare", judet: "București", oras: "Sector 1", desc: "Schimb anvelope rapid.", phone: "0700222", whatsapp: "", schedule: "Non-Stop", promo: 2, image: null, rating: 4.9 },
-            { id: 3, name: "Service Pro", category: "Service auto", judet: "Cluj", oras: "Cluj-Napoca", desc: "Reparații motoare și revizii.", phone: "0700333", whatsapp: "0700333", schedule: "L-V 09-17", promo: 0, image: null, rating: 4.7 }
-        ];
+  const filteredAds = allAds.filter(ad => {
+    const matchSearch = ad.title.toLowerCase().includes(searchTerm.toLowerCase()) || ad.firmName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchCounty = selectedCounty ? ad.county === selectedCounty : true;
+    const matchCity = selectedCity ? ad.city === selectedCity : true;
+    const matchCategory = selectedCategory ? ad.category === selectedCategory : true;
+    return matchSearch && matchCounty && matchCity && matchCategory;
+  });
 
-        const app = {
-            data: { ads: [], savedAds: [], notifications: [], profile: { name: "Utilizator Demo", image: null }, theme: "light", lang: "ro", activeCategory: "" },
+  return (
+    <div className="space-y-6 pb-6 animate-fadeIn">
+      {/* Hero Search Section */}
+      <div className={`p-6 rounded-2xl ${themeClasses.bgCard} shadow-sm border`}>
+        <h1 className="text-2xl md:text-3xl font-bold mb-4">Găsește servicii auto rapid</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="relative md:col-span-4 lg:col-span-1">
+            <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+            <input 
+              type="text" 
+              placeholder="Ex: Diagnoză, ITP, Vulcanizare..." 
+              className={`w-full pl-10 pr-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500 outline-none transition-all`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          <select 
+            className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500 outline-none`}
+            value={selectedCounty}
+            onChange={(e) => { setSelectedCounty(e.target.value); setSelectedCity(''); }}
+          >
+            <option value="">Toate Județele</option>
+            {Object.keys(ROMANIA_LOCATIONS).sort().map(judet => (
+              <option key={judet} value={judet}>{judet}</option>
+            ))}
+          </select>
 
-            init() {
-                this.loadData();
-                this.applyTheme();
-                this.applyLanguage();
-                this.populateDropdowns();
-                this.renderCategories();
-                this.renderAds();
-                this.renderProfile();
-                this.updateInboxBadges();
-                this.bindEvents();
-            },
+          <select 
+            className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500 outline-none`}
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            disabled={!selectedCounty}
+          >
+            <option value="">Toate Orașele</option>
+            {selectedCounty && ROMANIA_LOCATIONS[selectedCounty].sort().map(oras => (
+              <option key={oras} value={oras}>{oras}</option>
+            ))}
+          </select>
 
-            loadData() {
-                const lsAds = localStorage.getItem('ar_ads'); this.data.ads = lsAds ? JSON.parse(lsAds) : [...initialDemoAds];
-                const lsSaved = localStorage.getItem('ar_saved'); this.data.savedAds = lsSaved ? JSON.parse(lsSaved) : [];
-                const lsNotifs = localStorage.getItem('ar_notifs'); this.data.notifications = lsNotifs ? JSON.parse(lsNotifs) : [{ id: 1, title: "Bine ai venit!", desc: "Găsește rapid servicii.", date: new Date().toISOString(), read: false }];
-                const lsProfile = localStorage.getItem('ar_profile'); if (lsProfile) this.data.profile = JSON.parse(lsProfile);
-                this.data.theme = localStorage.getItem('ar_theme') || "light";
-                this.data.lang = localStorage.getItem('ar_lang') || "ro";
-            },
+          <select 
+            className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500 outline-none`}
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            <option value="">Toate Categoriile</option>
+            {CATEGORIES.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
-            saveData(key, value) { localStorage.setItem(`ar_${key}`, JSON.stringify(value)); },
+      {/* Ads Grid */}
+      <div className="flex justify-between items-end">
+        <h2 className="text-xl font-bold">Anunțuri recomandate</h2>
+        <span className={`text-sm ${themeClasses.textMuted}`}>{filteredAds.length} rezultate</span>
+      </div>
 
-            resetDemoData() { if(confirm("Ștergi datele?")){ localStorage.clear(); location.reload(); } },
+      {filteredAds.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredAds.map(ad => (
+            <AdCard 
+              key={ad.id} 
+              ad={ad} 
+              themeClasses={themeClasses} 
+              isSaved={savedAds.includes(ad.id)} 
+              onSave={(e) => toggleSaveAd(ad.id, e)}
+              onClick={() => openAdDetails(ad)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className={`py-16 text-center ${themeClasses.bgCard} rounded-2xl border`}>
+          <Search size={48} className={`mx-auto mb-4 ${themeClasses.textMuted} opacity-50`} />
+          <h3 className="text-xl font-semibold mb-2">Nu am găsit anunțuri</h3>
+          <p className={themeClasses.textMuted}>Încearcă să modifici filtrele de căutare.</p>
+          <button 
+            onClick={() => {setSearchTerm(''); setSelectedCounty(''); setSelectedCategory('');}}
+            className="mt-4 px-6 py-2 bg-gray-200 dark:bg-gray-800 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-700 transition"
+          >
+            Resetează filtrele
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
-            switchPage(targetId) {
-                document.querySelectorAll('.page-view').forEach(p => { if(!p.id.startsWith('page-') || ['page-saved','page-inbox','page-feedback'].includes(p.id)) return; p.classList.add('hidden'); });
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                document.getElementById(targetId).classList.remove('hidden');
-                document.querySelector(`[data-target="${targetId}"]`).classList.add('active');
-                this.hideSubPages(); window.scrollTo(0,0);
-            },
-            showSubPage(targetId) { document.getElementById(targetId).classList.remove('hidden'); if(targetId === 'page-saved') this.renderSavedAds(); if(targetId === 'page-inbox') this.renderInbox(); },
-            hideSubPages() { ['page-saved', 'page-inbox', 'page-feedback'].forEach(id => document.getElementById(id).classList.add('hidden')); },
+// VIEW: PUBLISH AD
+const PublishView = ({ themeClasses, onPublish }) => {
+  const [formData, setFormData] = useState({
+    firmName: '', category: '', county: '', city: '', address: '',
+    phone: '', whatsapp: '', schedule: '', price: '', description: '', plan: 'free'
+  });
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-            populateDropdowns() {
-                const jKeys = Object.keys(judeteOrase).sort();
-                document.getElementById('filter-judet').innerHTML = `<option value="" data-i18n="all_counties">${this.t('all_counties')}</option>` + jKeys.map(j => `<option value="${j}">${j}</option>`).join('');
-                document.getElementById('post-judet').innerHTML = `<option value="" disabled selected>Alege județul</option>` + jKeys.map(j => `<option value="${j}">${j}</option>`).join('');
-            },
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    if (name === 'county') setFormData(prev => ({ ...prev, city: '' })); // Reset city on county change
+    if (errorMsg && name === 'category') setErrorMsg(''); // Clear error when category is selected
+  };
 
-            updateOrasDropdown(judetValue, targetOrasId) {
-                const oSel = document.getElementById(targetOrasId);
-                if (!judetValue) { oSel.innerHTML = `<option value="" data-i18n="all_cities">${this.t('all_cities')}</option>`; oSel.disabled = true; return; }
-                const orase = judeteOrase[judetValue] || [];
-                oSel.innerHTML = (targetOrasId==='filter-oras'?`<option value="" data-i18n="all_cities">${this.t('all_cities')}</option>`:`<option value="" disabled selected>Alege orașul</option>`) + orase.map(o => `<option value="${o}">${o}</option>`).join('');
-                oSel.disabled = false;
-            },
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.category) {
+      setErrorMsg('Te rugăm să selectezi obligatoriu o categorie pentru anunțul tău.');
+      window.scrollTo(0, 0);
+      return;
+    }
+    
+    setIsSubmitting(true);
+    // Simulare request
+    setTimeout(() => {
+      const newAd = {
+        id: Date.now().toString(),
+        title: `${formData.category} ${formData.city}`,
+        ...formData,
+        rating: 0,
+        promoted: formData.plan !== 'free',
+        image: 'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&q=80&w=400' // mock image
+      };
+      onPublish(newAd);
+    }, 1000);
+  };
 
-            renderCategories() {
-                document.getElementById('categories-grid').innerHTML = categories.map(c => `
-                    <div class="v-cat-pill ${this.data.activeCategory === c.id ? 'active' : ''}" data-cat="${c.id}">
-                        <div class="v-cat-icon">${c.icon}</div>
-                        <div class="v-cat-text" data-i18n="${c.i18n}">${this.t(c.i18n)}</div>
-                    </div>
-                `).join('');
-            },
+  return (
+    <div className="max-w-3xl mx-auto pb-10 animate-fadeIn">
+      <div className="mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold">Publică un anunț nou</h1>
+        <p className={themeClasses.textMuted}>Completează detaliile serviciilor tale pentru a atrage clienți noi.</p>
+      </div>
 
-            generateAdCardHTML(ad) {
-                const isSaved = this.data.savedAds.includes(ad.id);
-                const isPremium = ad.promo === 3;
-                const badgeHTML = ad.promo > 0 ? `<div class="badge-promoted ${isPremium ? 'badge-premium' : ''}">${isPremium ? 'Premium' : 'Promovat'}</div>` : '';
-                const imgHTML = ad.image ? `<img src="${ad.image}" alt="${ad.name}">` : `<div style="width:100%;height:100%;background:linear-gradient(45deg, var(--primary-light), var(--border));display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:bold;font-size:3rem;text-transform:uppercase;">${ad.name.charAt(0)}</div>`;
-                
-                return `
-                    <div class="v-card" data-id="${ad.id}">
-                        <div class="v-img-box">
-                            ${badgeHTML}
-                            ${imgHTML}
-                            <div class="v-heart-btn ${isSaved ? 'saved' : ''}" onclick="app.toggleSave(${ad.id}, event)">
-                                <svg viewBox="0 0 24 24" fill="${isSaved ? 'currentColor' : 'none'}" stroke="currentColor" style="width:18px;height:18px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </div>
-                        </div>
-                        <div class="v-price">${ad.price || (ad.rating ? '<span style="color:#eab308;font-size:0.8rem;">★</span> ' + ad.rating : 'Nou')}</div>
-                        <div class="v-title">${ad.name}</div>
-                        <div class="v-meta">${ad.oras}, ${ad.judet}</div>
-                        <div class="v-actions">
-                            <button class="v-btn" onclick="window.location.href='tel:${ad.phone}'; event.stopPropagation();">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke-width="2"/></svg>
-                            </button>
-                            ${ad.whatsapp ? `
-                            <button class="v-btn v-btn-wa" onclick="window.open('https://wa.me/4${ad.whatsapp}','_blank'); event.stopPropagation();">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                            </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            },
+      {errorMsg && (
+        <div className="mb-6 p-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3">
+          <AlertTriangle className="shrink-0 mt-0.5" size={20} />
+          <p className="font-medium">{errorMsg}</p>
+        </div>
+      )}
 
-            renderAds() {
-                const list = document.getElementById('ads-list');
-                const sq = document.getElementById('search-input').value.toLowerCase();
-                const jf = document.getElementById('filter-judet').value;
-                const of = document.getElementById('filter-oras').value;
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Poze */}
+        <div className={`p-6 rounded-2xl ${themeClasses.bgCard} border shadow-sm`}>
+          <h2 className="text-lg font-bold mb-4">Fotografii / Logo</h2>
+          <div className={`border-2 border-dashed ${themeClasses.borderMuted} rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition`}>
+            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-3">
+              <ImageIcon size={28} className={themeClasses.textMuted} />
+            </div>
+            <p className="font-medium">Apasă pentru a încărca poze</p>
+            <p className={`text-sm ${themeClasses.textMuted} mt-1`}>Format JPG, PNG. Max 5MB.</p>
+          </div>
+        </div>
 
-                let f = this.data.ads.filter(a => {
-                    return (this.data.activeCategory ? a.category === this.data.activeCategory : true) &&
-                           (a.name.toLowerCase().includes(sq) || a.desc.toLowerCase().includes(sq)) &&
-                           (jf ? a.judet === jf : true) && (of ? a.oras === of : true);
-                });
+        {/* Informatii de baza */}
+        <div className={`p-6 rounded-2xl ${themeClasses.bgCard} border shadow-sm space-y-4`}>
+          <h2 className="text-lg font-bold mb-2">Informații de bază</h2>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Categorie <span className="text-red-500">*</span></label>
+            <select name="category" value={formData.category} onChange={handleInputChange} className={`w-full px-4 py-3 rounded-xl border ${!formData.category && errorMsg ? 'border-red-500' : themeClasses.borderMuted} ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500`}>
+              <option value="">-- Selectează Categoria --</option>
+              {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+            </select>
+          </div>
 
-                f.sort((a, b) => b.promo !== a.promo ? b.promo - a.promo : b.id - a.id);
-                document.getElementById('results-count').textContent = `${f.length} anunțuri`;
-                list.innerHTML = f.map(a => this.generateAdCardHTML(a)).join('');
-            },
+          <div>
+            <label className="block text-sm font-medium mb-1">Nume Firmă / Service</label>
+            <input type="text" name="firmName" required placeholder="Ex: Auto Garage SRL" value={formData.firmName} onChange={handleInputChange} className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500`} />
+          </div>
 
-            renderSavedAds() {
-                const saved = this.data.ads.filter(a => this.data.savedAds.includes(a.id));
-                if(saved.length === 0) { document.getElementById('saved-list').innerHTML=''; document.getElementById('empty-saved').classList.remove('hidden'); } 
-                else { document.getElementById('empty-saved').classList.add('hidden'); document.getElementById('saved-list').innerHTML = saved.map(a => this.generateAdCardHTML(a)).join(''); }
-            },
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Județ</label>
+              <select name="county" required value={formData.county} onChange={handleInputChange} className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500`}>
+                <option value="">Selectează Județul</option>
+                {Object.keys(ROMANIA_LOCATIONS).sort().map(judet => <option key={judet} value={judet}>{judet}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Oraș / Localitate</label>
+              <select name="city" required value={formData.city} onChange={handleInputChange} disabled={!formData.county} className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500 disabled:opacity-50`}>
+                <option value="">Selectează Orașul</option>
+                {formData.county && ROMANIA_LOCATIONS[formData.county].sort().map(oras => <option key={oras} value={oras}>{oras}</option>)}
+              </select>
+            </div>
+          </div>
 
-            toggleSave(id, e) {
-                e.stopPropagation();
-                const idx = this.data.savedAds.indexOf(id);
-                if(idx > -1) this.data.savedAds.splice(idx, 1); else this.data.savedAds.push(id);
-                this.saveData('saved', this.data.savedAds);
-                this.renderAds();
-                if(!document.getElementById('page-saved').classList.contains('hidden')) this.renderSavedAds();
-            },
+          <div>
+            <label className="block text-sm font-medium mb-1">Adresă fizică (opțional)</label>
+            <input type="text" name="address" placeholder="Ex: Str. Principală, Nr. 1" value={formData.address} onChange={handleInputChange} className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500`} />
+          </div>
+        </div>
 
-            renderInbox() {
-                document.getElementById('inbox-list').innerHTML = this.data.notifications.map(n => `
-                    <div class="card" style="margin-bottom:0; opacity:${n.read?0.6:1}" onclick="app.markNotifRead(${n.id})">
-                        <div class="font-bold mb-1">${n.title} ${!n.read?'<span style="color:var(--primary);font-size:10px;">● NOU</span>':''}</div>
-                        <div class="text-sm text-muted mb-2">${n.desc}</div>
-                    </div>
-                `).join('');
-                this.updateInboxBadges();
-            },
+        {/* Detalii contact si servicii */}
+        <div className={`p-6 rounded-2xl ${themeClasses.bgCard} border shadow-sm space-y-4`}>
+          <h2 className="text-lg font-bold mb-2">Contact & Detalii</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Telefon</label>
+              <input type="tel" name="phone" required placeholder="07XX XXX XXX" value={formData.phone} onChange={handleInputChange} className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500`} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Număr WhatsApp</label>
+              <input type="tel" name="whatsapp" placeholder="07XX XXX XXX" value={formData.whatsapp} onChange={handleInputChange} className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500`} />
+            </div>
+          </div>
 
-            markNotifRead(id) {
-                const n = this.data.notifications.find(x => x.id === id);
-                if(n && !n.read) { n.read = true; this.saveData('notifs', this.data.notifications); this.renderInbox(); }
-            },
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Program</label>
+              <input type="text" name="schedule" placeholder="Ex: Luni-Vineri 08:00-18:00" value={formData.schedule} onChange={handleInputChange} className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500`} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Preț orientativ</label>
+              <input type="text" name="price" placeholder="Ex: De la 100 RON" value={formData.price} onChange={handleInputChange} className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500`} />
+            </div>
+          </div>
 
-            updateInboxBadges() {
-                const unread = this.data.notifications.filter(n => !n.read).length;
-                [document.getElementById('nav-inbox-badge'), document.getElementById('profile-inbox-badge')].forEach(b => {
-                    b.textContent = unread; b.classList.toggle('hidden', unread === 0); b.style.display = unread > 0 ? (b.id.includes('nav')?'flex':'inline-flex') : 'none';
-                });
-            },
+          <div>
+            <label className="block text-sm font-medium mb-1">Descriere detaliată</label>
+            <textarea name="description" required rows="4" placeholder="Descrie serviciile oferite, experiența, etc..." value={formData.description} onChange={handleInputChange} className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500 resize-none`}></textarea>
+          </div>
+        </div>
 
-            renderProfile() {
-                document.getElementById('profile-name-display').textContent = this.data.profile.name;
-                if(this.data.profile.image) {
-                    document.getElementById('profile-preview').src = this.data.profile.image;
-                    document.getElementById('profile-preview').style.display = 'block';
-                    document.getElementById('profile-placeholder').style.display = 'none';
-                }
-            },
+        {/* Promovare Mockup */}
+        <div className={`p-6 rounded-2xl ${themeClasses.bgCard} border shadow-sm`}>
+          <h2 className="text-lg font-bold mb-4">Alege tipul de promovare</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <label className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.plan === 'free' ? 'border-gray-500 bg-gray-50 dark:bg-gray-800' : themeClasses.borderMuted}`}>
+              <input type="radio" name="plan" value="free" checked={formData.plan === 'free'} onChange={handleInputChange} className="sr-only" />
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-bold text-lg">Gratuit</span>
+                {formData.plan === 'free' && <CheckCircle2 className="text-gray-600 dark:text-gray-300" size={20} />}
+              </div>
+              <p className={`text-sm ${themeClasses.textMuted}`}>Anunț standard, vizibil în rezultate.</p>
+              <div className="mt-3 font-bold">0 RON</div>
+            </label>
 
-            toggleTheme() {
-                this.data.theme = this.data.theme === 'light' ? 'dark' : 'light';
-                this.saveData('theme', this.data.theme); this.applyTheme();
-            },
+            <label className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.plan === 'premium' ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-900/10' : themeClasses.borderMuted}`}>
+              <div className="absolute -top-3 -right-2 bg-amber-500 text-black text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider shadow-sm">Recomandat</div>
+              <input type="radio" name="plan" value="premium" checked={formData.plan === 'premium'} onChange={handleInputChange} className="sr-only" />
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-bold text-lg text-amber-600 dark:text-amber-500">Premium 30 Zile</span>
+                {formData.plan === 'premium' && <CheckCircle2 className="text-amber-500" size={20} />}
+              </div>
+              <p className={`text-sm ${themeClasses.textMuted}`}>Apare în topul rezultatelor, etichetă specială, de 5x mai multe vizualizări.</p>
+              <div className="mt-3 font-bold text-lg">49 RON</div>
+            </label>
 
-            applyTheme() {
-                document.body.setAttribute('data-theme', this.data.theme);
-                const txt = document.getElementById('theme-text');
-                txt.setAttribute('data-i18n', this.data.theme === 'dark' ? 'light_mode' : 'dark_mode');
-                txt.textContent = this.t(txt.getAttribute('data-i18n'));
-            },
+          </div>
+        </div>
 
-            setLanguage(l) { this.data.lang = l; this.saveData('lang', l); this.applyLanguage(); this.populateDropdowns(); this.renderCategories(); this.renderAds(); },
-            t(k) { return (translations[this.data.lang] || translations['en'])[k] || translations['ro'][k] || k; },
-            applyLanguage() {
-                document.getElementById('lang-select').value = this.data.lang;
-                document.querySelectorAll('[data-i18n]').forEach(e => e.textContent = this.t(e.getAttribute('data-i18n')));
-                document.querySelectorAll('[data-i18n-placeholder]').forEach(e => e.placeholder = this.t(e.getAttribute('data-i18n-placeholder')));
-                document.getElementById('theme-text').textContent = this.t(document.getElementById('theme-text').getAttribute('data-i18n'));
-            },
+        <button 
+          type="submit" 
+          disabled={isSubmitting}
+          className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg flex justify-center items-center gap-2 transition-all ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : `${themeClasses.goldBg} ${themeClasses.goldBgHover} shadow-amber-500/20`}`}
+        >
+          {isSubmitting ? 'Se publică...' : 'Publică Anunțul Acum'}
+        </button>
+      </form>
+    </div>
+  );
+};
 
-            showToast(k) { const t = document.getElementById('toast'); t.textContent = this.t(k); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); },
+// VIEW: SAVED ADS
+const SavedView = ({ allAds, savedAds, themeClasses, toggleSaveAd, openAdDetails }) => {
+  const savedAdsData = allAds.filter(ad => savedAds.includes(ad.id));
 
-            bindEvents() {
-                document.querySelectorAll('.nav-item').forEach(n => n.addEventListener('click', () => this.switchPage(n.dataset.target)));
-                document.getElementById('search-input').addEventListener('input', () => this.renderAds());
-                document.getElementById('filter-judet').addEventListener('change', e => { this.updateOrasDropdown(e.target.value, 'filter-oras'); this.renderAds(); });
-                document.getElementById('filter-oras').addEventListener('change', () => this.renderAds());
-                
-                document.getElementById('categories-grid').addEventListener('click', e => {
-                    const c = e.target.closest('.v-cat-pill');
-                    if(c) { this.data.activeCategory = this.data.activeCategory === c.dataset.cat ? "" : c.dataset.cat; this.renderCategories(); this.renderAds(); }
-                });
+  return (
+    <div className="animate-fadeIn">
+      <h1 className="text-2xl font-bold mb-6">Anunțuri Salvate</h1>
+      
+      {savedAdsData.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {savedAdsData.map(ad => (
+            <AdCard 
+              key={ad.id} 
+              ad={ad} 
+              themeClasses={themeClasses} 
+              isSaved={true} 
+              onSave={(e) => toggleSaveAd(ad.id, e)}
+              onClick={() => openAdDetails(ad)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className={`p-10 text-center ${themeClasses.bgCard} rounded-2xl border flex flex-col items-center justify-center mt-10`}>
+          <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+            <Heart size={32} className="text-gray-400" />
+          </div>
+          <h2 className="text-xl font-bold mb-2">Nu ai salvat niciun anunț</h2>
+          <p className={`${themeClasses.textMuted} max-w-sm mb-6`}>Apasă pe inima de pe cardurile anunțurilor pentru a le salva și a le găsi mai ușor mai târziu.</p>
+        </div>
+      )}
+    </div>
+  );
+};
 
-                document.getElementById('post-judet').addEventListener('change', e => this.updateOrasDropdown(e.target.value, 'post-oras'));
+// VIEW: PROFILE MENU
+const ProfileMenu = ({ themeClasses, setCurrentView, toggleTheme, isDarkMode }) => {
+  return (
+    <div className="max-w-2xl mx-auto animate-fadeIn">
+      <div className={`p-6 rounded-2xl ${themeClasses.bgCard} border mb-6 flex items-center gap-4`}>
+        <div className="w-16 h-16 bg-gradient-to-tr from-amber-500 to-amber-300 rounded-full flex items-center justify-center shadow-inner">
+          <User size={32} className="text-black" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold">Salut, Utilizator</h2>
+          <p className={themeClasses.textMuted}>Membru din 2026</p>
+        </div>
+      </div>
 
-                const upBox = document.getElementById('upload-box');
-                const fi = document.getElementById('file-input');
-                upBox.addEventListener('click', () => fi.click());
-                fi.addEventListener('change', e => {
-                    if(e.target.files[0]) {
-                        const r = new FileReader();
-                        r.onload = ev => { document.getElementById('upload-preview').src = ev.target.result; document.getElementById('upload-preview').style.display = 'block'; upBox.querySelector('svg').style.display='none'; upBox.querySelector('span').style.display='none'; };
-                        r.readAsDataURL(e.target.files[0]);
-                    }
-                });
+      <div className={`rounded-2xl ${themeClasses.bgCard} border overflow-hidden`}>
+        <MenuButton icon={<Bell />} label="Inbox & Notificări" onClick={() => setCurrentView('inbox')} themeClasses={themeClasses} badge="2" />
+        <MenuButton icon={<Settings />} label="Setări Cont" onClick={() => setCurrentView('settings')} themeClasses={themeClasses} />
+        
+        <div className={`border-t ${themeClasses.borderMuted} px-4 py-3 flex items-center justify-between`}>
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300`}>
+              {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
+            </div>
+            <span className="font-medium">Mod Întunecat</span>
+          </div>
+          <button 
+            onClick={toggleTheme}
+            className={`w-12 h-6 rounded-full transition-colors relative ${isDarkMode ? 'bg-amber-500' : 'bg-gray-300'}`}
+          >
+            <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${isDarkMode ? 'translate-x-6' : 'translate-x-0'}`}></div>
+          </button>
+        </div>
 
-                document.getElementById('post-form').addEventListener('submit', e => {
-                    e.preventDefault();
-                    const nAd = {
-                        id: Date.now(), name: document.getElementById('post-name').value, category: document.getElementById('post-category').value,
-                        judet: document.getElementById('post-judet').value, oras: document.getElementById('post-oras').value, phone: document.getElementById('post-phone').value,
-                        whatsapp: document.getElementById('post-whatsapp').value, schedule: document.getElementById('post-schedule').value,
-                        desc: document.getElementById('post-desc').value, price: document.getElementById('post-price').value,
-                        promo: parseInt(document.querySelector('input[name="promo"]:checked').value), image: document.getElementById('upload-preview').src || null, rating: 0
-                    };
-                    this.data.ads.push(nAd); this.saveData('ads', this.data.ads); e.target.reset();
-                    document.getElementById('upload-preview').style.display='none'; upBox.querySelector('svg').style.display='block'; upBox.querySelector('span').style.display='block';
-                    document.getElementById('post-oras').disabled=true; this.showToast('toast_success'); this.switchPage('page-home'); this.renderAds();
-                });
+        <MenuButton icon={<MessageSquare />} label="Spune-ne părerea ta" onClick={() => setCurrentView('feedback')} themeClasses={themeClasses} />
+        
+        <div className={`border-t ${themeClasses.borderMuted}`}>
+          <MenuButton icon={<LogOut className="text-red-500" />} label="Deconectare" onClick={() => {}} themeClasses={themeClasses} hideArrow className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10" />
+        </div>
+      </div>
+    </div>
+  );
+};
 
-                document.getElementById('profile-img-box').addEventListener('click', () => document.getElementById('profile-file-input').click());
-                document.getElementById('profile-file-input').addEventListener('change', e => {
-                    if(e.target.files[0]) { const r=new FileReader(); r.onload=ev=>{this.data.profile.image=ev.target.result; this.saveData('profile',this.data.profile); this.renderProfile();}; r.readAsDataURL(e.target.files[0]); }
-                });
+const MenuButton = ({ icon, label, onClick, themeClasses, badge, hideArrow, className = "" }) => (
+  <button onClick={onClick} className={`w-full px-4 py-4 flex items-center justify-between border-b last:border-0 ${themeClasses.borderMuted} hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${className}`}>
+    <div className="flex items-center gap-3">
+      <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 ${className}`}>
+        {icon}
+      </div>
+      <span className="font-medium">{label}</span>
+    </div>
+    <div className="flex items-center gap-2">
+      {badge && <span className="bg-amber-500 text-black text-xs font-bold px-2 py-0.5 rounded-full">{badge}</span>}
+      {!hideArrow && <ChevronRight size={20} className={themeClasses.textMuted} />}
+    </div>
+  </button>
+);
 
-                document.getElementById('edit-profile-btn').addEventListener('click', () => { document.getElementById('edit-profile-form').classList.toggle('hidden'); document.getElementById('edit-name-input').value = this.data.profile.name; });
-                document.getElementById('save-profile-btn').addEventListener('click', () => {
-                    const v = document.getElementById('edit-name-input').value.trim();
-                    if(v) { this.data.profile.name = v; this.saveData('profile', this.data.profile); this.renderProfile(); document.getElementById('edit-profile-form').classList.add('hidden'); }
-                });
+// VIEW: SETTINGS
+const SettingsView = ({ themeClasses, onBack }) => {
+  return (
+    <div className="max-w-2xl mx-auto animate-fadeIn">
+      <button onClick={onBack} className="flex items-center gap-2 mb-6 hover:text-amber-500 transition font-medium">
+        <ChevronLeft size={20} /> Înapoi la Profil
+      </button>
+      
+      <h1 className="text-2xl font-bold mb-6">Setări</h1>
 
-                document.getElementById('theme-toggle-btn').addEventListener('click', () => this.toggleTheme());
-                document.getElementById('lang-select').addEventListener('change', e => this.setLanguage(e.target.value));
+      <div className="space-y-6">
+        <div className={`p-6 rounded-2xl ${themeClasses.bgCard} border space-y-4`}>
+          <h2 className="text-lg font-bold mb-2">Informații Personale</h2>
+          <div>
+            <label className="block text-sm font-medium mb-1">Nume complet</label>
+            <input type="text" defaultValue="Utilizator" className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg}`} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Telefon</label>
+            <input type="tel" defaultValue="" placeholder="07XX XXX XXX" className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg}`} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input type="email" defaultValue="" placeholder="nume@email.com" className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg}`} />
+          </div>
+          <button className={`mt-2 px-4 py-2 rounded-lg font-bold ${themeClasses.goldBg}`}>Salvează modificările</button>
+        </div>
 
-                document.getElementById('feedback-text').addEventListener('input', e => document.getElementById('char-count').textContent = `${e.target.value.length}/500`);
-                document.getElementById('feedback-form').addEventListener('submit', e => { e.preventDefault(); this.showToast('toast_feedback'); e.target.reset(); document.getElementById('char-count').textContent='0/500'; setTimeout(()=>this.hideSubPages(), 1500); });
-            }
-        };
+        <div className={`p-6 rounded-2xl ${themeClasses.bgCard} border space-y-4`}>
+          <h2 className="text-lg font-bold mb-2">Preferințe</h2>
+          <div>
+            <label className="block text-sm font-medium mb-1 flex items-center gap-2"><Globe size={16}/> Limba aplicației</label>
+            <select className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg}`}>
+              <option>Română</option>
+              <option>English</option>
+              <option>Italiano</option>
+            </select>
+          </div>
+        </div>
 
-        document.addEventListener('DOMContentLoaded', () => app.init());
-    </script>
-</body>
-</html>
+        <div className={`p-6 rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/10`}>
+          <h2 className="text-lg font-bold text-red-600 dark:text-red-400 mb-2">Zona de Pericol</h2>
+          <p className="text-sm text-red-500/80 mb-4">Odată ce ștergi contul, datele nu mai pot fi recuperate.</p>
+          <button className="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold hover:underline">
+            <Trash2 size={18} /> Șterge contul
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// VIEW: FEEDBACK
+const FeedbackView = ({ themeClasses, onBack }) => {
+  const [feedbackType, setFeedbackType] = useState('');
+  const [description, setDescription] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if(description.length > 0 && feedbackType) {
+      setSubmitted(true);
+      setTimeout(() => {
+        onBack();
+      }, 2500);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="max-w-2xl mx-auto text-center py-20 animate-fadeIn">
+        <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+          <CheckCircle2 size={40} />
+        </div>
+        <h2 className="text-2xl font-bold mb-2">Mulțumim pentru feedback!</h2>
+        <p className={themeClasses.textMuted}>Părerea ta ne ajută să îmbunătățim AutoRapid RO.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto animate-fadeIn">
+      <button onClick={onBack} className="flex items-center gap-2 mb-6 hover:text-amber-500 transition font-medium">
+        <ChevronLeft size={20} /> Înapoi la Profil
+      </button>
+
+      <div className={`p-6 rounded-2xl ${themeClasses.bgCard} border`}>
+        <h1 className="text-2xl font-bold mb-6">Dă-ne feedback</h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium mb-1">Despre ce vrei să ne dai feedback?</label>
+            <select required value={feedbackType} onChange={e => setFeedbackType(e.target.value)} className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500`}>
+              <option value="">Alege o categorie</option>
+              <option value="Problemă tehnică">Problemă tehnică</option>
+              <option value="Design aplicație">Design aplicație</option>
+              <option value="Anunțuri">Anunțuri (false, spam)</option>
+              <option value="Profil">Profilul meu</option>
+              <option value="Mesaje">Sistem mesaje</option>
+              <option value="Sugestie nouă">Sugestie nouă</option>
+              <option value="Altceva">Altceva</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Descriere feedback</label>
+            <textarea 
+              required
+              rows="5"
+              maxLength={500}
+              placeholder="Descrie în detaliu problema sau sugestia ta..."
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              className={`w-full px-4 py-3 rounded-xl border ${themeClasses.inputBg} focus:ring-2 focus:ring-amber-500 resize-none`}
+            ></textarea>
+            <div className={`text-right text-xs mt-1 ${description.length >= 500 ? 'text-red-500' : themeClasses.textMuted}`}>
+              {description.length} / 500 caractere
+            </div>
+          </div>
+
+          <button type="submit" className={`w-full py-3 rounded-xl font-bold shadow-md transition-all ${(!feedbackType || !description) ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : themeClasses.goldBg}`}>
+            Trimite Feedback
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// VIEW: INBOX
+const InboxView = ({ themeClasses, onBack }) => {
+  return (
+    <div className="max-w-2xl mx-auto animate-fadeIn">
+      <button onClick={onBack} className="flex items-center gap-2 mb-6 hover:text-amber-500 transition font-medium">
+        <ChevronLeft size={20} /> Înapoi la Profil
+      </button>
+
+      <h1 className="text-2xl font-bold mb-6">Inbox & Notificări</h1>
+
+      <div className="space-y-3">
+        <div className={`p-4 rounded-xl ${themeClasses.bgCard} border flex gap-4 items-start`}>
+          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-500 rounded-full flex items-center justify-center shrink-0">
+            <Globe size={24} />
+          </div>
+          <div>
+            <div className="flex justify-between items-start mb-1">
+              <h3 className="font-bold">Bun venit pe AutoRapid RO!</h3>
+              <span className={`text-xs ${themeClasses.textMuted}`}>Acum</span>
+            </div>
+            <p className={`text-sm ${themeClasses.textMuted}`}>Suntem bucuroși să te avem alături. Completează-ți profilul pentru o experiență mai bună.</p>
+          </div>
+        </div>
+
+        <div className={`p-4 rounded-xl ${themeClasses.bgCard} border flex gap-4 items-start`}>
+          <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 text-amber-600 rounded-full flex items-center justify-center shrink-0">
+            <Star size={24} />
+          </div>
+          <div>
+            <div className="flex justify-between items-start mb-1">
+              <h3 className="font-bold">Promovează-ți anunțul</h3>
+              <span className={`text-xs ${themeClasses.textMuted}`}>Ieri</span>
+            </div>
+            <p className={`text-sm ${themeClasses.textMuted}`}>Ai servicii auto? Postează acum și atrage clienți noi din zona ta cu pachetele noastre Premium.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// UI COMPONENT: AD CARD
+const AdCard = ({ ad, themeClasses, isSaved, onSave, onClick }) => (
+  <div 
+    onClick={onClick}
+    className={`${themeClasses.bgCard} rounded-2xl overflow-hidden border shadow-sm hover:shadow-md transition-shadow cursor-pointer group flex flex-col h-full relative`}
+  >
+    {/* Badge Promovat */}
+    {ad.promoted && (
+      <div className="absolute top-3 left-3 bg-amber-500 text-black text-[10px] font-bold px-2 py-1 rounded shadow-sm z-10 flex items-center gap-1">
+        <Star size={10} className="fill-black" /> PROMOVAT
+      </div>
+    )}
+    
+    {/* Buton Salvare */}
+    <button 
+      onClick={onSave}
+      className="absolute top-3 right-3 w-8 h-8 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center z-10 hover:bg-black/50 transition-colors"
+    >
+      <Heart size={18} className={isSaved ? "fill-amber-500 text-amber-500" : "text-white"} />
+    </button>
+
+    <div className="h-48 overflow-hidden bg-gray-200 dark:bg-gray-800">
+      <img src={ad.image} alt={ad.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+    </div>
+
+    <div className="p-4 flex flex-col flex-grow">
+      <div className="text-xs font-bold text-amber-600 dark:text-amber-500 mb-1 uppercase tracking-wider">{ad.category}</div>
+      <h3 className="font-bold text-lg mb-1 line-clamp-1">{ad.title}</h3>
+      <div className={`text-sm ${themeClasses.textMuted} mb-3 flex items-center gap-1`}>
+        <MapPin size={14} /> {ad.city}, {ad.county}
+      </div>
+
+      <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex justify-between items-center mb-3">
+          <span className="font-bold">{ad.price}</span>
+          {ad.rating > 0 && (
+            <div className="flex items-center gap-1 text-sm font-medium">
+              <Star size={14} className="fill-amber-500 text-amber-500" /> {ad.rating}
+            </div>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <button className="flex-1 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-2 rounded-lg text-sm font-bold transition flex items-center justify-center gap-1" onClick={(e)=>{e.stopPropagation(); window.location.href=`tel:${ad.phone}`}}>
+            <Phone size={14} /> Sună
+          </button>
+          {ad.whatsapp && (
+            <button className="flex-1 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-500 hover:bg-green-100 py-2 rounded-lg text-sm font-bold transition flex items-center justify-center gap-1" onClick={(e)=>{e.stopPropagation(); window.open(`https://wa.me/${ad.whatsapp.replace(/\s/g, '')}`, '_blank')}}>
+              <MessageCircle size={14} /> WhatsApp
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// UI COMPONENT: AD DETAILS MODAL
+const AdDetailsModal = ({ ad, onClose, themeClasses, toggleSaveAd, isSaved }) => {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+      <div className={`${themeClasses.bgCard} w-full h-full md:h-auto md:max-h-[90vh] md:max-w-3xl md:rounded-2xl shadow-2xl overflow-y-auto flex flex-col relative`}>
+        
+        {/* Buton Închidere plutitor */}
+        <button onClick={onClose} className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/70 backdrop-blur-sm transition">
+          <X size={24} />
+        </button>
+
+        {/* Imagine */}
+        <div className="h-64 md:h-80 w-full relative shrink-0">
+           {ad.promoted && (
+            <div className="absolute top-4 left-4 bg-amber-500 text-black text-xs font-bold px-3 py-1.5 rounded-lg shadow-md z-10 flex items-center gap-1">
+              <Star size={14} className="fill-black" /> PROMOVAT
+            </div>
+          )}
+          <img src={ad.image} alt={ad.title} className="w-full h-full object-cover" />
+        </div>
+
+        {/* Conținut Modal */}
+        <div className="p-6 md:p-8 flex-grow">
+          <div className="flex justify-between items-start mb-2">
+            <div className="text-sm font-bold text-amber-600 dark:text-amber-500 uppercase tracking-wider">{ad.category}</div>
+            {ad.rating > 0 && (
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md text-sm font-medium">
+                <Star size={16} className="fill-amber-500 text-amber-500" /> {ad.rating}
+              </div>
+            )}
+          </div>
+          
+          <h1 className="text-2xl md:text-3xl font-bold mb-4">{ad.title}</h1>
+          <p className={`text-lg font-bold mb-6 ${themeClasses.textMain}`}>{ad.price}</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div className="flex items-start gap-3">
+              <Shield className={themeClasses.textMuted} size={20} />
+              <div>
+                <p className={`text-sm ${themeClasses.textMuted}`}>Firmă</p>
+                <p className="font-medium">{ad.firmName || "Persoană fizică"}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <MapPin className={themeClasses.textMuted} size={20} />
+              <div>
+                <p className={`text-sm ${themeClasses.textMuted}`}>Locație</p>
+                <p className="font-medium">{ad.city}, {ad.county}</p>
+                {ad.address && <p className={`text-sm ${themeClasses.textMuted}`}>{ad.address}</p>}
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Clock className={themeClasses.textMuted} size={20} />
+              <div>
+                <p className={`text-sm ${themeClasses.textMuted}`}>Program</p>
+                <p className="font-medium">{ad.schedule || "Nespecificat"}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className={`pt-6 border-t ${themeClasses.borderMuted} mb-8`}>
+            <h3 className="font-bold text-lg mb-3">Descriere</h3>
+            <p className="whitespace-pre-line leading-relaxed">{ad.description}</p>
+          </div>
+        </div>
+
+        {/* Butoane Acțiune Fixed Bottom */}
+        <div className={`p-4 md:p-6 border-t ${themeClasses.borderMuted} ${themeClasses.bgCard} sticky bottom-0 z-10 flex flex-wrap gap-3`}>
+          <button className={`flex-1 min-w-[140px] ${themeClasses.goldBg} ${themeClasses.goldBgHover} py-3.5 rounded-xl font-bold transition flex items-center justify-center gap-2`} onClick={()=>window.location.href=`tel:${ad.phone}`}>
+            <Phone size={18} /> Sună acum
+          </button>
+          
+          {ad.whatsapp && (
+             <button className="flex-1 min-w-[140px] bg-[#25D366] hover:bg-[#1DA851] text-white py-3.5 rounded-xl font-bold transition flex items-center justify-center gap-2" onClick={()=>window.open(`https://wa.me/${ad.whatsapp.replace(/\s/g, '')}`, '_blank')}>
+              <MessageCircle size={18} /> WhatsApp
+            </button>
+          )}
+
+          <button 
+            onClick={(e) => toggleSaveAd(ad.id, e)}
+            className={`w-14 h-[52px] border-2 rounded-xl flex items-center justify-center transition-colors ${isSaved ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' : themeClasses.borderMuted}`}
+          >
+            <Heart size={24} className={isSaved ? "fill-amber-500 text-amber-500" : themeClasses.textMuted} />
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+};
