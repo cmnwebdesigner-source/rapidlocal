@@ -202,7 +202,26 @@
     .install-mini{display:flex;align-items:center;gap:8px;padding:12px;border-radius:18px;background:linear-gradient(135deg,rgba(245,200,75,.25),rgba(255,255,255,.2));border:1px solid var(--line)}
     .install-mini p{margin:0;font-size:13px;color:var(--muted)}
 
+
+    .profile-dashboard{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;align-items:start}
+    .profile-menu{display:grid;gap:10px}
+    .menu-item.big{min-height:62px;border-radius:20px;background:var(--paper);box-shadow:0 8px 20px rgba(17,17,17,.03)}
+    .menu-item.big span:first-child{font-size:15px;font-weight:560;letter-spacing:-.02em}
+    .menu-item small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+    .back-line{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
+    .back-line h2{margin:0;font-size:22px;font-weight:610;letter-spacing:-.04em}
+    .page-shell{max-width:760px;margin:0 auto}
+    .public-head{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+    .public-head h2{margin:0;font-size:22px;font-weight:610;letter-spacing:-.04em}
+    .public-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
+    .public-info{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+    .public-info .stat{text-align:left}
+    .owner-link{background:transparent;padding:0;color:inherit;text-align:left;display:inline-flex;align-items:center;gap:8px;min-width:0}
+    .owner-link:hover .card-title{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+    .card-logo.clickable{cursor:pointer}
+    .soft-separator{height:1px;background:var(--line);margin:14px 0}
     @media (max-width:900px){
+      .profile-dashboard{grid-template-columns:1fr}.public-info{grid-template-columns:1fr}
       .top-inner{grid-template-columns:1fr auto}.top-inner .searchline{grid-column:1/-1;order:3}.desktop-nav{display:none}.bottom-nav{display:grid}.wrap{padding:14px 12px 0}.filters{grid-template-columns:1fr 1fr}.filters .wide{grid-column:1/-1}.filters .btn{grid-column:1/-1;width:100%}.two-col{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.hero{text-align:left;margin:0;padding:16px 2px 10px}.hero::before{margin-left:0;width:90%}.section-head{align-items:start}.service-card{grid-template-columns:auto 1fr}.card-side{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}.actions{width:100%}.actions .btn{flex:1;min-width:130px}.auth-screen{padding:14px}.auth-box{border-radius:24px;padding:18px}.toast{max-width:calc(100% - 24px);white-space:normal;text-align:center}.stats{grid-template-columns:repeat(3,minmax(0,1fr))}
     }
     @media (max-width:520px){
@@ -304,7 +323,7 @@
           <aside class="panel card-pad">
             <h2 style="margin:0 0 10px;font-size:18px;font-weight:600" data-i18n="profileData">Date folosite din profil</h2>
             <div id="publishProfileBox" class="note"></div>
-            <button class="btn light block" type="button" data-page="profile" style="margin-top:14px" data-i18n="editProfile">Editează profil</button>
+            <button class="btn light block" type="button" data-page="editProfile" style="margin-top:14px" data-i18n="editProfile">Editează profil</button>
           </aside>
         </div>
       </section>
@@ -315,68 +334,106 @@
       </section>
 
       <section id="profile" class="page">
-        <div class="two-col">
-          <div class="grid">
-            <div class="panel card-pad">
-              <div class="profile-card">
-                <div id="avatarBox" class="avatar">AR</div>
-                <div>
-                  <h2 id="profileName">AutoRapid</h2>
-                  <p id="profileEmail"></p>
-                </div>
-              </div>
-              <div class="stats">
-                <div class="stat"><b id="statListings">0</b><span data-i18n="myListings">Anunțuri</span></div>
-                <div class="stat"><b id="statSaved">0</b><span data-i18n="saved">Salvate</span></div>
-                <div class="stat"><b id="statInbox">0</b><span>Inbox</span></div>
+        <div class="profile-dashboard">
+          <div class="panel card-pad">
+            <div class="profile-card">
+              <div id="avatarBox" class="avatar">AR</div>
+              <div>
+                <h2 id="profileName">AutoRapid</h2>
+                <p id="profileEmail"></p>
               </div>
             </div>
-            <div class="panel card-pad">
-              <div class="section-head"><h2 data-i18n="editProfile">Editează profil</h2></div>
-              <form id="profileForm" class="form-grid" novalidate>
-                <div class="field full"><label data-i18n="companyName">Nume firmă / utilizator</label><input id="profName" class="input" placeholder="Numele firmei tale" data-i18n-placeholder="companyPh" required></div>
-                <div class="field"><label data-i18n="phone">Telefon / WhatsApp</label><input id="profPhone" class="input" placeholder="07xx xxx xxx" required></div>
-                <div class="field"><label>Email</label><input id="profEmail" class="input" type="email" readonly></div>
-                <div class="field"><label data-i18n="county">Județ</label><select id="profCounty" class="select" required></select></div>
-                <div class="field"><label data-i18n="city">Oraș</label><select id="profCity" class="select" required></select></div>
-                <div class="field full"><label data-i18n="address">Adresă</label><input id="profAddress" class="input" placeholder="Stradă / zonă" data-i18n-placeholder="addressPh"></div>
-                <div class="field"><label data-i18n="schedule">Program</label><input id="profSchedule" class="input" placeholder="Luni - Vineri 09:00 - 18:00"></div>
-                <div class="field"><label data-i18n="price">Preț orientativ</label><input id="profPrice" class="input" placeholder="de la 100 lei"></div>
-                <div class="field full"><label data-i18n="profilePhoto">Poză profil / logo</label><div class="file-row"><input id="avatarInput" class="hidden" type="file" accept="image/*"><button class="btn light" type="button" data-pick-avatar data-i18n="choosePhoto">Alege poză</button><span id="avatarFileName" class="file-name" data-i18n="noFile">Nicio poză aleasă</span></div></div>
-                <div class="full"><button class="btn gold block" type="submit" data-i18n="saveProfile">Salvează profil</button></div>
-              </form>
+            <div class="stats">
+              <div class="stat"><b id="statListings">0</b><span data-i18n="myListings">Anunțuri</span></div>
+              <div class="stat"><b id="statSaved">0</b><span data-i18n="saved">Salvate</span></div>
+              <div class="stat"><b id="statInbox">0</b><span>Inbox</span></div>
             </div>
           </div>
-          <aside class="grid">
-            <div class="panel card-pad">
-              <div class="section-head"><h2 data-i18n="settings">Setări</h2></div>
-              <form id="settingsForm" class="grid" novalidate>
-                <div class="field"><label data-i18n="language">Limba aplicației</label><select id="setLanguage" class="select"><option>Română</option><option>Engleză</option><option>Italiană</option></select></div>
-                <div class="field"><label data-i18n="theme">Temă</label><select id="setTheme" class="select"><option value="light">Light</option><option value="dark">Dark</option></select></div>
-                <label class="menu-item"><span data-i18n="notifications">Notificări</span><input id="setNotify" type="checkbox" checked></label>
-                <button class="btn gold block" type="submit" data-i18n="saveSettings">Salvează setări</button>
-              </form>
-            </div>
-            <div class="panel card-pad install-mini">
+          <div class="profile-menu">
+            <button class="menu-item big" type="button" data-page="editProfile"><span><span data-i18n="editProfile">Editează profil</span><small><span data-i18n="editProfileHint">Schimbă nume, telefon, oraș, program și poză.</span></small></span><span>›</span></button>
+            <button class="menu-item big" type="button" data-page="myListings"><span><span data-i18n="myListings">Anunțurile mele</span><small><span data-i18n="myListingsHint">Vezi ce ai publicat în aplicație.</span></small></span><span>›</span></button>
+            <button class="menu-item big" type="button" data-page="inbox"><span><span>Inbox</span><small><span data-i18n="inboxHint">Mesaje și notificări despre cont.</span></small></span><span>›</span></button>
+            <button class="menu-item big" type="button" data-page="settings"><span><span data-i18n="settings">Setări</span><small><span data-i18n="settingsHint">Limbă, temă, notificări și instalare.</span></small></span><span>›</span></button>
+            <button class="menu-item big" type="button" data-page="feedback"><span><span data-i18n="feedback">Feedback</span><small><span data-i18n="feedbackHint">Trimite sugestii sau probleme tehnice.</span></small></span><span>›</span></button>
+            <button id="logoutBtn" class="btn danger block" type="button" data-i18n="logout">Deconectare</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="editProfile" class="page">
+        <div class="page-shell">
+          <div class="back-line"><button class="btn small light" type="button" data-page="profile">‹ <span data-i18n="profile">Profil</span></button><h2 data-i18n="editProfile">Editează profil</h2></div>
+          <div class="panel card-pad">
+            <form id="profileForm" class="form-grid" novalidate>
+              <div class="field full"><label data-i18n="companyName">Nume firmă / utilizator</label><input id="profName" class="input" placeholder="Numele firmei tale" data-i18n-placeholder="companyPh" required></div>
+              <div class="field"><label data-i18n="phone">Telefon / WhatsApp</label><input id="profPhone" class="input" placeholder="07xx xxx xxx" required></div>
+              <div class="field"><label>Email</label><input id="profEmail" class="input" type="email" readonly></div>
+              <div class="field"><label data-i18n="county">Județ</label><select id="profCounty" class="select" required></select></div>
+              <div class="field"><label data-i18n="city">Oraș</label><select id="profCity" class="select" required></select></div>
+              <div class="field full"><label data-i18n="address">Adresă</label><input id="profAddress" class="input" placeholder="Stradă / zonă" data-i18n-placeholder="addressPh"></div>
+              <div class="field"><label data-i18n="schedule">Program</label><input id="profSchedule" class="input" placeholder="Luni - Vineri 09:00 - 18:00"></div>
+              <div class="field"><label data-i18n="price">Preț orientativ</label><input id="profPrice" class="input" placeholder="de la 100 lei"></div>
+              <div class="field full"><label data-i18n="profilePhoto">Poză profil / logo</label><div class="file-row"><input id="avatarInput" class="hidden" type="file" accept="image/*"><button class="btn light" type="button" data-pick-avatar data-i18n="choosePhoto">Alege poză</button><span id="avatarFileName" class="file-name" data-i18n="noFile">Nicio poză aleasă</span></div></div>
+              <div class="full"><button class="btn gold block" type="submit" data-i18n="saveProfile">Salvează profil</button></div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="settings" class="page">
+        <div class="page-shell">
+          <div class="back-line"><button class="btn small light" type="button" data-page="profile">‹ <span data-i18n="profile">Profil</span></button><h2 data-i18n="settings">Setări</h2></div>
+          <div class="panel card-pad">
+            <form id="settingsForm" class="grid" novalidate>
+              <div class="field"><label data-i18n="language">Limba aplicației</label><select id="setLanguage" class="select"><option>Română</option><option>Engleză</option><option>Italiană</option></select></div>
+              <div class="field"><label data-i18n="theme">Temă</label><select id="setTheme" class="select"><option value="light">Light</option><option value="dark">Dark</option></select></div>
+              <label class="menu-item"><span data-i18n="notifications">Notificări</span><input id="setNotify" type="checkbox" checked></label>
+              <button class="btn gold block" type="submit" data-i18n="saveSettings">Salvează setări</button>
+            </form>
+            <div class="soft-separator"></div>
+            <div class="install-mini">
               <div class="dot"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg></div>
-              <div style="flex:1"><b style="font-weight:600" data-i18n="addHome">Adaugă pe ecran</b><p data-i18n="addHomeText">Instalează aplicația pe telefon.</p></div>
+              <div style="flex:1"><b style="font-weight:560" data-i18n="addHome">Adaugă pe ecran</b><p data-i18n="addHomeText">Instalează aplicația pe telefon.</p></div>
               <button class="btn small light" type="button" id="installBtn" data-i18n="add">Adaugă</button>
             </div>
-            <div class="panel card-pad">
-              <div class="section-head"><h2>Inbox</h2></div>
-              <div id="inboxList" class="grid"></div>
-            </div>
-            <div class="panel card-pad">
-              <div class="section-head"><h2 data-i18n="feedback">Feedback</h2></div>
-              <form id="feedbackForm" class="grid" novalidate>
-                <select id="feedbackCategory" class="select"><option>Problemă tehnică</option><option>Design aplicație</option><option>Anunțuri</option><option>Profil</option><option>Mesaje</option><option>Sugestie nouă</option><option>Altceva</option></select>
-                <textarea id="feedbackText" class="textarea" maxlength="500" placeholder="Descriere feedback" data-i18n-placeholder="feedbackPh"></textarea>
-                <div class="count"><span id="feedbackCount">0</span>/500</div>
-                <button class="btn light block" type="submit" data-i18n="sendFeedback">Trimite feedback</button>
-              </form>
-            </div>
-            <button id="logoutBtn" class="btn danger block" type="button" data-i18n="logout">Deconectare</button>
-          </aside>
+          </div>
+        </div>
+      </section>
+
+      <section id="feedback" class="page">
+        <div class="page-shell">
+          <div class="back-line"><button class="btn small light" type="button" data-page="profile">‹ <span data-i18n="profile">Profil</span></button><h2 data-i18n="feedback">Feedback</h2></div>
+          <div class="panel card-pad">
+            <form id="feedbackForm" class="grid" novalidate>
+              <select id="feedbackCategory" class="select"><option>Problemă tehnică</option><option>Design aplicație</option><option>Anunțuri</option><option>Profil</option><option>Mesaje</option><option>Sugestie nouă</option><option>Altceva</option></select>
+              <textarea id="feedbackText" class="textarea" maxlength="500" placeholder="Descriere feedback" data-i18n-placeholder="feedbackPh"></textarea>
+              <div class="count"><span id="feedbackCount">0</span>/500</div>
+              <button class="btn gold block" type="submit" data-i18n="sendFeedback">Trimite feedback</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="inbox" class="page">
+        <div class="page-shell">
+          <div class="back-line"><button class="btn small light" type="button" data-page="profile">‹ <span data-i18n="profile">Profil</span></button><h2>Inbox</h2></div>
+          <div id="inboxList" class="grid"></div>
+        </div>
+      </section>
+
+      <section id="myListings" class="page">
+        <div class="page-shell">
+          <div class="back-line"><button class="btn small light" type="button" data-page="profile">‹ <span data-i18n="profile">Profil</span></button><h2 data-i18n="myListings">Anunțurile mele</h2></div>
+          <div id="myListingsGrid" class="grid"></div>
+        </div>
+      </section>
+
+      <section id="publicProfile" class="page">
+        <div class="page-shell">
+          <div class="back-line"><button class="btn small light" type="button" data-page="home">‹ <span data-i18n="home">Acasă</span></button><h2 data-i18n="publicProfile">Profil firmă</h2></div>
+          <div id="publicProfileBody" class="panel card-pad"></div>
+          <div class="section-head"><h2 data-i18n="publishedListings">Anunțuri publicate</h2><span id="publicListingsCount" class="count">0</span></div>
+          <div id="publicListingsGrid" class="grid"></div>
         </div>
       </section>
     </div>
@@ -410,6 +467,7 @@
   const safe = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const norm = v => String(v ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
   const idOf = x => String(x.id || x.listing_id || '');
+  const ownerKey = x => String(x.user_id || ('owner_' + norm(x.business_name || 'firma')));
   const DEMO_NAMES = new Set(['Tractări Auto București','Vulcanizare Mobilă Cluj','Service Auto Brașov','ITP Sibiu Rapid','Diagnoză Auto Timișoara','Schimb Ulei Constanța']);
 
   const CATEGORIES = ['Tractări auto','Vulcanizare','Service auto','ITP','Diagnoză auto','Schimb ulei','Piese auto','Spălătorie auto','Detailing auto','Tinichigerie','Vopsitorie','Electrician auto','Închirieri auto','Dezmembrări auto','Anvelope','Asigurări auto','Platformă auto','Mecanic la domiciliu'];
@@ -433,7 +491,15 @@
     'Italiană': {authTitle:'Accedi',authSub:'Accesso semplice con email e password.',login:'Login',register:'Crea account',name:'Nome / azienda',namePh:'Es: Rapid Service Brașov',password:'Password',passPh:'Minimo 6 caratteri',enter:'Entra',home:'Home',search:'Cerca',publish:'Pubblica',saved:'Salvati',profile:'Profilo',eyebrow:'Marketplace auto Romania',heroTitle:'Servizi auto, trovati velocemente.',heroText:'Cerca aziende auto per città, categoria e disponibilità. Semplice, pulito, senza confusione.',searchPh:'Cerca traino, service, ITP...',searchLabel:'Cerca',searchExample:'Es: gommista Brașov',searchDeep:'Cerca per nome, città, categoria',county:'Provincia',city:'Città',category:'Categoria',latest:'Annunci recenti',searchResults:'Ricerca',publishTitle:'Pubblica annuncio',publishInfo:'Compila solo categoria e descrizione. I dati aziendali vengono dal profilo.',description:'Descrizione',descPh:'Descrivi brevemente servizio, orario, zona e dettagli utili.',promotion:'Promozione',publishBtn:'Pubblica annuncio',profileData:'Dati usati dal profilo',editProfile:'Modifica profilo',myListings:'Annunci',settings:'Impostazioni',companyName:'Nome azienda / utente',companyPh:'Nome della tua azienda',phone:'Telefono / WhatsApp',address:'Indirizzo',addressPh:'Via / zona',schedule:'Orario',price:'Prezzo indicativo',profilePhoto:'Foto profilo / logo',choosePhoto:'Scegli foto',noFile:'Nessuna foto scelta',saveProfile:'Salva profilo',language:'Lingua app',theme:'Tema',notifications:'Notifiche',saveSettings:'Salva impostazioni',addHome:'Aggiungi alla home',addHomeText:'Installa l’app sul telefono.',add:'Aggiungi',feedback:'Feedback',feedbackPh:'Descrizione feedback',sendFeedback:'Invia feedback',logout:'Esci',emptyTitle:'Nessun annuncio',emptyDesc:'Quando un’azienda pubblica un annuncio, apparirà qui.',noSaved:'Nessun salvato',noSavedDesc:'Tocca il cuore su un annuncio per salvarlo.',call:'Chiama',whatsapp:'WhatsApp',details:'Dettagli',save:'Salva',remove:'Rimuovi',report:'Segnala',close:'Chiudi',profileNeed:'Completa il profilo prima di pubblicare.',profileReady:'Profilo pronto per pubblicare.',all:'Tutti'}
   };
 
-  const state = {sb:null,user:null,profile:{},listings:[],favorites:new Set(),inbox:[],filters:{q:'',county:'',city:'',category:''},page:'home',authMode:'login',lang:store.get('ar_lang','Română'),theme:store.get('ar_theme','light'),deferredInstall:null};
+  const EXTRA_T = {
+    'Română': {editProfileHint:'Schimbă nume, telefon, oraș, program și poză.',myListingsHint:'Vezi ce ai publicat în aplicație.',inboxHint:'Mesaje și notificări despre cont.',settingsHint:'Limbă, temă, notificări și instalare.',feedbackHint:'Trimite sugestii sau probleme tehnice.',publicProfile:'Profil firmă',publishedListings:'Anunțuri publicate',viewProfile:'Vezi profil',emptyMyListings:'Nu ai publicat încă',emptyMyListingsDesc:'După ce publici un anunț, apare aici.',profileUnavailable:'Profil indisponibil',profileUnavailableDesc:'Acest profil nu mai are anunțuri publice.',addressMissing:'Adresă necompletată',scheduleMissing:'Program necompletat',listingsWord:'anunțuri'},
+    'Engleză': {editProfileHint:'Change name, phone, city, schedule and photo.',myListingsHint:'See what you published in the app.',inboxHint:'Messages and account notifications.',settingsHint:'Language, theme, notifications and install.',feedbackHint:'Send suggestions or technical issues.',publicProfile:'Company profile',publishedListings:'Published listings',viewProfile:'View profile',emptyMyListings:'You have not published yet',emptyMyListingsDesc:'After you publish a listing, it appears here.',profileUnavailable:'Profile unavailable',profileUnavailableDesc:'This profile has no public listings anymore.',addressMissing:'Address not completed',scheduleMissing:'Schedule not completed',listingsWord:'listings'},
+    'Italiană': {editProfileHint:'Cambia nome, telefono, città, orario e foto.',myListingsHint:'Vedi cosa hai pubblicato nell’app.',inboxHint:'Messaggi e notifiche dell’account.',settingsHint:'Lingua, tema, notifiche e installazione.',feedbackHint:'Invia suggerimenti o problemi tecnici.',publicProfile:'Profilo azienda',publishedListings:'Annunci pubblicati',viewProfile:'Vedi profilo',emptyMyListings:'Non hai ancora pubblicato',emptyMyListingsDesc:'Dopo la pubblicazione, l’annuncio appare qui.',profileUnavailable:'Profilo non disponibile',profileUnavailableDesc:'Questo profilo non ha più annunci pubblici.',addressMissing:'Indirizzo non completato',scheduleMissing:'Orario non completato',listingsWord:'annunci'}
+  };
+  Object.keys(EXTRA_T).forEach(lang=>Object.assign(T[lang], EXTRA_T[lang]));
+
+
+  const state = {sb:null,user:null,profile:{},listings:[],favorites:new Set(),inbox:[],filters:{q:'',county:'',city:'',category:''},page:'home',authMode:'login',lang:store.get('ar_lang','Română'),theme:store.get('ar_theme','light'),deferredInstall:null,publicOwner:null};
   function tr(k){return (T[state.lang] && T[state.lang][k]) || T['Română'][k] || k}
   function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2600)}
 
@@ -560,19 +626,20 @@
     });
   }
   function card(x){
-    const id=idOf(x), saved=state.favorites.has(id), avatar=x.image_url||'';
+    const id=idOf(x), saved=state.favorites.has(id), avatar=x.image_url||'', owner=ownerKey(x);
     const phone=String(x.phone||'').replace(/\s+/g,'');
     const wa=String(x.whatsapp||x.phone||'').replace(/\D/g,'');
     return `<article class="service-card" data-listing="${safe(id)}">
-      <div class="card-logo">${avatar?`<img src="${safe(avatar)}" alt="">`:safe((x.business_name||'AR').slice(0,2).toUpperCase())}</div>
+      <button class="card-logo clickable" type="button" data-public-profile="${safe(owner)}">${avatar?`<img src="${safe(avatar)}" alt="">`:safe((x.business_name||'AR').slice(0,2).toUpperCase())}</button>
       <div class="card-main">
-        <div class="card-top"><h3 class="card-title">${safe(x.business_name||'Firmă auto')}</h3>${x.promoted?`<span class="badge">Premium</span>`:''}</div>
+        <div class="card-top"><button class="owner-link" type="button" data-public-profile="${safe(owner)}"><h3 class="card-title">${safe(x.business_name||'Firmă auto')}</h3></button>${x.promoted?`<span class="badge">Premium</span>`:''}</div>
         <div class="meta"><span>${safe(x.category||'Auto')}</span><span>•</span><span>${safe(x.city||'')}${x.county?', '+safe(x.county):''}</span>${x.rating?`<span>• ★ ${safe(x.rating)}</span>`:''}</div>
         <p class="desc">${safe(x.description||'')}</p>
         <div class="actions">
           <a class="btn small light" href="tel:${safe(phone)}">${tr('call')}</a>
           <a class="btn small light" href="https://wa.me/${safe(wa)}" target="_blank" rel="noopener">${tr('whatsapp')}</a>
           <button class="btn small ghost" type="button" data-open="${safe(id)}">${tr('details')}</button>
+          <button class="btn small ghost" type="button" data-public-profile="${safe(owner)}">${tr('viewProfile')}</button>
         </div>
       </div>
       <div class="card-side"><button class="heart ${saved?'saved':''}" type="button" data-fav="${safe(id)}" aria-label="${saved?tr('remove'):tr('save')}"><svg class="icon" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg></button><span class="price">${safe(x.price||'')}</span></div>
@@ -600,13 +667,39 @@
     $('profCounty').value=state.profile.county||'';fillSelect('profCity',cityList($('profCounty').value),true);$('profCity').value=state.profile.city||'';
     $('profAddress').value=state.profile.address||'';$('profSchedule').value=state.profile.schedule||'';$('profPrice').value=state.profile.price||'';
     $('setLanguage').value=state.profile.language||state.lang;$('setTheme').value=state.profile.theme||state.theme;$('setNotify').checked=state.profile.notifications!==false;
-    $('statListings').textContent=state.listings.filter(x=>x.user_id===state.user.id).length;$('statSaved').textContent=state.favorites.size;$('statInbox').textContent=state.inbox.length;
-    const ok=profileReady();$('publishProfileBox').innerHTML= ok ? `<b style="font-weight:600">${safe(state.profile.full_name)}</b><br>${safe(state.profile.phone)}<br>${safe(state.profile.city)}, ${safe(state.profile.county)}<br>${safe(state.profile.address||'')}` : `<b style="font-weight:600">${tr('profileNeed')}</b>`;
+    $('statListings').textContent=state.listings.filter(x=>String(x.user_id)===String(state.user.id)).length;$('statSaved').textContent=state.favorites.size;$('statInbox').textContent=state.inbox.length;
+    const ok=profileReady();$('publishProfileBox').innerHTML= ok ? `<b style="font-weight:560">${safe(state.profile.full_name)}</b><br>${safe(state.profile.phone)}<br>${safe(state.profile.city)}, ${safe(state.profile.county)}<br>${safe(state.profile.address||'')}` : `<b style="font-weight:560">${tr('profileNeed')}</b>`;
   }
   function renderInbox(){
     $('inboxList').innerHTML=state.inbox.length?state.inbox.map(m=>`<div class="message"><div class="dot"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16v14H5.2L4 20V4z"></path></svg></div><div><h4>${safe(m.title)}</h4><p>${safe(m.message)}</p><p>${safe(m.type||'Mesaj')}</p></div></div>`).join(''):empty('Inbox gol','Nu ai mesaje momentan.');
   }
-  function renderAll(){fillAllSelects();renderListings();renderProfile();renderInbox();syncInputs();}
+  function renderMyListings(){
+    const mine=state.listings.filter(x=>String(x.user_id||'')===String(state.user?.id||''));
+    $('myListingsGrid').innerHTML=mine.length?mine.map(card).join(''):empty(tr('emptyMyListings'),tr('emptyMyListingsDesc'));
+  }
+  function ownerListings(owner){return state.listings.filter(x=>ownerKey(x)===String(owner))}
+  function renderPublicProfile(){
+    if(!state.publicOwner)return;
+    const list=ownerListings(state.publicOwner); const first=list[0];
+    if(!first){$('publicProfileBody').innerHTML=empty(tr('profileUnavailable'),tr('profileUnavailableDesc'));$('publicListingsGrid').innerHTML='';$('publicListingsCount').textContent='0';return}
+    const avatar=first.image_url||''; const phone=String(first.phone||'').replace(/\s+/g,''); const wa=String(first.whatsapp||first.phone||'').replace(/\D/g,'');
+    const cats=[...new Set(list.map(x=>x.category).filter(Boolean))];
+    $('publicProfileBody').innerHTML=`
+      <div class="public-head">
+        <div class="avatar">${avatar?`<img src="${safe(avatar)}" alt="">`:safe((first.business_name||'AR').slice(0,2).toUpperCase())}</div>
+        <div><h2>${safe(first.business_name||'Firmă auto')}</h2><p>${safe(first.city||'')}${first.county?', '+safe(first.county):''}</p></div>
+      </div>
+      <div class="public-info">
+        <div class="stat"><b>${list.length}</b><span>Anunțuri</span></div>
+        <div class="stat"><b>★ ${safe(first.rating||4.9)}</b><span>Rating</span></div>
+        <div class="stat"><b>${cats.length}</b><span>Categorii</span></div>
+      </div>
+      <p class="note">${safe(first.address||tr('addressMissing'))} • ${safe(first.schedule||tr('scheduleMissing'))}</p>
+      <div class="actions" style="margin-top:14px"><a class="btn gold" href="tel:${safe(phone)}">${tr('call')}</a><a class="btn light" href="https://wa.me/${safe(wa)}" target="_blank" rel="noopener">${tr('whatsapp')}</a></div>`;
+    $('publicListingsCount').textContent=`${list.length} ${tr('listingsWord')}`;
+    $('publicListingsGrid').innerHTML=list.map(card).join('');
+  }
+  function renderAll(){fillAllSelects();renderListings();renderProfile();renderInbox();renderMyListings();renderPublicProfile();syncInputs();}
   function syncInputs(){['topSearch','homeSearch','searchInput'].forEach(id=>{if($(id))$(id).value=state.filters.q});['countyFilter','searchCounty'].forEach(id=>{if($(id))$(id).value=state.filters.county});['catFilter','searchCat'].forEach(id=>{if($(id))$(id).value=state.filters.category});fillSelect('cityFilter',cityList(state.filters.county),true);fillSelect('searchCity',cityList(state.filters.county),true);['cityFilter','searchCity'].forEach(id=>{if($(id))$(id).value=state.filters.city})}
 
   async function toggleFavorite(id){
@@ -656,14 +749,22 @@
   function openDetails(id){
     const x=state.listings.find(i=>idOf(i)===String(id)); if(!x)return;
     $('modalTitle').textContent=x.business_name||'Anunț';
-    const phone=String(x.phone||'').replace(/\s+/g,''); const wa=String(x.whatsapp||x.phone||'').replace(/\D/g,'');
+    const phone=String(x.phone||'').replace(/\s+/g,''); const wa=String(x.whatsapp||x.phone||'').replace(/\D/g,''); const owner=ownerKey(x);
     $('modalBody').innerHTML=`<div class="grid">
       <div class="profile-card"><div class="avatar">${x.image_url?`<img src="${safe(x.image_url)}" alt="">`:safe((x.business_name||'AR').slice(0,2).toUpperCase())}</div><div><h2 style="margin:0;font-weight:600">${safe(x.business_name)}</h2><p>${safe(x.category)} • ${safe(x.city)}, ${safe(x.county)}</p></div></div>
       <p>${safe(x.description||'')}</p>
       <div class="grid" style="gap:8px"><div class="menu-item"><span>${tr('address')}</span><span>${safe(x.address||'-')}</span></div><div class="menu-item"><span>${tr('schedule')}</span><span>${safe(x.schedule||'-')}</span></div><div class="menu-item"><span>${tr('price')}</span><span>${safe(x.price||'-')}</span></div><div class="menu-item"><span>Rating</span><span>★ ${safe(x.rating||4.9)}</span></div></div>
-      <div class="actions"><a class="btn gold" href="tel:${safe(phone)}">${tr('call')}</a><a class="btn light" href="https://wa.me/${safe(wa)}" target="_blank" rel="noopener">${tr('whatsapp')}</a><button class="btn ghost" data-fav="${safe(id)}">${state.favorites.has(id)?tr('remove'):tr('save')}</button><button class="btn danger" data-report="${safe(id)}">${tr('report')}</button></div>
+      <div class="actions"><a class="btn gold" href="tel:${safe(phone)}">${tr('call')}</a><a class="btn light" href="https://wa.me/${safe(wa)}" target="_blank" rel="noopener">${tr('whatsapp')}</a><button class="btn ghost" data-public-profile="${safe(owner)}">${tr('viewProfile')}</button><button class="btn ghost" data-fav="${safe(id)}">${state.favorites.has(id)?tr('remove'):tr('save')}</button><button class="btn danger" data-report="${safe(id)}">${tr('report')}</button></div>
     </div>`;
     $('detailsModal').classList.add('open');
+  }
+
+
+  function openPublicProfile(owner){
+    state.publicOwner=String(owner||'');
+    closeModal();
+    renderPublicProfile();
+    go('publicProfile');
   }
 
   function setFiltersFrom(source){
@@ -692,6 +793,7 @@
       const page=e.target.closest('[data-page]')?.dataset.page;if(page){go(page);return}
       const fav=e.target.closest('[data-fav]')?.dataset.fav;if(fav){toggleFavorite(fav);return}
       const open=e.target.closest('[data-open]')?.dataset.open;if(open){openDetails(open);return}
+      const pub=e.target.closest('[data-public-profile]')?.dataset.publicProfile;if(pub){openPublicProfile(pub);return}
       const rep=e.target.closest('[data-report]')?.dataset.report;if(rep){reportListing(rep);return}
       if(e.target.closest('[data-close-modal]'))closeModal();
       if(e.target.closest('[data-pick-avatar]'))$('avatarInput').click();
