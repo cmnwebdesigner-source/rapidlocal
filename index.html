@@ -2,1665 +2,1703 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>AutoRapid RO - Anunțuri Auto</title>
-
-  <script>
-    window.tailwind = window.tailwind || {};
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            gold: {
-              50: "#fff8df",
-              100: "#ffefb3",
-              200: "#ffe27a",
-              300: "#ffd33d",
-              400: "#f7c400",
-              500: "#d4af37",
-              600: "#b88d16",
-              700: "#8b6810",
-              800: "#5f4609",
-              900: "#302305"
-            },
-            carbon: "#050505",
-            ink: "#0B0B0B",
-            cream: "#F8F5EC"
-          },
-          boxShadow: {
-            premium: "0 18px 45px rgba(0,0,0,.18)",
-            gold: "0 16px 38px rgba(212,175,55,.30)",
-            card: "0 12px 30px rgba(0,0,0,.10)"
-          },
-          fontFamily: {
-            app: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"]
-          }
-        }
-      }
-    };
-  </script>
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AutoRapid RO</title>
+  <meta name="description" content="AutoRapid RO - marketplace modern pentru servicii auto din România." />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { width: 100%; min-height: 100%; overflow-x: hidden; background: #050505; }
-    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    button, input, select, textarea { font: inherit; }
-    input, select, textarea { color: inherit; }
-    select option { color: #111; background: white; }
-    .app-bg {
+    :root{
+      --bg:#ffffff;
+      --surface:#ffffff;
+      --soft:#f7f7f4;
+      --soft-2:#fffbea;
+      --text:#111111;
+      --muted:#6b6b6b;
+      --line:#ece9df;
+      --black:#080808;
+      --gold:#FFD700;
+      --gold-2:#F5C400;
+      --gold-3:#FFE766;
+      --green:#0a7f60;
+      --green-soft:#e7f7f1;
+      --red:#b42318;
+      --shadow:0 16px 40px rgba(13,13,13,.08);
+      --shadow-soft:0 8px 24px rgba(13,13,13,.06);
+      --radius:22px;
+      --radius-sm:16px;
+      --header:72px;
+      --bottom:80px;
+      --font:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    [data-theme="dark"]{
+      --bg:#0c0c0c;
+      --surface:#141414;
+      --soft:#1d1d1d;
+      --soft-2:#201d0b;
+      --text:#fafafa;
+      --muted:#aaa;
+      --line:#282828;
+      --black:#ffffff;
+      --gold:#FFD700;
+      --gold-2:#FFCA00;
+      --gold-3:#FFF0A0;
+      --green:#27c69b;
+      --green-soft:#102c25;
+      --shadow:0 18px 50px rgba(0,0,0,.30);
+      --shadow-soft:0 10px 26px rgba(0,0,0,.20);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;overflow-x:hidden}
+    body{
+      margin:0;
+      min-height:100vh;
+      overflow-x:hidden;
       background:
-        radial-gradient(circle at 14% -10%, rgba(212,175,55,.28), transparent 30%),
-        radial-gradient(circle at 98% 8%, rgba(255,255,255,.10), transparent 28%),
-        linear-gradient(180deg, #050505 0%, #0d0b07 38%, #050505 100%);
+        radial-gradient(circle at 50% -10%, rgba(255,215,0,.20), transparent 30%),
+        var(--bg);
+      color:var(--text);
+      font-family:var(--font);
+      font-size:15px;
+      line-height:1.45;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
     }
-    .gold-line {
-      background: linear-gradient(90deg, transparent, rgba(212,175,55,.95), transparent);
+    body.locked{overflow:hidden}
+    a{color:inherit;text-decoration:none}
+    button,input,select,textarea{font:inherit}
+    button{border:0;cursor:pointer}
+    img{max-width:100%;display:block}
+    .hidden{display:none!important}
+
+    .app-shell{
+      min-height:100vh;
+      padding-bottom:var(--bottom);
     }
-    .glass {
-      background: rgba(255,255,255,.075);
-      border: 1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(18px);
+
+    .container{
+      width:min(1160px, calc(100% - 32px));
+      margin:0 auto;
     }
-    .white-card {
-      background: rgba(255,255,255,.97);
-      color: #101010;
-      border: 1px solid rgba(212,175,55,.18);
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      height:var(--header);
+      backdrop-filter:blur(18px);
+      background:rgba(255,255,255,.86);
+      border-bottom:1px solid rgba(236,233,223,.86);
     }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .safe-bottom { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
-    .line-clamp-1 {
-      overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1;
+    [data-theme="dark"] .topbar{background:rgba(12,12,12,.86);border-bottom-color:#242424}
+    .topbar-inner{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
     }
-    .line-clamp-2 {
-      overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
     }
-    .modal-in { animation: modalIn .18s ease-out; }
-    @keyframes modalIn {
-      from { transform: translateY(18px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    .brand-mark{
+      width:42px;
+      height:42px;
+      border-radius:15px;
+      background:linear-gradient(145deg, var(--black), #262626);
+      color:var(--gold);
+      display:grid;
+      place-items:center;
+      box-shadow:0 10px 22px rgba(0,0,0,.14);
+      flex:0 0 auto;
+    }
+    [data-theme="dark"] .brand-mark{background:linear-gradient(145deg,#fff,#e9e9e9);color:#111}
+    .brand svg{width:24px;height:24px}
+    .brand-text{display:flex;flex-direction:column;gap:0;min-width:0}
+    .brand-text strong{font-size:17px;font-weight:650;letter-spacing:-.02em;white-space:nowrap}
+    .brand-text span{font-size:12px;color:var(--muted);white-space:nowrap}
+
+    .desktop-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:5px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface);
+      box-shadow:var(--shadow-soft);
+    }
+    .nav-btn{
+      min-height:40px;
+      padding:0 14px;
+      border-radius:999px;
+      background:transparent;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:520;
+      transition:.2s ease;
+      white-space:nowrap;
+    }
+    .nav-btn:hover{background:var(--soft);color:var(--text)}
+    .nav-btn.active{background:var(--black);color:var(--gold)}
+    [data-theme="dark"] .nav-btn.active{background:var(--gold);color:#111}
+
+    .header-actions{display:flex;align-items:center;gap:10px}
+    .pill-user{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px 7px 7px;
+      border:1px solid var(--line);
+      background:var(--surface);
+      border-radius:999px;
+      box-shadow:var(--shadow-soft);
+      max-width:220px;
+    }
+    .avatar,.small-avatar{
+      width:34px;height:34px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--soft-2);color:#111;border:1px solid var(--line);flex:0 0 auto;
+    }
+    .avatar img,.small-avatar img{width:100%;height:100%;object-fit:cover}
+    .avatar svg,.small-avatar svg{width:18px;height:18px;color:var(--black)}
+    .pill-user span{font-size:13px;font-weight:560;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+    .icon-btn{
+      width:42px;height:42px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--text);display:grid;place-items:center;box-shadow:var(--shadow-soft);transition:.2s ease;
+    }
+    .icon-btn:hover{transform:translateY(-1px);border-color:rgba(255,215,0,.65)}
+    .icon-btn svg{width:19px;height:19px}
+
+    .hero{
+      padding:34px 0 16px;
+      text-align:center;
+    }
+    .hero-card{
+      width:min(840px, 100%);
+      margin:0 auto;
+      padding:34px 30px 28px;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255,215,0,.28), transparent 34%),
+        linear-gradient(180deg, var(--surface), var(--soft));
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .hero-card:before{
+      content:"";
+      position:absolute;
+      width:160px;height:160px;border-radius:999px;
+      background:rgba(255,215,0,.30);
+      filter:blur(45px);
+      top:-74px;left:50%;transform:translateX(-50%);
+      pointer-events:none;
+    }
+    .hero-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      width:max-content;
+      margin:0 auto 14px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:var(--surface);
+      border:1px solid rgba(255,215,0,.55);
+      color:var(--text);
+      font-size:13px;
+      font-weight:560;
+      box-shadow:var(--shadow-soft);
+    }
+    .eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 5px rgba(255,215,0,.18)}
+    .hero h1{
+      margin:0;
+      max-width:660px;
+      font-size:clamp(28px, 5vw, 50px);
+      line-height:1.04;
+      letter-spacing:-.055em;
+      font-weight:660;
+    }
+    .hero p{
+      margin:14px auto 0;
+      max-width:640px;
+      color:var(--muted);
+      font-size:16px;
+    }
+    .hero-actions{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:22px;
+    }
+    .btn{
+      min-height:46px;
+      padding:0 18px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      font-weight:620;
+      font-size:14px;
+      transition:.2s ease;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+    .btn svg{width:18px;height:18px}
+    .btn-primary{background:var(--black);color:var(--gold);box-shadow:0 12px 28px rgba(0,0,0,.14)}
+    [data-theme="dark"] .btn-primary{background:var(--gold);color:#111}
+    .btn-primary:hover{transform:translateY(-1px);filter:saturate(1.05)}
+    .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-3));color:#111;box-shadow:0 12px 28px rgba(255,215,0,.24)}
+    .btn-ghost{background:var(--surface);color:var(--text);border-color:var(--line)}
+    .btn-ghost:hover{border-color:var(--gold);background:var(--soft-2)}
+    .btn-danger{background:#fff0ee;color:var(--red);border-color:#ffd6d0}
+    [data-theme="dark"] .btn-danger{background:#301713;border-color:#52221c}
+
+    .stats-row{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:10px;
+      width:min(600px,100%);
+    }
+    .mini-stat{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.70);
+      border-radius:18px;
+      padding:12px;
+      text-align:center;
+    }
+    [data-theme="dark"] .mini-stat{background:rgba(20,20,20,.7)}
+    .mini-stat b{font-size:18px;font-weight:650;display:block;letter-spacing:-.02em}
+    .mini-stat span{font-size:12px;color:var(--muted)}
+
+    .filters-wrap{
+      margin:18px auto 0;
+      width:min(1060px,100%);
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.90);
+      backdrop-filter:blur(14px);
+      border-radius:26px;
+      box-shadow:var(--shadow);
+      padding:12px;
+    }
+    [data-theme="dark"] .filters-wrap{background:rgba(20,20,20,.90)}
+    .search-line{
+      display:grid;
+      grid-template-columns:1.4fr .8fr .8fr .9fr auto;
+      gap:10px;
+      align-items:center;
+    }
+    .field{position:relative}
+    .field svg{
+      position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted);pointer-events:none;
+    }
+    .input,.select,.textarea{
+      width:100%;
+      min-height:48px;
+      border:1px solid var(--line);
+      background:var(--surface);
+      color:var(--text);
+      border-radius:17px;
+      outline:0;
+      padding:0 14px;
+      font-weight:450;
+      transition:.2s ease;
+    }
+    .field .input{padding-left:42px}
+    .input:focus,.select:focus,.textarea:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(255,215,0,.16)}
+    .textarea{min-height:120px;resize:vertical;padding:13px 14px}
+    .select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 21px,calc(100% - 13px) 21px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+
+    .page{display:none;padding:14px 0 24px}
+    .page.active{display:block}
+    .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin:20px 0 14px}
+    .section-head h2{margin:0;font-size:22px;line-height:1.15;font-weight:650;letter-spacing:-.035em}
+    .section-head p{margin:5px 0 0;color:var(--muted);font-size:14px}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+    }
+    .listing-card{
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--surface);
+      box-shadow:var(--shadow-soft);
+      overflow:hidden;
+      transition:.2s ease;
+      min-width:0;
+    }
+    .listing-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:rgba(255,215,0,.55)}
+    .card-media{
+      height:160px;
+      position:relative;
+      background:linear-gradient(135deg,var(--soft),var(--soft-2));
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+    }
+    .card-media img{width:100%;height:100%;object-fit:cover}
+    .logo-fallback{
+      width:78px;height:78px;border-radius:24px;background:var(--black);color:var(--gold);display:grid;place-items:center;box-shadow:0 14px 28px rgba(0,0,0,.16)}
+    [data-theme="dark"] .logo-fallback{background:#fff;color:#111}
+    .logo-fallback svg{width:38px;height:38px}
+    .badge{
+      position:absolute;
+      left:12px;
+      top:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:linear-gradient(135deg,var(--gold),var(--gold-3));
+      color:#111;
+      font-size:12px;
+      font-weight:650;
+      box-shadow:0 8px 18px rgba(255,215,0,.24);
+    }
+    .fav-btn{
+      position:absolute;
+      right:12px;
+      top:12px;
+      width:40px;height:40px;border-radius:50%;
+      background:rgba(255,255,255,.92);
+      color:#111;
+      display:grid;place-items:center;
+      border:1px solid rgba(255,255,255,.6);
+      box-shadow:0 8px 20px rgba(0,0,0,.12);
+    }
+    .fav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none}
+    .fav-btn.saved{color:#111;background:var(--gold)}
+    .fav-btn.saved svg{fill:currentColor}
+    .card-body{padding:14px}
+    .card-title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .card-title h3{margin:0;font-size:17px;font-weight:650;letter-spacing:-.025em;line-height:1.2}
+    .rating{display:flex;align-items:center;gap:4px;color:#111;background:var(--soft-2);border:1px solid rgba(255,215,0,.45);border-radius:999px;padding:5px 8px;font-size:12px;font-weight:650;white-space:nowrap}
+    [data-theme="dark"] .rating{color:var(--text)}
+    .rating svg{width:14px;height:14px;color:var(--gold);fill:currentColor}
+    .card-meta{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:13px}
+    .meta-line{display:flex;align-items:center;gap:7px;min-width:0}
+    .meta-line svg{width:15px;height:15px;flex:0 0 auto;color:var(--muted)}
+    .meta-line span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .price-row{margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .price{font-size:14px;font-weight:650;color:var(--text)}
+    .card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+    .mini-btn{min-height:42px;border-radius:15px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:620;border:1px solid var(--line);background:var(--surface);color:var(--text)}
+    .mini-btn svg{width:16px;height:16px}
+    .mini-btn.call{background:var(--black);color:var(--gold);border-color:transparent}
+    [data-theme="dark"] .mini-btn.call{background:var(--gold);color:#111}
+    .mini-btn.wa{background:var(--green-soft);color:var(--green);border-color:rgba(10,127,96,.15)}
+
+    .empty{
+      border:1px dashed var(--line);
+      border-radius:24px;
+      background:var(--soft);
+      padding:30px 18px;
+      text-align:center;
+      color:var(--muted);
+      grid-column:1 / -1;
+    }
+    .empty svg{width:34px;height:34px;margin:0 auto 10px;color:var(--gold)}
+    .empty h3{margin:0 0 6px;color:var(--text);font-weight:650}
+    .empty p{margin:0 auto;max-width:440px}
+
+    .panel{
+      border:1px solid var(--line);
+      border-radius:26px;
+      background:var(--surface);
+      box-shadow:var(--shadow-soft);
+      padding:18px;
+    }
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .form-grid .wide{grid-column:1/-1}
+    .label{display:block;margin:0 0 7px;font-size:13px;color:var(--muted);font-weight:560}
+    .upload-box{
+      border:1px dashed rgba(255,215,0,.65);
+      background:var(--soft-2);
+      border-radius:20px;
+      padding:16px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .upload-preview{width:74px;height:74px;border-radius:18px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;flex:0 0 auto}
+    .upload-preview img{width:100%;height:100%;object-fit:cover}
+    .upload-preview svg{width:30px;height:30px;color:var(--muted)}
+    .plans{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .plan-card{position:relative;border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:14px;cursor:pointer;transition:.2s ease}
+    .plan-card input{position:absolute;opacity:0;pointer-events:none}
+    .plan-card strong{display:block;font-size:14px;font-weight:650;margin-bottom:4px}
+    .plan-card span{display:block;font-size:12px;color:var(--muted)}
+    .plan-card:has(input:checked){border-color:var(--gold);box-shadow:0 0 0 4px rgba(255,215,0,.16);background:var(--soft-2)}
+
+    .profile-layout{display:grid;grid-template-columns:330px 1fr;gap:16px;align-items:start}
+    .profile-card{text-align:center}
+    .big-avatar{width:92px;height:92px;border-radius:30px;margin:0 auto 12px;background:var(--soft-2);border:1px solid rgba(255,215,0,.45);display:grid;place-items:center;overflow:hidden;box-shadow:var(--shadow-soft)}
+    .big-avatar img{width:100%;height:100%;object-fit:cover}
+    .big-avatar svg{width:38px;height:38px;color:var(--black)}
+    .profile-card h2{margin:0;font-size:22px;font-weight:650;letter-spacing:-.035em}
+    .profile-card p{margin:5px 0;color:var(--muted)}
+    .profile-info{margin-top:14px;display:grid;gap:8px;text-align:left}
+    .info-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:16px;background:var(--soft)}
+    .info-row svg{width:17px;height:17px;color:var(--gold);flex:0 0 auto}
+    .info-row span{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    .menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .menu-tile{
+      min-height:86px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:var(--surface);
+      color:var(--text);
+      padding:15px;
+      text-align:left;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      box-shadow:var(--shadow-soft);
+      transition:.2s ease;
+    }
+    .menu-tile:hover{transform:translateY(-1px);border-color:var(--gold)}
+    .menu-icon{width:42px;height:42px;border-radius:16px;background:var(--soft-2);display:grid;place-items:center;flex:0 0 auto;color:#111;border:1px solid rgba(255,215,0,.35)}
+    [data-theme="dark"] .menu-icon{color:#fff}
+    .menu-icon svg{width:20px;height:20px}
+    .menu-tile strong{display:block;font-size:15px;font-weight:650;line-height:1.15}
+    .menu-tile span{display:block;margin-top:3px;font-size:12px;color:var(--muted)}
+
+    .inbox-list{display:grid;gap:10px}
+    .message-card{border:1px solid var(--line);border-radius:20px;background:var(--surface);padding:14px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--shadow-soft)}
+    .msg-dot{width:42px;height:42px;border-radius:16px;background:var(--soft-2);color:#111;display:grid;place-items:center;border:1px solid rgba(255,215,0,.45);flex:0 0 auto}
+    [data-theme="dark"] .msg-dot{color:#fff}
+    .msg-dot svg{width:20px;height:20px}
+    .message-card h3{margin:0 0 4px;font-size:15px;font-weight:650}
+    .message-card p{margin:0;color:var(--muted);font-size:13px}
+    .message-card time{display:block;margin-top:8px;color:var(--muted);font-size:12px}
+
+    .auth-screen{
+      min-height:100vh;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:28px 16px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255,215,0,.28), transparent 34%),
+        var(--bg);
+    }
+    .auth-screen.active{display:flex}
+    .auth-card{
+      width:min(440px,100%);
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:var(--surface);
+      box-shadow:var(--shadow);
+      padding:24px;
+      text-align:center;
+    }
+    .auth-card .brand{justify-content:center;margin-bottom:14px}
+    .auth-card h1{margin:8px 0 8px;font-size:28px;font-weight:650;letter-spacing:-.04em}
+    .auth-card p{margin:0 0 18px;color:var(--muted)}
+    .auth-form{display:grid;gap:10px;text-align:left}
+    .auth-note{margin-top:12px;padding:12px;border-radius:18px;background:var(--soft-2);border:1px solid rgba(255,215,0,.45);color:var(--muted);font-size:12px;text-align:left}
+    .auth-status{min-height:20px;color:var(--muted);font-size:13px;margin-top:8px;text-align:center}
+
+    .setup-banner{
+      display:none;
+      width:min(1060px, calc(100% - 32px));
+      margin:16px auto 0;
+      padding:13px 14px;
+      border:1px solid rgba(255,215,0,.5);
+      border-radius:20px;
+      background:var(--soft-2);
+      color:var(--text);
+      box-shadow:var(--shadow-soft);
+      font-size:13px;
+    }
+    .setup-banner.active{display:block}
+    .setup-banner strong{font-weight:650}
+
+    .modal-backdrop{
+      position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);
+    }
+    .modal-backdrop.active{display:flex}
+    .modal{
+      width:min(860px,100%);
+      max-height:calc(100vh - 36px);
+      overflow:auto;
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:0 24px 80px rgba(0,0,0,.24);
+    }
+    .modal-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:2}
+    .modal-top strong{font-weight:650}
+    .modal-content{padding:16px}
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+    .detail-image{min-height:320px;border-radius:24px;background:linear-gradient(135deg,var(--soft),var(--soft-2));display:grid;place-items:center;overflow:hidden;border:1px solid var(--line)}
+    .detail-image img{width:100%;height:100%;min-height:320px;object-fit:cover}
+    .detail-info h2{margin:0 0 8px;font-size:28px;font-weight:650;letter-spacing:-.04em;line-height:1.1}
+    .detail-info p{color:var(--muted)}
+    .detail-facts{display:grid;gap:8px;margin:14px 0}
+    .fact{display:flex;gap:9px;align-items:flex-start;padding:10px 11px;border-radius:15px;background:var(--soft);border:1px solid var(--line);font-size:14px}
+    .fact svg{width:17px;height:17px;color:var(--gold);flex:0 0 auto;margin-top:1px}
+    .detail-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+
+    .toast{
+      position:fixed;
+      left:50%;bottom:calc(var(--bottom) + 16px);
+      transform:translateX(-50%) translateY(20px);
+      z-index:130;
+      max-width:min(420px,calc(100% - 32px));
+      padding:12px 14px;
+      border-radius:999px;
+      background:var(--black);
+      color:var(--gold);
+      box-shadow:0 18px 44px rgba(0,0,0,.24);
+      opacity:0;
+      pointer-events:none;
+      transition:.22s ease;
+      font-size:13px;
+      font-weight:560;
+      text-align:center;
+    }
+    [data-theme="dark"] .toast{background:var(--gold);color:#111}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    .bottom-nav{
+      position:fixed;left:0;right:0;bottom:0;z-index:60;height:var(--bottom);display:none;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+    }
+    [data-theme="dark"] .bottom-nav{background:rgba(12,12,12,.92)}
+    .bottom-nav-inner{height:100%;max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+    .bottom-item{border-radius:18px;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:560}
+    .bottom-item svg{width:21px;height:21px}
+    .bottom-item.active{background:var(--soft-2);color:var(--text)}
+    .bottom-item.publish{background:var(--black);color:var(--gold)}
+    [data-theme="dark"] .bottom-item.publish{background:var(--gold);color:#111}
+
+    .counter-row{display:flex;justify-content:space-between;align-items:center;margin-top:7px;color:var(--muted);font-size:12px}
+    .success-box{display:none;margin-top:12px;padding:12px;border-radius:18px;background:var(--green-soft);color:var(--green);border:1px solid rgba(10,127,96,.18);font-size:13px;font-weight:560}
+    .success-box.active{display:block}
+
+    .legal-box{display:grid;gap:10px;color:var(--muted);font-size:14px}
+    .legal-box h3{margin:6px 0 0;color:var(--text);font-size:16px;font-weight:650}
+    .divider{height:1px;background:var(--line);margin:14px 0}
+
+    @media (max-width:980px){
+      .desktop-nav{display:none}
+      .bottom-nav{display:block}
+      .header-actions .pill-user span{display:none}
+      .search-line{grid-template-columns:1fr 1fr;gap:9px}
+      .search-line .field:first-child{grid-column:1/-1}
+      .search-line .btn{grid-column:1/-1;width:100%}
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .profile-layout{grid-template-columns:1fr}
+      .plans{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+
+    @media (max-width:640px){
+      :root{--header:66px;--bottom:74px}
+      body{font-size:14px}
+      .container{width:calc(100% - 24px)}
+      .topbar-inner{gap:10px}
+      .brand-mark{width:38px;height:38px;border-radius:14px}
+      .brand-text strong{font-size:16px}
+      .brand-text span{display:none}
+      .icon-btn{width:39px;height:39px}
+      .hero{padding:20px 0 10px}
+      .hero-card{padding:24px 16px 20px;border-radius:26px}
+      .hero h1{font-size:30px;letter-spacing:-.045em}
+      .hero p{font-size:14px;line-height:1.42}
+      .hero-actions{display:grid;grid-template-columns:1fr 1fr;width:100%;gap:9px;margin-top:18px}
+      .hero-actions .btn{width:100%;min-height:45px;padding:0 12px;font-size:13px}
+      .stats-row{grid-template-columns:repeat(3,1fr);gap:7px;margin-top:14px}
+      .mini-stat{padding:10px 6px;border-radius:16px}
+      .mini-stat b{font-size:15px}
+      .mini-stat span{font-size:10.5px}
+      .filters-wrap{border-radius:22px;padding:10px;margin-top:14px}
+      .search-line{grid-template-columns:1fr}
+      .input,.select,.textarea{min-height:46px;border-radius:16px;font-size:14px}
+      .section-head{margin:16px 0 12px;align-items:flex-start}
+      .section-head h2{font-size:20px}
+      .section-head p{font-size:13px}
+      .grid{grid-template-columns:1fr;gap:12px}
+      .card-media{height:142px}
+      .card-body{padding:13px}
+      .card-title h3{font-size:16px}
+      .card-actions{gap:8px}
+      .mini-btn{min-height:41px}
+      .form-grid{grid-template-columns:1fr;gap:11px}
+      .panel{padding:14px;border-radius:23px}
+      .plans{grid-template-columns:1fr}
+      .upload-box{align-items:flex-start;padding:13px}
+      .menu-grid{grid-template-columns:1fr;gap:10px}
+      .menu-tile{min-height:78px;border-radius:20px;padding:13px}
+      .detail-grid{grid-template-columns:1fr}
+      .detail-image,.detail-image img{min-height:240px}
+      .detail-info h2{font-size:23px}
+      .detail-actions{grid-template-columns:1fr}
+      .modal-backdrop{padding:10px}
+      .modal{border-radius:24px;max-height:calc(100vh - 20px)}
+      .auth-card{padding:18px;border-radius:26px}
+      .auth-card h1{font-size:25px}
+      .toast{bottom:calc(var(--bottom) + 12px);border-radius:18px}
     }
   </style>
 </head>
+<body data-theme="light">
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 15.4 6.4 9c.22-1.04 1.14-1.78 2.2-1.78h6.8c1.06 0 1.98.74 2.2 1.78l1.4 6.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.4 15.2h9.2M8.3 11.4h7.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.6 17.6h.01M16.4 17.6h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M6.5 15.1h11c.83 0 1.5.67 1.5 1.5v1.7c0 .83-.67 1.5-1.5 1.5h-11c-.83 0-1.5-.67-1.5-1.5v-1.7c0-.83.67-1.5 1.5-1.5Z" stroke="currentColor" stroke-width="1.8"/></svg>
+        </div>
+        <div class="brand-text"><strong>AutoRapid RO</strong><span>Login cu email</span></div>
+      </div>
+      <h1>Intră în aplicație</h1>
+      <p>Scrie emailul, primești un cod și intri rapid în cont.</p>
+      <div class="auth-form">
+        <label>
+          <span class="label">Email</span>
+          <input id="authEmail" class="input" type="email" placeholder="exemplu@email.com" autocomplete="email" />
+        </label>
+        <button id="sendOtpBtn" class="btn btn-primary" type="button">Trimite cod pe email</button>
+        <div id="otpStep" class="hidden">
+          <label>
+            <span class="label">Cod primit pe email</span>
+            <input id="authCode" class="input" type="text" inputmode="numeric" maxlength="8" placeholder="123456" autocomplete="one-time-code" />
+          </label>
+          <button id="verifyOtpBtn" class="btn btn-gold" type="button" style="width:100%;margin-top:10px">Verifică și intră</button>
+        </div>
+      </div>
+      <div id="authStatus" class="auth-status"></div>
+      <div class="auth-note">Pentru cod OTP pe email, în Supabase setează template-ul de email să folosească <strong>{{ .Token }}</strong>, nu doar link magic.</div>
+    </div>
+  </div>
 
-<body>
-  <div id="root"></div>
+  <div id="appShell" class="app-shell">
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a class="brand" href="#" data-route="home" aria-label="AutoRapid RO acasă">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 15.4 6.4 9c.22-1.04 1.14-1.78 2.2-1.78h6.8c1.06 0 1.98.74 2.2 1.78l1.4 6.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.4 15.2h9.2M8.3 11.4h7.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.6 17.6h.01M16.4 17.6h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M6.5 15.1h11c.83 0 1.5.67 1.5 1.5v1.7c0 .83-.67 1.5-1.5 1.5h-11c-.83 0-1.5-.67-1.5-1.5v-1.7c0-.83.67-1.5 1.5-1.5Z" stroke="currentColor" stroke-width="1.8"/></svg>
+          </div>
+          <div class="brand-text"><strong>AutoRapid RO</strong><span>Servicii auto rapide</span></div>
+        </a>
 
-  <script type="text/babel">
-    const { useEffect, useMemo, useState } = React;
+        <nav class="desktop-nav" aria-label="Navigație desktop">
+          <button class="nav-btn active" data-route="home">Acasă</button>
+          <button class="nav-btn" data-route="search">Caută</button>
+          <button class="nav-btn" data-route="publish">Publică</button>
+          <button class="nav-btn" data-route="saved">Salvate</button>
+          <button class="nav-btn" data-route="inbox">Inbox</button>
+          <button class="nav-btn" data-route="profile">Profil</button>
+        </nav>
 
-    const STORAGE = {
-      favorites: "autorapid_favorites_v3",
-      profile: "autorapid_profile_v3",
-      listings: "autorapid_listings_v3",
-      inbox: "autorapid_inbox_v3",
-      feedback: "autorapid_feedback_v3"
-    };
+        <div class="header-actions">
+          <button id="themeToggle" class="icon-btn" title="Schimbă tema" type="button" aria-label="Schimbă tema">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v2M12 19v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M3 12h2M19 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/></svg>
+          </button>
+          <button id="userPill" class="pill-user" data-route="profile" type="button">
+            <span id="headerAvatar" class="small-avatar"></span>
+            <span id="headerName">Profil</span>
+          </button>
+        </div>
+      </div>
+    </header>
 
-    const defaultProfile = {
-      photo: "",
-      name: "Cont AutoRapid",
-      phone: "",
-      email: "",
-      about: "",
-      country: "România",
-      county: "București",
-      city: "București",
-      language: "Română",
-      nameEditsLeft: 2
-    };
+    <div id="setupBanner" class="setup-banner">
+      <strong>Mod demo:</strong> completează <strong>SUPABASE_URL</strong> și <strong>SUPABASE_ANON_KEY</strong> în cod ca loginul, baza de date, favoritele și publicarea să meargă real prin Supabase.
+    </div>
 
-    const categoryList = [
-      "Toate",
-      "Tractări auto",
-      "Vulcanizare",
-      "Service auto",
-      "ITP",
-      "Diagnoză auto",
-      "Schimb ulei",
-      "Piese auto",
-      "Detailing auto",
-      "Spălătorie auto",
-      "Electrician auto",
-      "Tinichigerie",
-      "Vopsitorie",
-      "Platformă auto",
-      "Mecanic la domiciliu",
-      "Anvelope",
-      "Asigurări auto",
-      "Închirieri auto",
-      "Dezmembrări auto",
-      "Parbrize auto",
-      "Tuning auto",
-      "Climatizare auto"
+    <main>
+      <section id="homePage" class="page active">
+        <div class="container">
+          <div class="hero">
+            <div class="hero-card">
+              <div class="hero-content">
+                <div class="eyebrow"><i></i> Marketplace auto pentru România</div>
+                <h1>Servicii auto în orașul tău</h1>
+                <p>Găsește rapid firme auto verificate din România. Tractări, vulcanizare, service, ITP, diagnoză și multe altele, într-un format simplu ca o aplicație marketplace.</p>
+                <div class="hero-actions">
+                  <button class="btn btn-primary" data-route="search" type="button">Caută servicii</button>
+                  <button class="btn btn-gold" data-route="publish" type="button">Publică firmă</button>
+                </div>
+                <div class="stats-row">
+                  <div class="mini-stat"><b id="statListings">0</b><span>Anunțuri</span></div>
+                  <div class="mini-stat"><b>42</b><span>Județe</span></div>
+                  <div class="mini-stat"><b>24/7</b><span>Rapid</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filters-wrap" id="filtersBlock">
+            <div class="search-line">
+              <div class="field">
+                <svg viewBox="0 0 24 24" fill="none"><path d="m21 21-4.3-4.3M10.8 18.2a7.4 7.4 0 1 1 0-14.8 7.4 7.4 0 0 1 0 14.8Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+                <input id="searchInput" class="input" type="search" placeholder="Caută firmă, oraș, categorie..." />
+              </div>
+              <select id="countyFilter" class="select" aria-label="Filtru județ"></select>
+              <select id="cityFilter" class="select" aria-label="Filtru oraș"></select>
+              <select id="categoryFilter" class="select" aria-label="Filtru categorie"></select>
+              <button id="clearFilters" class="btn btn-ghost" type="button">Resetează</button>
+            </div>
+          </div>
+
+          <div class="section-head">
+            <div>
+              <h2 id="listTitle">Anunțuri recomandate</h2>
+              <p id="listSubtitle">Promovate primele, apoi cele mai noi.</p>
+            </div>
+          </div>
+          <div id="listingsGrid" class="grid"></div>
+        </div>
+      </section>
+
+      <section id="searchPage" class="page">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2>Caută servicii auto</h2>
+              <p>Folosește filtrele ca să găsești rapid firma potrivită.</p>
+            </div>
+          </div>
+          <div id="searchFiltersMount"></div>
+          <div class="section-head">
+            <div>
+              <h2>Rezultate</h2>
+              <p id="searchSubtitle">Rezultatele se actualizează live.</p>
+            </div>
+          </div>
+          <div id="searchGrid" class="grid"></div>
+        </div>
+      </section>
+
+      <section id="publishPage" class="page">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2>Publică anunț</h2>
+              <p>Adaugă firma ta în marketplace. Plățile sunt mockup momentan.</p>
+            </div>
+          </div>
+          <form id="publishForm" class="panel" novalidate>
+            <div class="form-grid">
+              <label><span class="label">Nume firmă *</span><input id="companyName" class="input" required placeholder="Ex: Tractări Auto București" /></label>
+              <label><span class="label">Categorie *</span><select id="publishCategory" class="select" required></select></label>
+              <label><span class="label">Județ *</span><select id="publishCounty" class="select" required></select></label>
+              <label><span class="label">Oraș *</span><select id="publishCity" class="select" required></select></label>
+              <label class="wide"><span class="label">Adresă</span><input id="publishAddress" class="input" placeholder="Stradă, număr, zonă" /></label>
+              <label><span class="label">Telefon *</span><input id="publishPhone" class="input" required inputmode="tel" placeholder="07xx xxx xxx" /></label>
+              <label><span class="label">WhatsApp</span><input id="publishWhatsapp" class="input" inputmode="tel" placeholder="07xx xxx xxx" /></label>
+              <label><span class="label">Program</span><input id="publishSchedule" class="input" placeholder="Luni - Sâmbătă, 08:00 - 18:00" /></label>
+              <label><span class="label">Preț orientativ</span><input id="publishPrice" class="input" placeholder="de la 150 lei" /></label>
+              <label class="wide"><span class="label">Descriere *</span><textarea id="publishDescription" class="textarea" required maxlength="700" placeholder="Descrie serviciile, zona acoperită și detalii importante."></textarea></label>
+              <div class="wide">
+                <span class="label">Upload poză/logo</span>
+                <div class="upload-box">
+                  <div id="publishImagePreview" class="upload-preview"></div>
+                  <div style="min-width:0">
+                    <input id="publishImage" type="file" accept="image/*" />
+                    <p style="margin:7px 0 0;color:var(--muted);font-size:12px">Imaginea este salvată ca data URL în baza de date. Recomandat sub 1.5 MB.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="wide">
+                <span class="label">Tip promovare</span>
+                <div class="plans">
+                  <label class="plan-card"><input type="radio" name="promotion" value="Gratuit" checked><strong>Gratuit</strong><span>Anunț standard</span></label>
+                  <label class="plan-card"><input type="radio" name="promotion" value="Promovat 7 zile"><strong>Promovat 7 zile</strong><span>Apare mai sus</span></label>
+                  <label class="plan-card"><input type="radio" name="promotion" value="Promovat 30 zile"><strong>Promovat 30 zile</strong><span>Vizibilitate extinsă</span></label>
+                  <label class="plan-card"><input type="radio" name="promotion" value="Premium"><strong>Premium</strong><span>Badge aur + prioritate</span></label>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap">
+              <button class="btn btn-ghost" type="reset">Curăță</button>
+              <button class="btn btn-primary" type="submit">Publică anunț</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="savedPage" class="page">
+        <div class="container">
+          <div class="section-head"><div><h2>Anunțuri salvate</h2><p>Toate firmele la care ai apăsat pe inimă.</p></div></div>
+          <div id="savedGrid" class="grid"></div>
+        </div>
+      </section>
+
+      <section id="inboxPage" class="page">
+        <div class="container">
+          <div class="section-head"><div><h2>Inbox</h2><p>Mesaje, notificări, actualizări și anunțuri administrative.</p></div></div>
+          <div id="inboxList" class="inbox-list"></div>
+        </div>
+      </section>
+
+      <section id="profilePage" class="page">
+        <div class="container">
+          <div class="section-head"><div><h2>Profil</h2><p>Totul este separat pe carduri, fără aglomerație.</p></div></div>
+          <div class="profile-layout">
+            <div class="panel profile-card">
+              <div id="profileAvatar" class="big-avatar"></div>
+              <h2 id="profileName">Utilizator AutoRapid</h2>
+              <p id="profileEmail">email</p>
+              <div class="profile-info">
+                <div class="info-row"><svg viewBox="0 0 24 24" fill="none"><path d="M22 16.9v2.2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 2.1 3.4 2 2 0 0 1 4.1 1.2h2.2a2 2 0 0 1 2 1.7l.3 2a2 2 0 0 1-.5 1.7L7.2 7.7a16 16 0 0 0 6.9 6.9l1.1-.9a2 2 0 0 1 1.7-.5l2 .4a2 2 0 0 1 1.7 2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span id="profilePhone">Telefon necompletat</span></div>
+                <div class="info-row"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.8"/></svg><span id="profileCity">Oraș necompletat</span></div>
+              </div>
+            </div>
+            <div class="menu-grid">
+              <button class="menu-tile" data-route="myListings" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6.5h16M4 12h16M4 17.5h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span><strong>Anunțurile mele</strong><span>Vezi ce ai publicat</span></span></button>
+              <button class="menu-tile" data-route="saved" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0l-1 1-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span><strong>Anunțuri salvate</strong><span>Favoritele tale</span></span></button>
+              <button class="menu-tile" data-route="inbox" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v12H7l-3 3V5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span><strong>Inbox</strong><span>Mesaje și notificări</span></span></button>
+              <button class="menu-tile" data-route="settings" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2.1 2.1 0 1 1-2.96 2.96l-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1 1.55V21a2.1 2.1 0 0 1-4.2 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06A2.1 2.1 0 0 1 3.8 16.8l.06-.06A1.7 1.7 0 0 0 4.2 15a1.7 1.7 0 0 0-1.55-1H2.5a2.1 2.1 0 0 1 0-4.2h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.88l-.06-.06A2.1 2.1 0 1 1 6.7 3.9l.06.06A1.7 1.7 0 0 0 8.64 4.3h.01A1.7 1.7 0 0 0 9.7 2.75V2.7a2.1 2.1 0 0 1 4.2 0v.09A1.7 1.7 0 0 0 15 4.34a1.7 1.7 0 0 0 1.88-.34l.06-.06a2.1 2.1 0 1 1 2.96 2.96l-.06.06a1.7 1.7 0 0 0-.34 1.88v.01A1.7 1.7 0 0 0 21.05 9.9h.09a2.1 2.1 0 1 1 0 4.2h-.09A1.7 1.7 0 0 0 19.4 15Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></span><span><strong>Setări</strong><span>Pagină separată</span></span></button>
+              <button class="menu-tile" data-route="feedback" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4L16.5 3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span><strong>Spune-ne părerea ta</strong><span>Trimite feedback</span></span></button>
+              <button class="menu-tile" data-route="terms" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3h8l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v5h5M8 13h8M8 17h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span><strong>Termeni și condiții</strong><span>Reguli aplicație</span></span></button>
+              <button id="logoutBtn" class="menu-tile" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 4h4a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3h-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span><strong>Deconectare</strong><span>Ieși din cont</span></span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="settingsPage" class="page">
+        <div class="container">
+          <div class="section-head"><div><h2>Setări</h2><p>Separat de profil, ca să nu fie totul amestecat.</p></div></div>
+          <form id="settingsForm" class="panel">
+            <div class="form-grid">
+              <label><span class="label">Schimbare nume</span><input id="settingsName" class="input" placeholder="Nume utilizator" /></label>
+              <label><span class="label">Schimbare telefon</span><input id="settingsPhone" class="input" inputmode="tel" placeholder="07xx xxx xxx" /></label>
+              <label><span class="label">Schimbare email contact</span><input id="settingsEmail" class="input" type="email" placeholder="email@exemplu.ro" /></label>
+              <label><span class="label">Oraș</span><input id="settingsCity" class="input" placeholder="Ex: București" /></label>
+              <label><span class="label">Limba aplicației</span><select id="settingsLanguage" class="select"><option value="ro">Română</option><option value="en">Engleză</option><option value="it">Italiană</option></select></label>
+              <label><span class="label">Mod aplicație</span><select id="settingsTheme" class="select"><option value="light">Mod luminos</option><option value="dark">Mod întunecat</option></select></label>
+              <label><span class="label">Notificări</span><select id="settingsNotifications" class="select"><option value="true">Activate</option><option value="false">Dezactivate</option></select></label>
+              <label><span class="label">Confidențialitate</span><select id="settingsPrivacy" class="select"><option value="standard">Standard</option><option value="private">Profil mai privat</option></select></label>
+              <div class="wide">
+                <span class="label">Schimbare poză profil</span>
+                <div class="upload-box">
+                  <div id="settingsAvatarPreview" class="upload-preview"></div>
+                  <input id="settingsAvatarFile" type="file" accept="image/*" />
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;gap:10px;margin-top:16px;flex-wrap:wrap">
+              <button id="deleteAccountBtn" class="btn btn-danger" type="button">Ștergere cont</button>
+              <button class="btn btn-primary" type="submit">Salvează setările</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="feedbackPage" class="page">
+        <div class="container">
+          <div class="section-head"><div><h2>Dă-ne feedback</h2><p>Ajută-ne să facem AutoRapid RO mai bun.</p></div></div>
+          <form id="feedbackForm" class="panel">
+            <div class="form-grid">
+              <label class="wide"><span class="label">Despre ce vrei să ne dai feedback?</span><select id="feedbackCategory" class="select" required><option value="">Alege categoria</option><option>Problemă tehnică</option><option>Design aplicație</option><option>Anunțuri</option><option>Profil</option><option>Mesaje</option><option>Sugestie nouă</option><option>Altceva</option></select></label>
+              <label class="wide"><span class="label">Descriere feedback</span><textarea id="feedbackText" class="textarea" maxlength="500" required placeholder="Scrie aici feedbackul tău..."></textarea><span class="counter-row"><span>Maxim 500 caractere</span><span id="feedbackCounter">0/500</span></span></label>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-primary" type="submit">Trimite feedback</button></div>
+            <div id="feedbackSuccess" class="success-box">Mulțumim! Feedbackul a fost trimis cu succes.</div>
+          </form>
+        </div>
+      </section>
+
+      <section id="myListingsPage" class="page">
+        <div class="container">
+          <div class="section-head"><div><h2>Anunțurile mele</h2><p>Anunțurile publicate de contul tău.</p></div></div>
+          <div id="myListingsGrid" class="grid"></div>
+        </div>
+      </section>
+
+      <section id="termsPage" class="page">
+        <div class="container">
+          <div class="section-head"><div><h2>Termeni și condiții</h2><p>Variantă demo pentru aplicația AutoRapid RO.</p></div></div>
+          <div class="panel legal-box">
+            <h3>1. Rolul aplicației</h3>
+            <p>AutoRapid RO conectează utilizatorii cu firme care oferă servicii auto. Anunțurile sunt publicate de utilizatori sau firme.</p>
+            <h3>2. Responsabilitatea anunțurilor</h3>
+            <p>Fiecare firmă este responsabilă pentru informațiile publicate: telefon, adresă, program, prețuri și descriere.</p>
+            <h3>3. Promovări</h3>
+            <p>Planurile de promovare sunt afișate momentan ca mockup. Plățile reale pot fi adăugate ulterior.</p>
+            <h3>4. Date personale</h3>
+            <p>Datele de profil și favoritele sunt gestionate prin contul utilizatorului. Pentru ștergerea completă a contului este necesară o funcție server-side cu permisiuni admin.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navigație mobilă">
+      <div class="bottom-nav-inner">
+        <button class="bottom-item active" data-route="home" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3V10.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Acasă</span></button>
+        <button class="bottom-item" data-route="search" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="m21 21-4.3-4.3M10.8 18.2a7.4 7.4 0 1 1 0-14.8 7.4 7.4 0 0 1 0 14.8Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg><span>Caută</span></button>
+        <button class="bottom-item publish" data-route="publish" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Publică</span></button>
+        <button class="bottom-item" data-route="saved" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0l-1 1-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Salvate</span></button>
+        <button class="bottom-item" data-route="profile" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M20 21a8 8 0 0 0-16 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/></svg><span>Profil</span></button>
+      </div>
+    </nav>
+  </div>
+
+  <div id="detailModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="Detalii anunț">
+    <div class="modal">
+      <div class="modal-top">
+        <strong>Detalii anunț</strong>
+        <button id="closeDetail" class="icon-btn" type="button" aria-label="Închide detalii"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      </div>
+      <div id="detailContent" class="modal-content"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    /*
+      AutoRapid RO - Single file app cu Supabase.
+      1) Creează proiect în Supabase.
+      2) Rulează SQL-ul din fișierul AutoRapid_RO_Supabase_SQL_Setup.txt.
+      3) Înlocuiește valorile de mai jos cu Project URL și anon public key.
+      4) Pentru cod OTP pe email, setează Auth > Email Templates cu {{ .Token }}.
+    */
+
+    const SUPABASE_URL = "PASTE_SUPABASE_URL_AICI";
+    const SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY_AICI";
+
+    const hasSupabaseConfig = SUPABASE_URL.startsWith("https://") && SUPABASE_ANON_KEY.length > 80 && !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
+    const sb = hasSupabaseConfig && window.supabase
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+        })
+      : null;
+
+    const categories = [
+      "Tractări auto","Vulcanizare","Service auto","ITP","Diagnoză auto","Schimb ulei","Piese auto","Spălătorie auto","Detailing auto","Tinichigerie","Vopsitorie","Electrician auto","Închirieri auto","Dezmembrări auto","Anvelope","Asigurări auto","Platformă auto","Mecanic la domiciliu"
     ];
 
-    const promotionPlans = [
-      {
-        id: "free",
-        name: "Gratuit",
-        price: "0 lei",
-        tag: "Start",
-        duration: "Anunț standard",
-        features: ["Apare în listă", "Contact telefonic", "Salvare în favorite"]
-      },
-      {
-        id: "boost7",
-        name: "Promovat 7 zile",
-        price: "30 lei",
-        tag: "Vizibil",
-        duration: "7 zile",
-        features: ["Badge promovat", "Poziție mai sus", "Mai multe vizualizări"]
-      },
-      {
-        id: "boost30",
-        name: "Promovat 30 zile",
-        price: "100 lei",
-        tag: "Popular",
-        duration: "30 zile",
-        features: ["Prioritate în feed", "Badge premium", "Afișare în recomandate"]
-      },
-      {
-        id: "premium",
-        name: "Premium",
-        price: "150 lei/lună",
-        tag: "Top",
-        duration: "Lunar",
-        features: ["Card evidențiat", "Top categorie", "Recomandat în oraș"]
+    const locations = {
+      "Alba":["Alba Iulia","Aiud","Blaj","Sebeș","Cugir","Ocna Mureș"],
+      "Arad":["Arad","Ineu","Lipova","Nădlac","Pecica","Curtici"],
+      "Argeș":["Pitești","Curtea de Argeș","Câmpulung","Mioveni","Costești","Topoloveni"],
+      "Bacău":["Bacău","Onești","Moinești","Comănești","Buhuși","Târgu Ocna"],
+      "Bihor":["Oradea","Salonta","Marghita","Beiuș","Aleșd","Valea lui Mihai"],
+      "Bistrița-Năsăud":["Bistrița","Beclean","Năsăud","Sângeorz-Băi"],
+      "Botoșani":["Botoșani","Dorohoi","Darabani","Săveni","Flămânzi"],
+      "Brașov":["Brașov","Făgăraș","Săcele","Codlea","Râșnov","Zărnești"],
+      "Brăila":["Brăila","Ianca","Însurăței","Făurei"],
+      "București":["Sector 1","Sector 2","Sector 3","Sector 4","Sector 5","Sector 6"],
+      "Buzău":["Buzău","Râmnicu Sărat","Nehoiu","Pogoanele","Pătârlagele"],
+      "Călărași":["Călărași","Oltenița","Budești","Fundulea","Lehliu Gară"],
+      "Caraș-Severin":["Reșița","Caransebeș","Bocșa","Oravița","Moldova Nouă","Oțelu Roșu"],
+      "Cluj":["Cluj-Napoca","Turda","Dej","Câmpia Turzii","Gherla","Huedin"],
+      "Constanța":["Constanța","Mangalia","Medgidia","Năvodari","Cernavodă","Eforie"],
+      "Covasna":["Sfântu Gheorghe","Târgu Secuiesc","Covasna","Baraolt","Întorsura Buzăului"],
+      "Dâmbovița":["Târgoviște","Moreni","Pucioasa","Găești","Titu","Fieni"],
+      "Dolj":["Craiova","Băilești","Calafat","Filiași","Segarcea","Dăbuleni"],
+      "Galați":["Galați","Tecuci","Târgu Bujor","Berești"],
+      "Giurgiu":["Giurgiu","Bolintin-Vale","Mihăilești"],
+      "Gorj":["Târgu Jiu","Motru","Rovinari","Târgu Cărbunești","Novaci","Țicleni"],
+      "Harghita":["Miercurea Ciuc","Odorheiu Secuiesc","Gheorgheni","Toplița","Cristuru Secuiesc"],
+      "Hunedoara":["Deva","Hunedoara","Petroșani","Lupeni","Vulcan","Orăștie"],
+      "Ialomița":["Slobozia","Fetești","Urziceni","Țăndărei","Amara"],
+      "Iași":["Iași","Pașcani","Hârlău","Târgu Frumos","Podu Iloaiei"],
+      "Ilfov":["Buftea","Otopeni","Voluntari","Pantelimon","Popești-Leordeni","Bragadiru","Chitila","Măgurele"],
+      "Maramureș":["Baia Mare","Sighetu Marmației","Borșa","Vișeu de Sus","Târgu Lăpuș","Baia Sprie"],
+      "Mehedinți":["Drobeta-Turnu Severin","Orșova","Strehaia","Vânju Mare","Baia de Aramă"],
+      "Mureș":["Târgu Mureș","Reghin","Sighișoara","Târnăveni","Luduș","Sovata"],
+      "Neamț":["Piatra Neamț","Roman","Târgu Neamț","Bicaz","Roznov"],
+      "Olt":["Slatina","Caracal","Balș","Corabia","Scornicești","Drăgănești-Olt"],
+      "Prahova":["Ploiești","Câmpina","Băicoi","Breaza","Mizil","Sinaia","Bușteni"],
+      "Sălaj":["Zalău","Șimleu Silvaniei","Jibou","Cehu Silvaniei"],
+      "Satu Mare":["Satu Mare","Carei","Negrești-Oaș","Tășnad","Ardud"],
+      "Sibiu":["Sibiu","Mediaș","Cisnădie","Agnita","Avrig","Dumbrăveni"],
+      "Suceava":["Suceava","Fălticeni","Rădăuți","Câmpulung Moldovenesc","Vatra Dornei","Gura Humorului"],
+      "Teleorman":["Alexandria","Roșiori de Vede","Turnu Măgurele","Zimnicea","Videle"],
+      "Timiș":["Timișoara","Lugoj","Sânnicolau Mare","Jimbolia","Făget","Buziaș"],
+      "Tulcea":["Tulcea","Măcin","Babadag","Isaccea","Sulina"],
+      "Vaslui":["Vaslui","Bârlad","Huși","Negrești","Murgeni"],
+      "Vâlcea":["Râmnicu Vâlcea","Drăgășani","Băile Olănești","Călimănești","Horezu","Băbeni"],
+      "Vrancea":["Focșani","Adjud","Mărășești","Odobești","Panciu"]
+    };
+
+    const demoListings = [
+      {id:"demo_1",owner_id:"demo",company_name:"Tractări Auto București",category:"Tractări auto",county:"București",city:"Sector 3",address:"Bulevardul Unirii 45",phone:"0722000001",whatsapp:"0722000001",schedule:"Non-stop",price:"de la 180 lei",description:"Tractări auto rapide în București și Ilfov. Intervenție non-stop, platformă auto și transport pe distanțe scurte sau lungi.",rating:4.9,promotion_type:"Premium",is_promoted:true,image_data:"",created_at:"2026-06-01T10:00:00Z"},
+      {id:"demo_2",owner_id:"demo",company_name:"Vulcanizare Mobilă Cluj",category:"Vulcanizare",county:"Cluj",city:"Cluj-Napoca",address:"Zona Mărăști",phone:"0722000002",whatsapp:"0722000002",schedule:"08:00 - 22:00",price:"de la 80 lei",description:"Vulcanizare mobilă, schimb anvelope și pană rezolvată la locația clientului. Servicii rapide pentru Cluj-Napoca și împrejurimi.",rating:4.8,promotion_type:"Promovat 30 zile",is_promoted:true,image_data:"",created_at:"2026-06-02T10:00:00Z"},
+      {id:"demo_3",owner_id:"demo",company_name:"Service Auto Brașov",category:"Service auto",county:"Brașov",city:"Brașov",address:"Strada Hărmanului 12",phone:"0722000003",whatsapp:"0722000003",schedule:"Luni - Vineri, 09:00 - 18:00",price:"verificare de la 120 lei",description:"Service auto multimarcă pentru revizii, frâne, suspensie, distribuție și diagnoză completă. Programări rapide.",rating:4.7,promotion_type:"Gratuit",is_promoted:false,image_data:"",created_at:"2026-06-03T10:00:00Z"},
+      {id:"demo_4",owner_id:"demo",company_name:"ITP Sibiu Rapid",category:"ITP",county:"Sibiu",city:"Sibiu",address:"Calea Șurii Mari 18",phone:"0722000004",whatsapp:"0722000004",schedule:"08:00 - 17:00",price:"de la 150 lei",description:"Stație ITP autorizată pentru autoturisme și utilitare. Verificare rapidă, programare telefonică și consultanță.",rating:4.6,promotion_type:"Gratuit",is_promoted:false,image_data:"",created_at:"2026-06-04T10:00:00Z"},
+      {id:"demo_5",owner_id:"demo",company_name:"Diagnoză Auto Timișoara",category:"Diagnoză auto",county:"Timiș",city:"Timișoara",address:"Zona Girocului",phone:"0722000005",whatsapp:"0722000005",schedule:"10:00 - 19:00",price:"de la 100 lei",description:"Diagnoză computerizată pentru erori motor, ABS, airbag, DPF și electrică auto. Raport clar și recomandări.",rating:4.9,promotion_type:"Promovat 7 zile",is_promoted:true,image_data:"",created_at:"2026-06-05T10:00:00Z"},
+      {id:"demo_6",owner_id:"demo",company_name:"Schimb Ulei Constanța",category:"Schimb ulei",county:"Constanța",city:"Constanța",address:"Bulevardul Aurel Vlaicu 88",phone:"0722000006",whatsapp:"0722000006",schedule:"Luni - Sâmbătă, 08:30 - 18:30",price:"manoperă de la 70 lei",description:"Schimb ulei și filtre pentru majoritatea mărcilor auto. Recomandare ulei potrivit, verificări rapide și prețuri transparente.",rating:4.8,promotion_type:"Gratuit",is_promoted:false,image_data:"",created_at:"2026-06-06T10:00:00Z"}
+    ];
+
+    const demoMessages = [
+      {type:"Actualizare aplicație",title:"Bine ai venit în AutoRapid RO",body:"Am adăugat login cu email, anunțuri salvate și publicare firmă.",created_at:new Date().toISOString()},
+      {type:"Promovare",title:"Promovează un anunț",body:"Planurile sunt mockup momentan. Le poți conecta ulterior la plăți reale.",created_at:new Date(Date.now()-86400000).toISOString()},
+      {type:"Administrativ",title:"Verifică datele firmei",body:"Anunțurile cu telefon, adresă și descriere completă au mai multă încredere.",created_at:new Date(Date.now()-172800000).toISOString()}
+    ];
+
+    const els = {};
+    let currentUser = null;
+    let profile = defaultProfile();
+    let listings = [];
+    let savedIds = new Set();
+    let inboxMessages = [];
+    let filters = {q:"", county:"", city:"", category:""};
+    let publishImageData = "";
+    let avatarImageData = "";
+    let pendingEmail = "";
+    let activePage = "home";
+
+    function defaultProfile(){
+      return {full_name:"Utilizator AutoRapid",phone:"",contact_email:"",city:"",avatar_data:"",language:"ro",theme:localStorage.getItem("ar_theme") || "light",notifications:true,privacy:"standard"};
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+
+    async function init(){
+      cacheEls();
+      applyTheme(localStorage.getItem("ar_theme") || "light");
+      fillStaticSelects();
+      bindEvents();
+      renderImagePlaceholder(els.publishImagePreview);
+      renderImagePlaceholder(els.settingsAvatarPreview);
+
+      if(!hasSupabaseConfig || !sb){
+        els.setupBanner.classList.add("active");
+        await loadLocalMode();
+        showApp();
+        return;
       }
-    ];
 
-    const countyCities = {
-      "Alba": ["Alba Iulia", "Aiud", "Blaj", "Sebeș", "Cugir", "Ocna Mureș", "Zlatna", "Teiuș", "Abrud", "Câmpeni"],
-      "Arad": ["Arad", "Lipova", "Ineu", "Chișineu-Criș", "Pâncota", "Sântana", "Nădlac", "Sebiș", "Curtici", "Pecica"],
-      "Argeș": ["Pitești", "Mioveni", "Câmpulung", "Curtea de Argeș", "Costești", "Topoloveni", "Ștefănești"],
-      "Bacău": ["Bacău", "Onești", "Moinești", "Comănești", "Buhuși", "Dărmănești", "Târgu Ocna", "Slănic-Moldova"],
-      "Bihor": ["Oradea", "Salonta", "Marghita", "Beiuș", "Aleșd", "Ștei", "Valea lui Mihai", "Săcueni", "Nucet"],
-      "Bistrița-Năsăud": ["Bistrița", "Năsăud", "Beclean", "Sângeorz-Băi"],
-      "Botoșani": ["Botoșani", "Dorohoi", "Darabani", "Săveni", "Flămânzi", "Ștefănești"],
-      "Brașov": ["Brașov", "Făgăraș", "Săcele", "Codlea", "Râșnov", "Zărnești", "Rupea", "Predeal", "Victoria"],
-      "Brăila": ["Brăila", "Ianca", "Făurei", "Însurăței"],
-      "București": ["București", "Sector 1", "Sector 2", "Sector 3", "Sector 4", "Sector 5", "Sector 6"],
-      "Buzău": ["Buzău", "Râmnicu Sărat", "Nehoiu", "Pogoanele", "Pătârlagele"],
-      "Caraș-Severin": ["Reșița", "Caransebeș", "Oravița", "Bocșa", "Moldova Nouă", "Oțelu Roșu", "Anina", "Băile Herculane"],
-      "Călărași": ["Călărași", "Oltenița", "Lehliu Gară", "Budești", "Fundulea"],
-      "Cluj": ["Cluj-Napoca", "Turda", "Dej", "Câmpia Turzii", "Gherla", "Huedin"],
-      "Constanța": ["Constanța", "Mangalia", "Medgidia", "Năvodari", "Cernavodă", "Eforie", "Techirghiol", "Ovidiu", "Murfatlar", "Hârșova"],
-      "Covasna": ["Sfântu Gheorghe", "Târgu Secuiesc", "Covasna", "Baraolt", "Întorsura Buzăului"],
-      "Dâmbovița": ["Târgoviște", "Moreni", "Găești", "Pucioasa", "Titu", "Fieni", "Răcari"],
-      "Dolj": ["Craiova", "Băilești", "Calafat", "Filiași", "Dăbuleni", "Segarcea", "Bechet"],
-      "Galați": ["Galați", "Tecuci", "Târgu Bujor", "Berești"],
-      "Giurgiu": ["Giurgiu", "Bolintin-Vale", "Mihăilești"],
-      "Gorj": ["Târgu Jiu", "Motru", "Rovinari", "Târgu Cărbunești", "Novaci", "Bumbești-Jiu", "Țicleni"],
-      "Harghita": ["Miercurea Ciuc", "Odorheiu Secuiesc", "Gheorgheni", "Toplița", "Cristuru Secuiesc", "Vlăhița", "Bălan", "Borsec"],
-      "Hunedoara": ["Deva", "Hunedoara", "Petroșani", "Vulcan", "Lupeni", "Orăștie", "Brad", "Simeria", "Hațeg", "Călan", "Uricani"],
-      "Ialomița": ["Slobozia", "Fetești", "Urziceni", "Țăndărei", "Amara", "Căzănești", "Fierbinți-Târg"],
-      "Iași": ["Iași", "Pașcani", "Hârlău", "Târgu Frumos", "Podu Iloaiei"],
-      "Ilfov": ["Buftea", "Otopeni", "Voluntari", "Pantelimon", "Popești-Leordeni", "Chitila", "Măgurele", "Bragadiru"],
-      "Maramureș": ["Baia Mare", "Sighetu Marmației", "Borșa", "Baia Sprie", "Vișeu de Sus", "Târgu Lăpuș", "Seini", "Șomcuta Mare", "Ulmeni", "Dragomirești"],
-      "Mehedinți": ["Drobeta-Turnu Severin", "Orșova", "Strehaia", "Vânju Mare", "Baia de Aramă"],
-      "Mureș": ["Târgu Mureș", "Reghin", "Sighișoara", "Târnăveni", "Luduș", "Sovata", "Iernut", "Miercurea Nirajului", "Sângeorgiu de Pădure"],
-      "Neamț": ["Piatra Neamț", "Roman", "Târgu Neamț", "Bicaz", "Roznov"],
-      "Olt": ["Slatina", "Caracal", "Balș", "Corabia", "Scornicești", "Drăgănești-Olt", "Piatra-Olt", "Potcoava"],
-      "Prahova": ["Ploiești", "Câmpina", "Sinaia", "Bușteni", "Azuga", "Comarnic", "Mizil", "Vălenii de Munte", "Băicoi", "Breaza", "Plopeni", "Urlați", "Boldești-Scăeni"],
-      "Satu Mare": ["Satu Mare", "Carei", "Negrești-Oaș", "Tășnad", "Ardud", "Livada"],
-      "Sălaj": ["Zalău", "Șimleu Silvaniei", "Jibou", "Cehu Silvaniei"],
-      "Sibiu": ["Sibiu", "Mediaș", "Cisnădie", "Agnita", "Dumbrăveni", "Avrig", "Tălmaciu", "Săliște", "Ocna Sibiului", "Copșa Mică"],
-      "Suceava": ["Suceava", "Rădăuți", "Fălticeni", "Câmpulung Moldovenesc", "Vatra Dornei", "Gura Humorului", "Siret", "Vicovu de Sus", "Liteni", "Dolhasca", "Salcea", "Solca", "Cajvana", "Frasin", "Broșteni"],
-      "Teleorman": ["Alexandria", "Roșiori de Vede", "Turnu Măgurele", "Zimnicea", "Videle"],
-      "Timiș": ["Timișoara", "Lugoj", "Sânnicolau Mare", "Jimbolia", "Recaș", "Făget", "Deta", "Buziaș", "Ciacova", "Gătaia"],
-      "Tulcea": ["Tulcea", "Măcin", "Babadag", "Isaccea", "Sulina"],
-      "Vaslui": ["Vaslui", "Bârlad", "Huși", "Negrești", "Murgeni"],
-      "Vâlcea": ["Râmnicu Vâlcea", "Drăgășani", "Băile Olănești", "Călimănești", "Horezu", "Băbeni", "Bălcești", "Berbești", "Brezoi", "Ocnele Mari"],
-      "Vrancea": ["Focșani", "Adjud", "Mărășești", "Odobești", "Panciu"]
-    };
+      const { data } = await sb.auth.getSession();
+      if(data && data.session && data.session.user){
+        currentUser = data.session.user;
+        await loadUserData();
+        showApp();
+      }else{
+        showAuth();
+      }
 
-    const counties = Object.keys(countyCities);
+      sb.auth.onAuthStateChange(async (_event, session) => {
+        currentUser = session ? session.user : null;
+        if(currentUser){
+          await loadUserData();
+          showApp();
+        }else{
+          showAuth();
+        }
+      });
+    }
 
-    function safeParse(raw, fallback) {
-      try {
-        const parsed = JSON.parse(raw);
-        return parsed ?? fallback;
-      } catch {
-        return fallback;
+    function cacheEls(){
+      ["authScreen","appShell","authEmail","authCode","sendOtpBtn","verifyOtpBtn","otpStep","authStatus","setupBanner","themeToggle","userPill","headerAvatar","headerName","searchInput","countyFilter","cityFilter","categoryFilter","clearFilters","filtersBlock","searchFiltersMount","listingsGrid","searchGrid","savedGrid","inboxList","publishForm","companyName","publishCategory","publishCounty","publishCity","publishAddress","publishPhone","publishWhatsapp","publishSchedule","publishPrice","publishDescription","publishImage","publishImagePreview","profileAvatar","profileName","profileEmail","profilePhone","profileCity","settingsForm","settingsName","settingsPhone","settingsEmail","settingsCity","settingsLanguage","settingsTheme","settingsNotifications","settingsPrivacy","settingsAvatarFile","settingsAvatarPreview","deleteAccountBtn","feedbackForm","feedbackCategory","feedbackText","feedbackCounter","feedbackSuccess","myListingsGrid","logoutBtn","detailModal","detailContent","closeDetail","toast","statListings","listTitle","listSubtitle","searchSubtitle"].forEach(id=>els[id]=document.getElementById(id));
+    }
+
+    function bindEvents(){
+      document.addEventListener("click", onDocumentClick);
+      els.sendOtpBtn.addEventListener("click", sendOtp);
+      els.verifyOtpBtn.addEventListener("click", verifyOtp);
+      els.themeToggle.addEventListener("click", toggleTheme);
+      els.searchInput.addEventListener("input", e=>{ filters.q = e.target.value.trim().toLowerCase(); renderAllListings(); });
+      els.countyFilter.addEventListener("change", e=>{ filters.county = e.target.value; filters.city = ""; populateCities(els.cityFilter, filters.county, "Toate orașele"); renderAllListings(); });
+      els.cityFilter.addEventListener("change", e=>{ filters.city = e.target.value; renderAllListings(); });
+      els.categoryFilter.addEventListener("change", e=>{ filters.category = e.target.value; renderAllListings(); });
+      els.clearFilters.addEventListener("click", clearFilters);
+      els.publishCounty.addEventListener("change", e=>populateCities(els.publishCity, e.target.value, "Alege orașul"));
+      els.publishImage.addEventListener("change", async e=>{
+        publishImageData = await fileToDataUrlSafe(e.target.files[0]);
+        renderImagePreview(els.publishImagePreview, publishImageData);
+      });
+      els.publishForm.addEventListener("submit", publishListing);
+      els.settingsAvatarFile.addEventListener("change", async e=>{
+        avatarImageData = await fileToDataUrlSafe(e.target.files[0]);
+        renderImagePreview(els.settingsAvatarPreview, avatarImageData);
+      });
+      els.settingsForm.addEventListener("submit", saveSettings);
+      els.feedbackText.addEventListener("input", updateFeedbackCounter);
+      els.feedbackForm.addEventListener("submit", submitFeedback);
+      els.closeDetail.addEventListener("click", closeDetail);
+      els.detailModal.addEventListener("click", e=>{ if(e.target === els.detailModal) closeDetail(); });
+      els.logoutBtn.addEventListener("click", logout);
+      els.deleteAccountBtn.addEventListener("click", requestAccountDelete);
+    }
+
+    function onDocumentClick(e){
+      const routeBtn = e.target.closest("[data-route]");
+      if(routeBtn){
+        e.preventDefault();
+        showPage(routeBtn.dataset.route);
+        return;
+      }
+      const card = e.target.closest("[data-open-listing]");
+      if(card && !e.target.closest("button,a")){
+        openDetail(card.dataset.openListing);
+      }
+      const fav = e.target.closest("[data-fav]");
+      if(fav){
+        e.preventDefault(); e.stopPropagation();
+        toggleFavorite(fav.dataset.fav);
+      }
+      const call = e.target.closest("[data-call]");
+      if(call){
+        e.stopPropagation();
+        window.location.href = "tel:" + cleanPhone(call.dataset.call);
+      }
+      const wa = e.target.closest("[data-wa]");
+      if(wa){
+        e.stopPropagation();
+        const phone = cleanPhone(wa.dataset.wa);
+        window.open("https://wa.me/4" + phone.replace(/^0/, ""), "_blank", "noopener");
+      }
+      const report = e.target.closest("[data-report]");
+      if(report){
+        e.stopPropagation();
+        reportListing(report.dataset.report);
       }
     }
 
-    function loadProfile() {
-      const saved = safeParse(localStorage.getItem(STORAGE.profile), {});
-      return {
-        ...defaultProfile,
-        ...saved,
-        nameEditsLeft: typeof saved.nameEditsLeft === "number" ? saved.nameEditsLeft : defaultProfile.nameEditsLeft
+    function showAuth(){
+      els.authScreen.classList.add("active");
+      els.appShell.classList.add("hidden");
+    }
+
+    function showApp(){
+      els.authScreen.classList.remove("active");
+      els.appShell.classList.remove("hidden");
+      updateProfileUI();
+      renderAllListings();
+      renderInbox();
+      fillSettingsForm();
+      showPage(activePage || "home");
+    }
+
+    async function sendOtp(){
+      if(!sb){ toast("Supabase nu este configurat încă."); return; }
+      const email = els.authEmail.value.trim().toLowerCase();
+      if(!isEmail(email)){ setAuthStatus("Scrie un email valid."); return; }
+      pendingEmail = email;
+      setAuthLoading(true, "Trimit codul...");
+      const { error } = await sb.auth.signInWithOtp({
+        email,
+        options:{ shouldCreateUser:true, emailRedirectTo: window.location.origin }
+      });
+      setAuthLoading(false);
+      if(error){ setAuthStatus(error.message); return; }
+      els.otpStep.classList.remove("hidden");
+      setAuthStatus("Codul a fost trimis pe email. Verifică și Spam/Promotions.");
+      els.authCode.focus();
+    }
+
+    async function verifyOtp(){
+      if(!sb){ toast("Supabase nu este configurat încă."); return; }
+      const token = els.authCode.value.trim();
+      if(!pendingEmail){ pendingEmail = els.authEmail.value.trim().toLowerCase(); }
+      if(!isEmail(pendingEmail)){ setAuthStatus("Emailul lipsește."); return; }
+      if(token.length < 4){ setAuthStatus("Scrie codul primit pe email."); return; }
+      setAuthLoading(true, "Verific codul...");
+      const { data, error } = await sb.auth.verifyOtp({ email: pendingEmail, token, type:"email" });
+      setAuthLoading(false);
+      if(error){ setAuthStatus(error.message); return; }
+      currentUser = data.user;
+      await loadUserData();
+      showApp();
+      toast("Ai intrat în AutoRapid RO.");
+    }
+
+    function setAuthStatus(text){ els.authStatus.textContent = text || ""; }
+    function setAuthLoading(isLoading, text=""){
+      els.sendOtpBtn.disabled = isLoading;
+      els.verifyOtpBtn.disabled = isLoading;
+      if(text) setAuthStatus(text);
+    }
+
+    async function loadLocalMode(){
+      profile = JSON.parse(localStorage.getItem("ar_profile") || "null") || defaultProfile();
+      const localListings = JSON.parse(localStorage.getItem("ar_listings") || "[]");
+      listings = [...localListings, ...demoListings];
+      savedIds = new Set(JSON.parse(localStorage.getItem("ar_saved") || "[]"));
+      inboxMessages = demoMessages;
+      applyTheme(profile.theme || localStorage.getItem("ar_theme") || "light");
+    }
+
+    async function loadUserData(){
+      if(!sb || !currentUser){ await loadLocalMode(); return; }
+      profile = defaultProfile();
+      profile.contact_email = currentUser.email || "";
+
+      try{
+        const { data:prof, error:profError } = await sb.from("profiles").select("*").eq("user_id", currentUser.id).maybeSingle();
+        if(profError && profError.code !== "PGRST116") throw profError;
+        if(prof){ profile = {...profile, ...prof}; }
+        else{
+          const initial = {user_id:currentUser.id, full_name:"Utilizator AutoRapid", contact_email:currentUser.email || "", theme:localStorage.getItem("ar_theme") || "light"};
+          await sb.from("profiles").insert(initial);
+          profile = {...profile, ...initial};
+        }
+      }catch(err){
+        console.warn("Profiles error", err);
+        toast("Profilul merge în mod local până rulezi SQL-ul Supabase.");
+      }
+
+      try{
+        const { data:dbListings, error } = await sb.from("listings").select("*").eq("status","active").order("is_promoted",{ascending:false}).order("created_at",{ascending:false});
+        if(error) throw error;
+        listings = [...(dbListings || []), ...demoListings];
+      }catch(err){
+        console.warn("Listings error", err);
+        const localListings = JSON.parse(localStorage.getItem("ar_listings") || "[]");
+        listings = [...localListings, ...demoListings];
+        toast("Anunțurile sunt în demo până creezi tabelele Supabase.");
+      }
+
+      try{
+        const { data:favs, error } = await sb.from("favorites").select("listing_id").eq("user_id", currentUser.id);
+        if(error) throw error;
+        savedIds = new Set((favs || []).map(x=>String(x.listing_id)));
+      }catch(err){
+        console.warn("Favorites error", err);
+        savedIds = new Set(JSON.parse(localStorage.getItem("ar_saved") || "[]"));
+      }
+
+      try{
+        const { data:msgs, error } = await sb.from("messages").select("*").eq("user_id", currentUser.id).order("created_at",{ascending:false});
+        if(error) throw error;
+        inboxMessages = [...(msgs || []), ...demoMessages];
+      }catch(err){
+        inboxMessages = demoMessages;
+      }
+
+      applyTheme(profile.theme || localStorage.getItem("ar_theme") || "light");
+    }
+
+    function fillStaticSelects(){
+      populateCounties(els.countyFilter, "Toate județele");
+      populateCities(els.cityFilter, "", "Toate orașele");
+      populateCategories(els.categoryFilter, "Toate categoriile");
+      populateCategories(els.publishCategory, "Alege categoria");
+      populateCounties(els.publishCounty, "Alege județul");
+      populateCities(els.publishCity, "", "Alege orașul");
+    }
+
+    function populateCategories(select, first){
+      select.innerHTML = `<option value="">${escapeHtml(first)}</option>` + categories.map(c=>`<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join("");
+    }
+    function populateCounties(select, first){
+      const names = Object.keys(locations).sort((a,b)=>a.localeCompare(b,"ro"));
+      select.innerHTML = `<option value="">${escapeHtml(first)}</option>` + names.map(c=>`<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join("");
+    }
+    function populateCities(select, county, first){
+      const cities = county && locations[county] ? locations[county] : [];
+      select.innerHTML = `<option value="">${escapeHtml(first)}</option>` + cities.map(c=>`<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join("");
+      select.disabled = !county;
+    }
+
+    function showPage(page){
+      activePage = page;
+      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+      const target = document.getElementById(page + "Page") || els.homePage;
+      target.classList.add("active");
+      document.querySelectorAll("[data-route]").forEach(btn=>btn.classList.toggle("active", btn.dataset.route === page));
+
+      if(page === "search"){
+        if(!els.searchFiltersMount.contains(els.filtersBlock)) els.searchFiltersMount.appendChild(els.filtersBlock);
+      }else if(page === "home"){
+        const hero = document.querySelector("#homePage .hero");
+        if(hero && hero.nextElementSibling !== els.filtersBlock) hero.insertAdjacentElement("afterend", els.filtersBlock);
+      }
+
+      if(page === "saved") renderSaved();
+      if(page === "inbox") renderInbox();
+      if(page === "profile") updateProfileUI();
+      if(page === "settings") fillSettingsForm();
+      if(page === "myListings") renderMyListings();
+      if(page === "search") renderAllListings();
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    function clearFilters(){
+      filters = {q:"", county:"", city:"", category:""};
+      els.searchInput.value = "";
+      els.countyFilter.value = "";
+      populateCities(els.cityFilter, "", "Toate orașele");
+      els.categoryFilter.value = "";
+      renderAllListings();
+    }
+
+    function getFilteredListings(){
+      return listings
+        .filter(item=>{
+          const hay = [item.company_name,item.category,item.city,item.county,item.description,item.address].join(" ").toLowerCase();
+          const qOk = !filters.q || hay.includes(filters.q);
+          const countyOk = !filters.county || item.county === filters.county;
+          const cityOk = !filters.city || item.city === filters.city;
+          const catOk = !filters.category || item.category === filters.category;
+          return qOk && countyOk && cityOk && catOk;
+        })
+        .sort((a,b)=>{
+          if(Boolean(b.is_promoted) !== Boolean(a.is_promoted)) return Number(b.is_promoted) - Number(a.is_promoted);
+          return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        });
+    }
+
+    function renderAllListings(){
+      const items = getFilteredListings();
+      els.statListings.textContent = listings.length;
+      els.listSubtitle.textContent = items.length === 1 ? "1 rezultat găsit." : `${items.length} rezultate găsite.`;
+      els.searchSubtitle.textContent = els.listSubtitle.textContent;
+      renderGrid(els.listingsGrid, items);
+      renderGrid(els.searchGrid, items);
+      renderSaved();
+      renderMyListings();
+    }
+
+    function renderGrid(target, items){
+      if(!target) return;
+      if(!items || !items.length){
+        target.innerHTML = `<div class="empty">${icon("search")}<h3>Nu am găsit anunțuri</h3><p>Schimbă filtrele sau publică primul anunț pentru zona ta.</p></div>`;
+        return;
+      }
+      target.innerHTML = items.map(renderCard).join("");
+    }
+
+    function renderCard(item){
+      const saved = savedIds.has(String(item.id));
+      const img = item.image_data ? `<img src="${escapeAttr(item.image_data)}" alt="${escapeAttr(item.company_name)}">` : `<div class="logo-fallback">${icon("car")}</div>`;
+      const badge = item.is_promoted ? `<span class="badge">${escapeHtml(item.promotion_type || "Promovat")}</span>` : "";
+      return `<article class="listing-card" data-open-listing="${escapeAttr(String(item.id))}">
+        <div class="card-media">${img}${badge}<button class="fav-btn ${saved ? "saved" : ""}" data-fav="${escapeAttr(String(item.id))}" type="button" aria-label="Salvează">${icon("heart")}</button></div>
+        <div class="card-body">
+          <div class="card-title"><h3>${escapeHtml(item.company_name)}</h3><span class="rating">${icon("star")}${Number(item.rating || 5).toFixed(1)}</span></div>
+          <div class="card-meta">
+            <div class="meta-line">${icon("tag")}<span>${escapeHtml(item.category)}</span></div>
+            <div class="meta-line">${icon("pin")}<span>${escapeHtml(item.city)}, ${escapeHtml(item.county)}</span></div>
+            <div class="meta-line">${icon("clock")}<span>${escapeHtml(item.schedule || "Program necompletat")}</span></div>
+          </div>
+          <div class="price-row"><span class="price">${escapeHtml(item.price || "Preț la cerere")}</span></div>
+          <div class="card-actions">
+            <button class="mini-btn call" data-call="${escapeAttr(item.phone || "")}" type="button">${icon("phone")}Sună</button>
+            <button class="mini-btn wa" data-wa="${escapeAttr(item.whatsapp || item.phone || "")}" type="button">${icon("wa")}WhatsApp</button>
+          </div>
+        </div>
+      </article>`;
+    }
+
+    function renderSaved(){
+      const items = listings.filter(x=>savedIds.has(String(x.id)));
+      renderGrid(els.savedGrid, items);
+      if(els.savedGrid && !items.length){
+        els.savedGrid.innerHTML = `<div class="empty">${icon("heart")}<h3>Nu ai nimic salvat încă</h3><p>Apasă pe inimă la orice anunț și îl vei găsi aici.</p></div>`;
+      }
+    }
+
+    function renderMyListings(){
+      const userId = currentUser ? currentUser.id : "local";
+      const items = listings.filter(x=>x.owner_id === userId || (!hasSupabaseConfig && x.owner_id === "local"));
+      renderGrid(els.myListingsGrid, items);
+      if(els.myListingsGrid && !items.length){
+        els.myListingsGrid.innerHTML = `<div class="empty">${icon("list")}<h3>Nu ai publicat anunțuri</h3><p>Publică primul anunț pentru firma ta auto.</p></div>`;
+      }
+    }
+
+    function renderInbox(){
+      if(!els.inboxList) return;
+      if(!inboxMessages.length){
+        els.inboxList.innerHTML = `<div class="empty">${icon("message")}<h3>Inbox gol</h3><p>Aici vor apărea mesaje, notificări și actualizări aplicație.</p></div>`;
+        return;
+      }
+      els.inboxList.innerHTML = inboxMessages.map(msg=>`<article class="message-card"><div class="msg-dot">${icon("message")}</div><div><h3>${escapeHtml(msg.title || msg.type || "Mesaj")}</h3><p>${escapeHtml(msg.body || "")}</p><time>${escapeHtml(formatDate(msg.created_at))} • ${escapeHtml(msg.type || "Notificare")}</time></div></article>`).join("");
+    }
+
+    async function toggleFavorite(id){
+      const key = String(id);
+      const isSaved = savedIds.has(key);
+      if(isSaved) savedIds.delete(key); else savedIds.add(key);
+      renderAllListings();
+
+      if(sb && currentUser){
+        try{
+          if(isSaved){
+            const { error } = await sb.from("favorites").delete().eq("user_id", currentUser.id).eq("listing_id", key);
+            if(error) throw error;
+          }else{
+            const { error } = await sb.from("favorites").insert({user_id:currentUser.id, listing_id:key});
+            if(error) throw error;
+          }
+        }catch(err){
+          console.warn(err);
+          toast("Nu s-a putut salva în Supabase. Verifică tabelele/RLS.");
+        }
+      }else{
+        localStorage.setItem("ar_saved", JSON.stringify([...savedIds]));
+      }
+      toast(isSaved ? "Anunț scos din salvate." : "Anunț salvat.");
+    }
+
+    async function publishListing(e){
+      e.preventDefault();
+      const promotion = document.querySelector("input[name='promotion']:checked")?.value || "Gratuit";
+      const payload = {
+        owner_id: currentUser ? currentUser.id : "local",
+        company_name: els.companyName.value.trim(),
+        category: els.publishCategory.value,
+        county: els.publishCounty.value,
+        city: els.publishCity.value,
+        address: els.publishAddress.value.trim(),
+        phone: els.publishPhone.value.trim(),
+        whatsapp: els.publishWhatsapp.value.trim() || els.publishPhone.value.trim(),
+        schedule: els.publishSchedule.value.trim() || "Program necompletat",
+        price: els.publishPrice.value.trim() || "Preț la cerere",
+        description: els.publishDescription.value.trim(),
+        image_data: publishImageData || "",
+        promotion_type: promotion,
+        is_promoted: promotion !== "Gratuit",
+        rating: 5,
+        status:"active",
+        created_at: new Date().toISOString()
       };
-    }
+      if(!payload.company_name || !payload.category || !payload.county || !payload.city || !payload.phone || !payload.description){
+        toast("Completează câmpurile obligatorii.");
+        return;
+      }
 
-    function compressImage(file, maxSize = 300, quality = 0.7) {
-      return new Promise((resolve, reject) => {
-        if (!file || !file.type || !file.type.startsWith("image/")) {
-          reject(new Error("Fișier invalid."));
+      if(sb && currentUser){
+        try{
+          const { data, error } = await sb.from("listings").insert(payload).select().single();
+          if(error) throw error;
+          listings.unshift(data);
+        }catch(err){
+          console.warn(err);
+          toast("Nu s-a putut publica în Supabase. Verifică SQL/RLS.");
           return;
         }
+      }else{
+        payload.id = "local_" + Date.now();
+        const localListings = JSON.parse(localStorage.getItem("ar_listings") || "[]");
+        localListings.unshift(payload);
+        localStorage.setItem("ar_listings", JSON.stringify(localListings));
+        listings.unshift(payload);
+      }
 
+      els.publishForm.reset();
+      publishImageData = "";
+      renderImagePlaceholder(els.publishImagePreview);
+      populateCities(els.publishCity, "", "Alege orașul");
+      renderAllListings();
+      showPage("home");
+      toast("Anunț publicat cu succes.");
+    }
+
+    function openDetail(id){
+      const item = listings.find(x=>String(x.id) === String(id));
+      if(!item) return;
+      const saved = savedIds.has(String(item.id));
+      const image = item.image_data ? `<img src="${escapeAttr(item.image_data)}" alt="${escapeAttr(item.company_name)}">` : `<div class="logo-fallback" style="width:110px;height:110px;border-radius:32px">${icon("car")}</div>`;
+      els.detailContent.innerHTML = `<div class="detail-grid">
+        <div class="detail-image">${image}</div>
+        <div class="detail-info">
+          <div class="eyebrow" style="margin:0 0 12px"><i></i>${escapeHtml(item.category)}</div>
+          <h2>${escapeHtml(item.company_name)}</h2>
+          <p>${escapeHtml(item.description || "Fără descriere completă.")}</p>
+          <div class="detail-facts">
+            <div class="fact">${icon("pin")}<span>${escapeHtml(item.city)}, ${escapeHtml(item.county)}<br>${escapeHtml(item.address || "Adresă necompletată")}</span></div>
+            <div class="fact">${icon("clock")}<span>${escapeHtml(item.schedule || "Program necompletat")}</span></div>
+            <div class="fact">${icon("phone")}<span>${escapeHtml(item.phone || "Telefon necompletat")}</span></div>
+            <div class="fact">${icon("star")}<span>Rating ${Number(item.rating || 5).toFixed(1)} • ${escapeHtml(item.price || "Preț la cerere")}</span></div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-primary" data-call="${escapeAttr(item.phone || "")}" type="button">${icon("phone")}Sună</button>
+            <button class="btn btn-gold" data-wa="${escapeAttr(item.whatsapp || item.phone || "")}" type="button">${icon("wa")}WhatsApp</button>
+            <button class="btn btn-ghost" data-fav="${escapeAttr(String(item.id))}" type="button">${icon("heart")}${saved ? "Scos din salvate" : "Salvează"}</button>
+            <button class="btn btn-ghost" data-report="${escapeAttr(String(item.id))}" type="button">${icon("flag")}Raportează anunț</button>
+          </div>
+        </div>
+      </div>`;
+      els.detailModal.classList.add("active");
+      document.body.classList.add("locked");
+    }
+
+    function closeDetail(){
+      els.detailModal.classList.remove("active");
+      document.body.classList.remove("locked");
+    }
+
+    async function reportListing(id){
+      if(sb && currentUser){
+        try{ await sb.from("reports").insert({user_id:currentUser.id, listing_id:String(id), reason:"Raportare din aplicație"}); }
+        catch(err){ console.warn(err); }
+      }
+      toast("Mulțumim. Anunțul a fost raportat pentru verificare.");
+    }
+
+    function updateProfileUI(){
+      const email = profile.contact_email || (currentUser && currentUser.email) || "email necompletat";
+      els.profileName.textContent = profile.full_name || "Utilizator AutoRapid";
+      els.profileEmail.textContent = email;
+      els.profilePhone.textContent = profile.phone || "Telefon necompletat";
+      els.profileCity.textContent = profile.city || "Oraș necompletat";
+      els.headerName.textContent = profile.full_name || "Profil";
+      renderAvatar(els.profileAvatar, profile.avatar_data);
+      renderAvatar(els.headerAvatar, profile.avatar_data);
+    }
+
+    function fillSettingsForm(){
+      els.settingsName.value = profile.full_name || "";
+      els.settingsPhone.value = profile.phone || "";
+      els.settingsEmail.value = profile.contact_email || (currentUser && currentUser.email) || "";
+      els.settingsCity.value = profile.city || "";
+      els.settingsLanguage.value = profile.language || "ro";
+      els.settingsTheme.value = profile.theme || localStorage.getItem("ar_theme") || "light";
+      els.settingsNotifications.value = String(profile.notifications !== false);
+      els.settingsPrivacy.value = profile.privacy || "standard";
+      renderImagePreview(els.settingsAvatarPreview, profile.avatar_data || avatarImageData);
+    }
+
+    async function saveSettings(e){
+      e.preventDefault();
+      const updated = {
+        full_name: els.settingsName.value.trim() || "Utilizator AutoRapid",
+        phone: els.settingsPhone.value.trim(),
+        contact_email: els.settingsEmail.value.trim(),
+        city: els.settingsCity.value.trim(),
+        avatar_data: avatarImageData || profile.avatar_data || "",
+        language: els.settingsLanguage.value,
+        theme: els.settingsTheme.value,
+        notifications: els.settingsNotifications.value === "true",
+        privacy: els.settingsPrivacy.value
+      };
+      profile = {...profile, ...updated};
+      applyTheme(profile.theme);
+
+      if(sb && currentUser){
+        try{
+          const { error } = await sb.from("profiles").upsert({user_id:currentUser.id, ...updated, updated_at:new Date().toISOString()});
+          if(error) throw error;
+        }catch(err){ console.warn(err); toast("Nu s-a putut salva profilul în Supabase."); }
+      }else{
+        localStorage.setItem("ar_profile", JSON.stringify(profile));
+      }
+      avatarImageData = "";
+      updateProfileUI();
+      toast("Setările au fost salvate.");
+    }
+
+    async function submitFeedback(e){
+      e.preventDefault();
+      const category = els.feedbackCategory.value;
+      const description = els.feedbackText.value.trim();
+      if(!category || !description){ toast("Completează categoria și descrierea."); return; }
+      if(description.length > 500){ toast("Feedbackul depășește 500 caractere."); return; }
+      if(sb && currentUser){
+        try{
+          const { error } = await sb.from("feedback").insert({user_id:currentUser.id, category, description});
+          if(error) throw error;
+        }catch(err){ console.warn(err); toast("Feedbackul nu s-a putut salva în Supabase."); return; }
+      }else{
+        const localFeedback = JSON.parse(localStorage.getItem("ar_feedback") || "[]");
+        localFeedback.push({category, description, created_at:new Date().toISOString()});
+        localStorage.setItem("ar_feedback", JSON.stringify(localFeedback));
+      }
+      els.feedbackForm.reset();
+      updateFeedbackCounter();
+      els.feedbackSuccess.classList.add("active");
+      setTimeout(()=>els.feedbackSuccess.classList.remove("active"), 3600);
+      toast("Feedback trimis. Mulțumim!");
+    }
+
+    async function requestAccountDelete(){
+      if(!confirm("Vrei să trimiți o cerere de ștergere cont?")) return;
+      if(sb && currentUser){
+        try{ await sb.from("feedback").insert({user_id:currentUser.id, category:"Ștergere cont", description:"Utilizatorul a cerut ștergerea contului din aplicație."}); }
+        catch(err){ console.warn(err); }
+      }
+      toast("Cererea de ștergere cont a fost înregistrată.");
+    }
+
+    async function logout(){
+      if(sb && currentUser){
+        await sb.auth.signOut();
+      }else{
+        toast("Ești în mod demo local.");
+      }
+    }
+
+    function toggleTheme(){
+      const next = document.body.dataset.theme === "dark" ? "light" : "dark";
+      applyTheme(next);
+      profile.theme = next;
+      localStorage.setItem("ar_theme", next);
+      if(els.settingsTheme) els.settingsTheme.value = next;
+    }
+
+    function applyTheme(theme){
+      const safe = theme === "dark" ? "dark" : "light";
+      document.body.dataset.theme = safe;
+      localStorage.setItem("ar_theme", safe);
+    }
+
+    function updateFeedbackCounter(){
+      const len = els.feedbackText.value.length;
+      els.feedbackCounter.textContent = `${len}/500`;
+    }
+
+    function renderAvatar(target, data){
+      if(!target) return;
+      target.innerHTML = data ? `<img src="${escapeAttr(data)}" alt="Poză profil">` : icon("user");
+    }
+    function renderImagePlaceholder(target){ if(target) target.innerHTML = icon("image"); }
+    function renderImagePreview(target, data){ if(!target) return; target.innerHTML = data ? `<img src="${escapeAttr(data)}" alt="Preview">` : icon("image"); }
+
+    async function fileToDataUrlSafe(file){
+      if(!file) return "";
+      if(!file.type.startsWith("image/")){ toast("Alege o imagine validă."); return ""; }
+      if(file.size > 1600 * 1024){ toast("Imaginea este prea mare. Alege una sub 1.5 MB."); return ""; }
+      return new Promise((resolve,reject)=>{
         const reader = new FileReader();
-        reader.onload = (event) => {
-          const image = new Image();
-
-          image.onload = () => {
-            let width = image.width;
-            let height = image.height;
-
-            if (width > height && width > maxSize) {
-              height = Math.round((height * maxSize) / width);
-              width = maxSize;
-            } else if (height > maxSize) {
-              width = Math.round((width * maxSize) / height);
-              height = maxSize;
-            }
-
-            const canvas = document.createElement("canvas");
-            canvas.width = Math.max(1, width);
-            canvas.height = Math.max(1, height);
-
-            const ctx = canvas.getContext("2d");
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-            resolve(canvas.toDataURL("image/jpeg", quality));
-          };
-
-          image.onerror = () => reject(new Error("Imaginea nu poate fi citită."));
-          image.src = event.target.result;
-        };
-
-        reader.onerror = () => reject(new Error("Nu am putut procesa fișierul."));
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = reject;
         reader.readAsDataURL(file);
       });
     }
 
-    function makeCarImage(title, category) {
-      const safeTitle = title.slice(0, 28).replace(/[<>&]/g, "");
-      const safeCategory = category.slice(0, 22).replace(/[<>&]/g, "");
-
-      const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="720" height="520" viewBox="0 0 720 520">
-          <defs>
-            <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#050505"/>
-              <stop offset="48%" stop-color="#19130a"/>
-              <stop offset="100%" stop-color="#d4af37"/>
-            </linearGradient>
-            <linearGradient id="car" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#ffffff"/>
-              <stop offset="100%" stop-color="#e8dca7"/>
-            </linearGradient>
-          </defs>
-          <rect width="720" height="520" rx="48" fill="url(#bg)"/>
-          <circle cx="600" cy="90" r="92" fill="#ffffff" opacity=".08"/>
-          <circle cx="90" cy="420" r="140" fill="#d4af37" opacity=".12"/>
-          <path d="M150 320h420c34 0 60-26 60-60v-28c0-31-22-56-52-61l-65-11-58-82c-13-18-34-29-56-29H279c-28 0-53 16-65 42l-39 80-55 13c-28 7-48 32-48 61v15c0 34 28 60 78 60z" fill="url(#car)"/>
-          <path d="M265 112h126c12 0 24 6 31 16l30 43H224l22-43c4-10 11-16 19-16z" fill="#111111" opacity=".85"/>
-          <circle cx="220" cy="323" r="52" fill="#0b0b0b"/>
-          <circle cx="500" cy="323" r="52" fill="#0b0b0b"/>
-          <circle cx="220" cy="323" r="23" fill="#d4af37"/>
-          <circle cx="500" cy="323" r="23" fill="#d4af37"/>
-          <rect x="44" y="44" width="170" height="34" rx="17" fill="#d4af37"/>
-          <text x="64" y="68" font-family="Arial" font-size="17" font-weight="900" fill="#050505">${safeCategory}</text>
-          <text x="44" y="120" font-family="Arial" font-size="34" font-weight="900" fill="#ffffff">${safeTitle}</text>
-          <text x="44" y="154" font-family="Arial" font-size="18" font-weight="700" fill="#d4af37">AutoRapid RO</text>
-        </svg>
-      `;
-
-      return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+    function cleanPhone(phone){ return String(phone || "").replace(/[^0-9+]/g, ""); }
+    function isEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+    function formatDate(value){
+      const d = value ? new Date(value) : new Date();
+      return d.toLocaleDateString("ro-RO", {day:"2-digit",month:"short",year:"numeric"});
     }
 
-    const demoListings = [
-      {
-        id: "demo-1",
-        title: "Tractări Auto București 24/7",
-        category: "Tractări auto",
-        county: "București",
-        city: "București",
-        location: "București",
-        price: "de la 120 lei",
-        rating: 4.9,
-        reviews: 128,
-        phone: "+40722111222",
-        whatsapp: "+40722111222",
-        plan: "premium",
-        promoted: true,
-        verified: true,
-        image: makeCarImage("Tractări Auto București", "Tractări auto"),
-        description: "Platformă auto disponibilă rapid pentru tractări, transport mașini și intervenții rutiere în București și Ilfov. Program non-stop."
-      },
-      {
-        id: "demo-2",
-        title: "Vulcanizare Mobilă Cluj",
-        category: "Vulcanizare",
-        county: "Cluj",
-        city: "Cluj-Napoca",
-        location: "Cluj-Napoca, Cluj",
-        price: "de la 80 lei",
-        rating: 4.8,
-        reviews: 94,
-        phone: "+40733000111",
-        whatsapp: "+40733000111",
-        plan: "boost30",
-        promoted: true,
-        verified: true,
-        image: makeCarImage("Vulcanizare Mobilă Cluj", "Vulcanizare"),
-        description: "Reparații anvelope, schimb roți sezonier și intervenții mobile pentru pană în Cluj-Napoca."
-      },
-      {
-        id: "demo-3",
-        title: "Service Auto Brașov",
-        category: "Service auto",
-        county: "Brașov",
-        city: "Brașov",
-        location: "Brașov",
-        price: "verificare 100 lei",
-        rating: 4.7,
-        reviews: 77,
-        phone: "+40744123456",
-        whatsapp: "",
-        plan: "boost7",
-        promoted: true,
-        verified: false,
-        image: makeCarImage("Service Auto Brașov", "Service auto"),
-        description: "Service auto pentru revizii, frâne, suspensie, distribuție și reparații mecanice generale."
-      },
-      {
-        id: "demo-4",
-        title: "ITP Sibiu Rapid",
-        category: "ITP",
-        county: "Sibiu",
-        city: "Sibiu",
-        location: "Sibiu",
-        price: "de la 150 lei",
-        rating: 4.6,
-        reviews: 52,
-        phone: "+40755000999",
-        whatsapp: "+40755000999",
-        plan: "free",
-        promoted: false,
-        verified: true,
-        image: makeCarImage("ITP Sibiu Rapid", "ITP"),
-        description: "Stație ITP pentru autoturisme, programări rapide și verificări tehnice autorizate."
-      },
-      {
-        id: "demo-5",
-        title: "Diagnoză Auto Timișoara",
-        category: "Diagnoză auto",
-        county: "Timiș",
-        city: "Timișoara",
-        location: "Timișoara, Timiș",
-        price: "100 lei",
-        rating: 4.9,
-        reviews: 116,
-        phone: "+40766111000",
-        whatsapp: "+40766111000",
-        plan: "free",
-        promoted: false,
-        verified: true,
-        image: makeCarImage("Diagnoză Auto Timișoara", "Diagnoză auto"),
-        description: "Diagnoză computerizată, ștergere erori, verificare senzori și identificare probleme electrice."
-      },
-      {
-        id: "demo-6",
-        title: "Schimb Ulei Constanța",
-        category: "Schimb ulei",
-        county: "Constanța",
-        city: "Constanța",
-        location: "Constanța",
-        price: "de la 90 lei",
-        rating: 4.5,
-        reviews: 39,
-        phone: "+40777777000",
-        whatsapp: "+40777777000",
-        plan: "free",
-        promoted: false,
-        verified: false,
-        image: makeCarImage("Schimb Ulei Constanța", "Schimb ulei"),
-        description: "Schimb ulei, filtre, verificare lichide și revizie rapidă pentru autoturisme."
-      },
-      {
-        id: "demo-7",
-        title: "Detailing Premium Iași",
-        category: "Detailing auto",
-        county: "Iași",
-        city: "Iași",
-        location: "Iași",
-        price: "de la 250 lei",
-        rating: 4.8,
-        reviews: 68,
-        phone: "+40720000123",
-        whatsapp: "+40720000123",
-        plan: "boost30",
-        promoted: true,
-        verified: true,
-        image: makeCarImage("Detailing Premium Iași", "Detailing auto"),
-        description: "Curățare interior, polish, protecție ceramică și detailing complet pentru mașini personale sau flote."
-      }
-    ];
-
-    function Icon({ type, className = "w-5 h-5", filled = false }) {
-      const common = { className, viewBox: "0 0 24 24", fill: filled ? "currentColor" : "none", xmlns: "http://www.w3.org/2000/svg" };
-      const stroke = { stroke: "currentColor", strokeWidth: "1.8", strokeLinecap: "round", strokeLinejoin: "round" };
-
-      if (type === "home") return <svg {...common}><path {...stroke} d="M3 10.8 12 3l9 7.8V21a1 1 0 0 1-1 1h-5.2v-6.4H9.2V22H4a1 1 0 0 1-1-1V10.8Z"/></svg>;
-      if (type === "search") return <svg {...common}><path {...stroke} d="m21 21-4.35-4.35M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z"/></svg>;
-      if (type === "plus") return <svg {...common}><path {...stroke} strokeWidth="2.4" d="M12 5v14M5 12h14"/></svg>;
-      if (type === "user") return <svg {...common}><path {...stroke} d="M12 12.2a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4ZM4.5 21a7.5 7.5 0 0 1 15 0"/></svg>;
-      if (type === "heart") return <svg {...common}><path {...stroke} d="M20.4 5.6a5 5 0 0 0-7.1 0L12 6.9l-1.3-1.3a5 5 0 0 0-7.1 7.1L12 21l8.4-8.3a5 5 0 0 0 0-7.1Z"/></svg>;
-      if (type === "phone") return <svg {...common}><path {...stroke} d="M7.1 4h3l1.4 4.2-2 1.2c.9 1.9 2.3 3.3 4.2 4.2l1.2-2 4.1 1.4v3c0 1.2-1 2.1-2.2 2A13.5 13.5 0 0 1 5 6.2C4.9 5 5.9 4 7.1 4Z"/></svg>;
-      if (type === "wa") return <svg {...common}><path {...stroke} d="M5.2 19 6.1 16.1a7.7 7.7 0 1 1 2.1 2L5.2 19Z"/><path fill="currentColor" d="M9.7 8.5c.2-.3.4-.3.7-.3h.5c.2 0 .4.1.5.4l.7 1.6c.1.3.1.5-.1.7l-.4.5c.5.9 1.2 1.6 2.1 2.1l.5-.4c.2-.2.5-.2.7-.1l1.6.7c.3.1.4.3.4.5v.5c0 .3-.1.5-.3.7-.4.4-1.1.6-1.8.5-2.9-.4-5.2-2.7-5.6-5.6-.1-.7.1-1.4.5-1.8Z"/></svg>;
-      if (type === "pin") return <svg {...common}><path {...stroke} d="M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11Z"/><path {...stroke} d="M12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg>;
-      if (type === "star") return <svg {...common} fill="currentColor"><path d="m12 3 2.6 5.5 6 .9-4.3 4.2 1 5.9L12 16.7 6.7 19.5l1-5.9-4.3-4.2 6-.9L12 3Z"/></svg>;
-      if (type === "back") return <svg {...common}><path {...stroke} strokeWidth="2.2" d="M15 19 8 12l7-7"/></svg>;
-      if (type === "camera") return <svg {...common}><path {...stroke} d="M4 8.5h3l1.4-2h7.2l1.4 2h3a1 1 0 0 1 1 1V19a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5a1 1 0 0 1 1-1Z"/><path {...stroke} d="M12 16.5a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/></svg>;
-      if (type === "msg") return <svg {...common}><path {...stroke} d="M4 5.5h16v11H8.5L4 20V5.5Z"/></svg>;
-      if (type === "shield") return <svg {...common}><path {...stroke} d="M12 3 20 6v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6l8-3Z"/><path {...stroke} d="m9 12 2 2 4-4"/></svg>;
-      return null;
+    function toast(message){
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(()=>els.toast.classList.remove("show"), 2800);
     }
 
-    function App() {
-      const [page, setPage] = useState("home");
-      const [query, setQuery] = useState("");
-      const [category, setCategory] = useState("Toate");
-      const [county, setCounty] = useState("");
-      const [city, setCity] = useState("");
-      const [selected, setSelected] = useState(null);
-      const [notice, setNotice] = useState("");
-      const [favorites, setFavorites] = useState(() => safeParse(localStorage.getItem(STORAGE.favorites), []));
-      const [userListings, setUserListings] = useState(() => safeParse(localStorage.getItem(STORAGE.listings), []));
-      const [profile, setProfile] = useState(() => loadProfile());
-      const [draftProfile, setDraftProfile] = useState(() => loadProfile());
-      const [processing, setProcessing] = useState(false);
-      const [feedback, setFeedback] = useState({ type: "Sugestie nouă", text: "" });
-      const [form, setForm] = useState({
-        title: "",
-        category: "Tractări auto",
-        county: "București",
-        city: "București",
-        phone: "",
-        whatsapp: "",
-        price: "",
-        description: "",
-        image: "",
-        plan: "free"
-      });
-
-      const listings = useMemo(() => [...userListings, ...demoListings], [userListings]);
-
-      const filtered = useMemo(() => {
-        const text = query.trim().toLowerCase();
-
-        return listings
-          .filter((item) => {
-            const matchText = !text ||
-              item.title.toLowerCase().includes(text) ||
-              item.category.toLowerCase().includes(text) ||
-              item.county.toLowerCase().includes(text) ||
-              item.city.toLowerCase().includes(text) ||
-              item.description.toLowerCase().includes(text);
-
-            const matchCategory = category === "Toate" || item.category === category;
-            const matchCounty = !county || item.county === county;
-            const matchCity = !city || item.city === city;
-
-            return matchText && matchCategory && matchCounty && matchCity;
-          })
-          .sort((a, b) => Number(b.promoted) - Number(a.promoted));
-      }, [listings, query, category, county, city]);
-
-      const citiesForFilter = county ? countyCities[county] || [] : [];
-      const citiesForForm = countyCities[form.county] || [];
-      const savedListings = listings.filter((item) => favorites.includes(item.id));
-
-      useEffect(() => {
-        try {
-          localStorage.setItem(STORAGE.favorites, JSON.stringify(favorites));
-        } catch {
-          showNotice("Nu am putut salva favoritele.");
-        }
-      }, [favorites]);
-
-      useEffect(() => {
-        if (!notice) return;
-        const timer = setTimeout(() => setNotice(""), 2600);
-        return () => clearTimeout(timer);
-      }, [notice]);
-
-      function showNotice(message) {
-        setNotice(message);
-      }
-
-      function toggleFavorite(id) {
-        setFavorites((current) => current.includes(id) ? current.filter((x) => x !== id) : [...current, id]);
-      }
-
-      function saveListings(nextListings) {
-        try {
-          localStorage.setItem(STORAGE.listings, JSON.stringify(nextListings));
-          setUserListings(nextListings);
-          return true;
-        } catch {
-          showNotice("Nu am putut salva anunțul. Imaginea poate fi prea mare.");
-          return false;
-        }
-      }
-
-      function updateForm(field, value) {
-        setForm((current) => ({ ...current, [field]: value }));
-      }
-
-      async function uploadListingImage(file) {
-        if (!file) return;
-        setProcessing(true);
-        try {
-          const compressed = await compressImage(file, 300, 0.7);
-          updateForm("image", compressed);
-          showNotice("Imagine comprimată și pregătită.");
-        } catch {
-          showNotice("Nu am putut procesa imaginea.");
-        } finally {
-          setProcessing(false);
-        }
-      }
-
-      async function uploadProfilePhoto(file) {
-        if (!file) return;
-        setProcessing(true);
-        try {
-          const compressed = await compressImage(file, 300, 0.7);
-          setDraftProfile((current) => ({ ...current, photo: compressed }));
-          showNotice("Poza de profil a fost comprimată.");
-        } catch {
-          showNotice("Nu am putut procesa poza.");
-        } finally {
-          setProcessing(false);
-        }
-      }
-
-      function publishListing(event) {
-        event.preventDefault();
-
-        if (!form.title.trim() || !form.phone.trim() || !form.description.trim()) {
-          showNotice("Completează titlul, telefonul și descrierea.");
-          return;
-        }
-
-        const plan = promotionPlans.find((x) => x.id === form.plan) || promotionPlans[0];
-
-        const newItem = {
-          id: `user-${Date.now()}`,
-          title: form.title.trim(),
-          category: form.category,
-          county: form.county,
-          city: form.city,
-          location: `${form.city}, ${form.county}`,
-          price: form.price.trim() || "Preț la cerere",
-          rating: 5,
-          reviews: 0,
-          phone: form.phone.trim(),
-          whatsapp: form.whatsapp.trim(),
-          plan: form.plan,
-          promoted: form.plan !== "free",
-          verified: false,
-          image: form.image || makeCarImage(form.title.trim(), form.category),
-          description: form.description.trim()
-        };
-
-        const nextListings = [newItem, ...userListings];
-
-        if (saveListings(nextListings)) {
-          setForm({
-            title: "",
-            category: "Tractări auto",
-            county: "București",
-            city: "București",
-            phone: "",
-            whatsapp: "",
-            price: "",
-            description: "",
-            image: "",
-            plan: "free"
-          });
-          setPage("home");
-          showNotice(`Anunț publicat. Plan selectat: ${plan.name}.`);
-        }
-      }
-
-      function saveProfile(event) {
-        event.preventDefault();
-
-        const editsLeft = Number(profile.nameEditsLeft ?? 2);
-        const nameChanged = draftProfile.name.trim() !== profile.name.trim();
-
-        if (nameChanged && editsLeft <= 0) {
-          showNotice("Nu mai poți modifica numele.");
-          return;
-        }
-
-        const next = {
-          ...defaultProfile,
-          ...draftProfile,
-          name: draftProfile.name.trim() || defaultProfile.name,
-          about: draftProfile.about.slice(0, 100),
-          nameEditsLeft: Math.max(0, editsLeft - (nameChanged ? 1 : 0))
-        };
-
-        try {
-          localStorage.setItem(STORAGE.profile, JSON.stringify(next));
-          setProfile(next);
-          setDraftProfile(next);
-          setPage("profile");
-          showNotice("Profil salvat cu succes.");
-        } catch {
-          showNotice("Profilul nu a putut fi salvat. Încearcă o poză mai mică.");
-        }
-      }
-
-      function submitFeedback(event) {
-        event.preventDefault();
-        if (!feedback.text.trim()) {
-          showNotice("Scrie o descriere pentru feedback.");
-          return;
-        }
-
-        const previous = safeParse(localStorage.getItem(STORAGE.feedback), []);
-        const next = [{ ...feedback, id: Date.now(), date: new Date().toLocaleString("ro-RO") }, ...previous].slice(0, 30);
-
-        try {
-          localStorage.setItem(STORAGE.feedback, JSON.stringify(next));
-          setFeedback({ type: "Sugestie nouă", text: "" });
-          showNotice("Feedback trimis. Mulțumim!");
-        } catch {
-          showNotice("Nu am putut salva feedback-ul.");
-        }
-      }
-
-      function phoneLink(phone) {
-        return `tel:${phone?.replace(/\s/g, "") || ""}`;
-      }
-
-      function whatsappLink(item) {
-        const clean = item.whatsapp?.replace(/\D/g, "") || item.phone?.replace(/\D/g, "") || "";
-        return clean ? `https://wa.me/${clean}` : "#";
-      }
-
-      return (
-        <div className="min-h-dvh app-bg text-white">
-          <DesktopHeader page={page} setPage={setPage} />
-
-          <main className="mx-auto w-full max-w-5xl px-3 pb-5 pt-3 safe-bottom md:px-5 md:pb-12 md:pt-6">
-            {page === "home" && (
-              <HomePage
-                filtered={filtered}
-                query={query}
-                setQuery={setQuery}
-                category={category}
-                setCategory={setCategory}
-                county={county}
-                setCounty={setCounty}
-                city={city}
-                setCity={setCity}
-                citiesForFilter={citiesForFilter}
-                favorites={favorites}
-                toggleFavorite={toggleFavorite}
-                setSelected={setSelected}
-                setPage={setPage}
-              />
-            )}
-
-            {page === "search" && (
-              <SearchPage
-                filtered={filtered}
-                query={query}
-                setQuery={setQuery}
-                category={category}
-                setCategory={setCategory}
-                county={county}
-                setCounty={setCounty}
-                city={city}
-                setCity={setCity}
-                citiesForFilter={citiesForFilter}
-                favorites={favorites}
-                toggleFavorite={toggleFavorite}
-                setSelected={setSelected}
-              />
-            )}
-
-            {page === "publish" && (
-              <PublishPage
-                form={form}
-                updateForm={updateForm}
-                citiesForForm={citiesForForm}
-                uploadListingImage={uploadListingImage}
-                publishListing={publishListing}
-                processing={processing}
-              />
-            )}
-
-            {page === "saved" && (
-              <SavedPage
-                savedListings={savedListings}
-                favorites={favorites}
-                toggleFavorite={toggleFavorite}
-                setSelected={setSelected}
-                setPage={setPage}
-              />
-            )}
-
-            {page === "profile" && (
-              <ProfilePage
-                profile={profile}
-                userListings={userListings}
-                savedCount={savedListings.length}
-                setPage={setPage}
-                setDraftProfile={setDraftProfile}
-                feedback={feedback}
-                setFeedback={setFeedback}
-                submitFeedback={submitFeedback}
-              />
-            )}
-
-            {page === "editProfile" && (
-              <EditProfilePage
-                profile={profile}
-                draftProfile={draftProfile}
-                setDraftProfile={setDraftProfile}
-                saveProfile={saveProfile}
-                uploadProfilePhoto={uploadProfilePhoto}
-                processing={processing}
-                setPage={setPage}
-              />
-            )}
-          </main>
-
-          <MobileNav page={page} setPage={setPage} />
-
-          {selected && (
-            <DetailsModal
-              item={selected}
-              close={() => setSelected(null)}
-              isFavorite={favorites.includes(selected.id)}
-              toggleFavorite={toggleFavorite}
-              phoneLink={phoneLink}
-              whatsappLink={whatsappLink}
-            />
-          )}
-
-          {notice && (
-            <div className="fixed left-1/2 top-4 z-[90] w-[calc(100%-24px)] max-w-sm -translate-x-1/2 rounded-2xl border border-gold-400/40 bg-white px-4 py-3 text-center text-xs font-black text-black shadow-gold">
-              {notice}
-            </div>
-          )}
-        </div>
-      );
+    function escapeHtml(value){
+      return String(value ?? "").replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch]));
     }
+    function escapeAttr(value){ return escapeHtml(value).replace(/'/g,"&#39;"); }
 
-    function DesktopHeader({ page, setPage }) {
-      const items = [
-        ["home", "Acasă"],
-        ["search", "Caută"],
-        ["publish", "Publică"],
-        ["saved", "Salvate"],
-        ["profile", "Profil"]
-      ];
-
-      return (
-        <header className="sticky top-0 z-40 hidden border-b border-white/10 bg-black/70 backdrop-blur-xl md:block">
-          <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
-            <button onClick={() => setPage("home")} className="flex items-center gap-3 text-left">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gold-500 text-sm font-black text-black shadow-gold">AR</div>
-              <div>
-                <p className="text-sm font-black tracking-tight">AutoRapid RO</p>
-                <p className="text-xs text-white/50">Marketplace auto premium</p>
-              </div>
-            </button>
-
-            <nav className="flex items-center gap-2">
-              {items.map(([id, label]) => (
-                <button
-                  key={id}
-                  onClick={() => setPage(id)}
-                  className={`rounded-full px-4 py-2 text-xs font-black transition ${
-                    page === id ? "bg-gold-500 text-black shadow-gold" : "bg-white/10 text-white/70 hover:bg-white/15"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </nav>
-          </div>
-        </header>
-      );
+    function icon(name){
+      const icons = {
+        car:`<svg viewBox="0 0 24 24" fill="none"><path d="M5 15.4 6.4 9c.22-1.04 1.14-1.78 2.2-1.78h6.8c1.06 0 1.98.74 2.2 1.78l1.4 6.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.4 15.2h9.2M8.3 11.4h7.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.6 17.6h.01M16.4 17.6h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M6.5 15.1h11c.83 0 1.5.67 1.5 1.5v1.7c0 .83-.67 1.5-1.5 1.5h-11c-.83 0-1.5-.67-1.5-1.5v-1.7c0-.83.67-1.5 1.5-1.5Z" stroke="currentColor" stroke-width="1.8"/></svg>`,
+        heart:`<svg viewBox="0 0 24 24" fill="none"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0l-1 1-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+        star:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2.8 2.8 5.7 6.3.9-4.55 4.44 1.08 6.27L12 17.15l-5.63 2.96 1.08-6.27L2.9 9.4l6.3-.9L12 2.8Z"/></svg>`,
+        tag:`<svg viewBox="0 0 24 24" fill="none"><path d="M20.5 13.2 13.2 20.5a2 2 0 0 1-2.8 0L3 13.1V3h10.1l7.4 7.4a2 2 0 0 1 0 2.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7.8" cy="7.8" r="1.3" fill="currentColor"/></svg>`,
+        pin:`<svg viewBox="0 0 24 24" fill="none"><path d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.8"/></svg>`,
+        clock:`<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+        phone:`<svg viewBox="0 0 24 24" fill="none"><path d="M22 16.9v2.2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 2.1 3.4 2 2 0 0 1 4.1 1.2h2.2a2 2 0 0 1 2 1.7l.3 2a2 2 0 0 1-.5 1.7L7.2 7.7a16 16 0 0 0 6.9 6.9l1.1-.9a2 2 0 0 1 1.7-.5l2 .4a2 2 0 0 1 1.7 2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+        wa:`<svg viewBox="0 0 24 24" fill="none"><path d="M20.2 11.8a8.2 8.2 0 0 1-12.1 7.2L4 20l1.1-4A8.2 8.2 0 1 1 20.2 11.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.1 8.2c.2-.5.4-.5.7-.5h.5c.2 0 .4.1.5.4l.7 1.7c.1.3.1.5-.1.7l-.4.5c-.1.2-.2.3-.1.5.3.6.8 1.2 1.3 1.7.6.5 1.2.9 1.9 1.1.2.1.4 0 .5-.1l.7-.8c.2-.2.4-.2.7-.1l1.6.8c.3.1.4.3.4.5 0 .6-.3 1.3-.7 1.6-.5.4-1.7.5-3.4-.2-2.9-1.2-4.8-3.7-5.1-4.2-.3-.5-1.2-1.7-1.2-3 0-1.2.6-1.9.9-2.2Z" fill="currentColor"/></svg>`,
+        search:`<svg viewBox="0 0 24 24" fill="none"><path d="m21 21-4.3-4.3M10.8 18.2a7.4 7.4 0 1 1 0-14.8 7.4 7.4 0 0 1 0 14.8Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>`,
+        image:`<svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m4 16 4.5-4.5 3 3 2-2L20 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15.5" cy="9" r="1.5" fill="currentColor"/></svg>`,
+        user:`<svg viewBox="0 0 24 24" fill="none"><path d="M20 21a8 8 0 0 0-16 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/></svg>`,
+        message:`<svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v12H7l-3 3V5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+        flag:`<svg viewBox="0 0 24 24" fill="none"><path d="M5 21V4h10l1 3h4v10H10l-1-3H5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+        list:`<svg viewBox="0 0 24 24" fill="none"><path d="M4 6.5h16M4 12h16M4 17.5h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`
+      };
+      return icons[name] || icons.car;
     }
-
-    function HomePage(props) {
-      return (
-        <div className="space-y-4">
-          <Hero setPage={props.setPage} />
-          <StatsRow />
-          <SearchBox {...props} compact />
-          <CategoryChips category={props.category} setCategory={props.setCategory} />
-          <SectionHeader title="Anunțuri recomandate" subtitle={`${props.filtered.length} servicii disponibile`} />
-          <ListingGrid {...props} listings={props.filtered} />
-          <PromotionPreview />
-        </div>
-      );
-    }
-
-    function SearchPage(props) {
-      return (
-        <div className="space-y-4">
-          <PageCard title="Caută servicii auto" subtitle="Filtrează rapid după județ, oraș, categorie sau text." />
-          <SearchBox {...props} />
-          <CategoryChips category={props.category} setCategory={props.setCategory} />
-          <SectionHeader title="Rezultate" subtitle={`${props.filtered.length} anunțuri găsite`} />
-          <ListingGrid {...props} listings={props.filtered} />
-        </div>
-      );
-    }
-
-    function Hero({ setPage }) {
-      return (
-        <section className="relative overflow-hidden rounded-[30px] border border-gold-400/25 bg-black p-4 shadow-premium md:p-6">
-          <div className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-gold-500/25 blur-3xl"></div>
-          <div className="absolute -bottom-20 left-4 h-44 w-44 rounded-full bg-white/10 blur-3xl"></div>
-
-          <div className="relative">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gold-500 text-sm font-black text-black shadow-gold">AR</div>
-                <div>
-                  <p className="text-sm font-black">AutoRapid RO</p>
-                  <p className="text-[11px] text-white/55">Anunțuri auto din România</p>
-                </div>
-              </div>
-
-              <span className="rounded-full border border-gold-400/35 bg-gold-500/10 px-3 py-1 text-[11px] font-black text-gold-300">
-                Beta Web
-              </span>
-            </div>
-
-            <h1 className="max-w-2xl text-[26px] font-black leading-[1.05] tracking-tight md:text-4xl">
-              Găsește rapid tractări, service, ITP și vulcanizare în orașul tău.
-            </h1>
-
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/65">
-              Aplicație tip marketplace pentru servicii auto. Firmele publică anunțuri, oamenii caută rapid și contactează direct prin telefon sau WhatsApp.
-            </p>
-
-            <div className="mt-5 grid grid-cols-2 gap-2 sm:flex">
-              <button onClick={() => setPage("publish")} className="h-11 rounded-2xl bg-gold-500 px-5 text-sm font-black text-black shadow-gold">
-                Publică anunț
-              </button>
-              <button onClick={() => setPage("search")} className="h-11 rounded-2xl border border-white/15 bg-white/10 px-5 text-sm font-black text-white">
-                Caută servicii
-              </button>
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    function StatsRow() {
-      const stats = [
-        ["42", "județe"],
-        ["22", "categorii"],
-        ["4", "planuri promovare"],
-        ["24/7", "servicii urgente"]
-      ];
-
-      return (
-        <div className="grid grid-cols-4 gap-2">
-          {stats.map(([value, label]) => (
-            <div key={label} className="glass rounded-2xl px-2 py-3 text-center">
-              <p className="text-sm font-black text-gold-300">{value}</p>
-              <p className="mt-0.5 text-[10px] font-semibold text-white/55">{label}</p>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    function PageCard({ title, subtitle }) {
-      return (
-        <section className="rounded-[28px] border border-gold-400/20 bg-black p-4 shadow-premium">
-          <p className="text-[11px] font-black uppercase tracking-[.18em] text-gold-300">AutoRapid RO</p>
-          <h1 className="mt-1 text-xl font-black">{title}</h1>
-          <p className="mt-1 text-xs leading-relaxed text-white/55">{subtitle}</p>
-          <div className="gold-line mt-4 h-px w-full"></div>
-        </section>
-      );
-    }
-
-    function SectionHeader({ title, subtitle }) {
-      return (
-        <div className="flex items-end justify-between gap-3 px-1">
-          <div>
-            <h2 className="text-base font-black">{title}</h2>
-            <p className="text-xs text-white/50">{subtitle}</p>
-          </div>
-        </div>
-      );
-    }
-
-    function SearchBox({
-      query,
-      setQuery,
-      county,
-      setCounty,
-      city,
-      setCity,
-      citiesForFilter,
-      compact
-    }) {
-      return (
-        <section className="white-card rounded-[28px] p-3 shadow-card">
-          <label className="relative block">
-            <Icon type="search" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Caută: tractări, ITP, oraș, service..."
-              className="h-10 w-full rounded-2xl border border-black/10 bg-black/[.035] pl-9 pr-3 text-sm font-bold outline-none focus:border-gold-500"
-            />
-          </label>
-
-          <div className={`mt-2 grid gap-2 ${compact ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2"}`}>
-            <select
-              value={county}
-              onChange={(event) => {
-                setCounty(event.target.value);
-                setCity("");
-              }}
-              className="h-9 w-full rounded-2xl border border-black/10 bg-white px-3 text-xs font-bold outline-none focus:border-gold-500"
-            >
-              <option value="">Toate județele</option>
-              {counties.map((item) => <option key={item} value={item}>{item}</option>)}
-            </select>
-
-            <select
-              value={city}
-              disabled={!county}
-              onChange={(event) => setCity(event.target.value)}
-              className="h-9 w-full rounded-2xl border border-black/10 bg-white px-3 text-xs font-bold outline-none disabled:opacity-50 focus:border-gold-500"
-            >
-              <option value="">Toate orașele</option>
-              {citiesForFilter.map((item) => <option key={item} value={item}>{item}</option>)}
-            </select>
-          </div>
-        </section>
-      );
-    }
-
-    function CategoryChips({ category, setCategory }) {
-      return (
-        <div className="no-scrollbar flex gap-2 overflow-x-auto py-1">
-          {categoryList.map((item) => (
-            <button
-              key={item}
-              onClick={() => setCategory(item)}
-              className={`shrink-0 rounded-full px-4 py-2 text-xs font-black transition ${
-                category === item
-                  ? "bg-gold-500 text-black shadow-gold"
-                  : "border border-white/10 bg-white/10 text-white/70"
-              }`}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-      );
-    }
-
-    function ListingGrid({ listings, favorites, toggleFavorite, setSelected }) {
-      if (!listings.length) {
-        return (
-          <div className="white-card rounded-[28px] p-6 text-center shadow-card">
-            <p className="text-sm font-black">Nu am găsit anunțuri.</p>
-            <p className="mt-1 text-xs text-black/55">Schimbă filtrele sau caută alt oraș.</p>
-          </div>
-        );
-      }
-
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          {listings.map((item) => (
-            <ListingCard
-              key={item.id}
-              item={item}
-              isFavorite={favorites.includes(item.id)}
-              toggleFavorite={toggleFavorite}
-              setSelected={setSelected}
-            />
-          ))}
-        </div>
-      );
-    }
-
-    function ListingCard({ item, isFavorite, toggleFavorite, setSelected }) {
-      const plan = promotionPlans.find((x) => x.id === item.plan);
-
-      return (
-        <article onClick={() => setSelected(item)} className="white-card cursor-pointer overflow-hidden rounded-[28px] p-2 shadow-card transition active:scale-[.99]">
-          <div className="flex gap-3">
-            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[22px] bg-black">
-              <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-              {item.promoted && (
-                <span className="absolute left-2 top-2 rounded-full bg-gold-500 px-2 py-1 text-[9px] font-black text-black shadow">
-                  {plan?.tag || "PROMO"}
-                </span>
-              )}
-            </div>
-
-            <div className="min-w-0 flex-1 py-1 pr-1">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <h3 className="line-clamp-2 text-sm font-black leading-snug">{item.title}</h3>
-                  <p className="mt-1 line-clamp-1 text-[11px] font-black text-gold-700">{item.category}</p>
-                </div>
-
-                <button
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    toggleFavorite(item.id);
-                  }}
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                    isFavorite ? "bg-gold-500 text-black" : "bg-black/[.055] text-black/45"
-                  }`}
-                  aria-label="Salvează"
-                >
-                  <Icon type="heart" className="h-4 w-4" filled={isFavorite} />
-                </button>
-              </div>
-
-              <div className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-black/55">
-                <Icon type="pin" className="h-3.5 w-3.5" />
-                <span className="truncate">{item.location}</span>
-              </div>
-
-              <div className="mt-2 flex items-center justify-between gap-2">
-                <span className="rounded-full bg-black/[.055] px-2 py-1 text-[11px] font-black">{item.price}</span>
-                <span className="flex items-center gap-1 text-[11px] font-black">
-                  <Icon type="star" className="h-3.5 w-3.5 text-gold-500" filled />
-                  {item.rating}
-                </span>
-              </div>
-
-              <div className="mt-2 flex items-center gap-1">
-                {item.verified && (
-                  <span className="rounded-full bg-green-100 px-2 py-1 text-[10px] font-black text-green-700">Verificat</span>
-                )}
-                {item.promoted && (
-                  <span className="rounded-full bg-gold-100 px-2 py-1 text-[10px] font-black text-gold-800">Promovat</span>
-                )}
-              </div>
-            </div>
-          </div>
-        </article>
-      );
-    }
-
-    function PromotionPreview() {
-      return (
-        <section className="rounded-[30px] border border-gold-400/25 bg-black p-4 shadow-premium">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-[.18em] text-gold-300">Promovări</p>
-              <h2 className="mt-1 text-lg font-black">Planuri pentru firme auto</h2>
-              <p className="mt-1 text-xs leading-relaxed text-white/55">Poți lansa aplicația cu promovări demo, iar plățile reale le adaugi ulterior.</p>
-            </div>
-          </div>
-
-          <div className="mt-4 grid gap-2 md:grid-cols-4">
-            {promotionPlans.map((plan) => (
-              <div key={plan.id} className="rounded-2xl border border-white/10 bg-white/10 p-3">
-                <span className="rounded-full bg-gold-500 px-2 py-1 text-[10px] font-black text-black">{plan.tag}</span>
-                <h3 className="mt-3 text-sm font-black">{plan.name}</h3>
-                <p className="mt-1 text-lg font-black text-gold-300">{plan.price}</p>
-                <p className="text-[11px] text-white/50">{plan.duration}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      );
-    }
-
-    function PublishPage({
-      form,
-      updateForm,
-      citiesForForm,
-      uploadListingImage,
-      publishListing,
-      processing
-    }) {
-      return (
-        <div className="space-y-4">
-          <PageCard title="Publică anunț" subtitle="Adaugă serviciul tău auto. Pozele sunt comprimate automat pentru a evita blocarea aplicației." />
-
-          <form onSubmit={publishListing} className="white-card rounded-[30px] p-4 shadow-card">
-            <div className="space-y-3">
-              <Input label="Titlu anunț" value={form.title} onChange={(v) => updateForm("title", v)} placeholder="Ex: Tractări Auto București 24/7" />
-
-              <div className="grid grid-cols-2 gap-2">
-                <Field label="Categorie">
-                  <select value={form.category} onChange={(e) => updateForm("category", e.target.value)} className="input">
-                    {categoryList.filter((x) => x !== "Toate").map((item) => <option key={item} value={item}>{item}</option>)}
-                  </select>
-                </Field>
-
-                <Input label="Preț" value={form.price} onChange={(v) => updateForm("price", v)} placeholder="de la 100 lei" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <Field label="Județ">
-                  <select
-                    value={form.county}
-                    onChange={(e) => {
-                      const nextCounty = e.target.value;
-                      updateForm("county", nextCounty);
-                      updateForm("city", countyCities[nextCounty]?.[0] || "");
-                    }}
-                    className="input"
-                  >
-                    {counties.map((item) => <option key={item} value={item}>{item}</option>)}
-                  </select>
-                </Field>
-
-                <Field label="Oraș">
-                  <select value={form.city} onChange={(e) => updateForm("city", e.target.value)} className="input">
-                    {citiesForForm.map((item) => <option key={item} value={item}>{item}</option>)}
-                  </select>
-                </Field>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <Input label="Telefon" value={form.phone} onChange={(v) => updateForm("phone", v)} placeholder="+407..." />
-                <Input label="WhatsApp" value={form.whatsapp} onChange={(v) => updateForm("whatsapp", v)} placeholder="opțional" />
-              </div>
-
-              <Field label="Descriere">
-                <textarea
-                  value={form.description}
-                  onChange={(e) => updateForm("description", e.target.value)}
-                  rows="4"
-                  placeholder="Scrie serviciile, programul, zona acoperită și detalii importante."
-                  className="min-h-[112px] w-full resize-none rounded-2xl border border-black/10 bg-black/[.035] px-3 py-3 text-sm font-semibold outline-none focus:border-gold-500"
-                />
-              </Field>
-
-              <div className="rounded-3xl border border-dashed border-gold-500/70 bg-gold-50 p-3">
-                <label className="flex cursor-pointer items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-500 text-black shadow-gold">
-                    <Icon type="camera" className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-black">Adaugă poză / logo</p>
-                    <p className="text-[11px] text-black/55">Max 300x300px, JPEG 0.7 înainte de LocalStorage</p>
-                  </div>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadListingImage(e.target.files?.[0])} />
-                </label>
-                {form.image && <img src={form.image} alt="Preview" className="mt-3 h-32 w-full rounded-2xl object-cover" />}
-              </div>
-
-              <div>
-                <p className="mb-2 text-xs font-black">Alege promovarea</p>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {promotionPlans.map((plan) => (
-                    <button
-                      type="button"
-                      key={plan.id}
-                      onClick={() => updateForm("plan", plan.id)}
-                      className={`rounded-2xl border p-3 text-left transition ${
-                        form.plan === plan.id
-                          ? "border-gold-500 bg-gold-50 shadow-gold"
-                          : "border-black/10 bg-white"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="text-sm font-black">{plan.name}</p>
-                          <p className="text-xs text-black/50">{plan.duration}</p>
-                        </div>
-                        <span className="rounded-full bg-black px-2 py-1 text-[10px] font-black text-gold-300">{plan.price}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button type="submit" disabled={processing} className="h-12 w-full rounded-2xl bg-gold-500 text-sm font-black text-black shadow-gold disabled:opacity-60">
-                {processing ? "Procesez imaginea..." : "Publică anunț"}
-              </button>
-            </div>
-          </form>
-        </div>
-      );
-    }
-
-    function Input({ label, value, onChange, placeholder, disabled }) {
-      return (
-        <Field label={label}>
-          <input
-            value={value}
-            disabled={disabled}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            className="input disabled:opacity-50"
-          />
-        </Field>
-      );
-    }
-
-    function Field({ label, children }) {
-      return (
-        <label className="block">
-          <span className="mb-1 block text-xs font-black text-black/80">{label}</span>
-          {children}
-        </label>
-      );
-    }
-
-    function SavedPage({ savedListings, favorites, toggleFavorite, setSelected, setPage }) {
-      return (
-        <div className="space-y-4">
-          <PageCard title="Salvate" subtitle="Anunțurile favorite apar aici." />
-          {savedListings.length ? (
-            <ListingGrid listings={savedListings} favorites={favorites} toggleFavorite={toggleFavorite} setSelected={setSelected} />
-          ) : (
-            <div className="white-card rounded-[30px] p-6 text-center shadow-card">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-gold-100 text-gold-700">
-                <Icon type="heart" className="h-7 w-7" />
-              </div>
-              <h2 className="mt-4 text-base font-black">Nu ai anunțuri salvate.</h2>
-              <p className="mt-1 text-xs text-black/55">Apasă inimioara pe un anunț și îl găsești aici.</p>
-              <button onClick={() => setPage("home")} className="mt-4 h-10 rounded-2xl bg-gold-500 px-5 text-xs font-black text-black shadow-gold">
-                Vezi anunțuri
-              </button>
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    function ProfilePage({
-      profile,
-      userListings,
-      savedCount,
-      setPage,
-      setDraftProfile,
-      feedback,
-      setFeedback,
-      submitFeedback
-    }) {
-      return (
-        <div className="space-y-4">
-          <section className="white-card rounded-[30px] p-4 shadow-card">
-            <div className="flex items-center gap-3">
-              <div className="h-16 w-16 overflow-hidden rounded-3xl bg-black text-gold-300">
-                {profile.photo ? <img src={profile.photo} alt="Profil" className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-lg font-black">{profile.name.slice(0, 2).toUpperCase()}</div>}
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <h1 className="line-clamp-1 text-lg font-black">{profile.name}</h1>
-                <p className="text-xs text-black/55">{profile.city}, {profile.county}</p>
-                <p className="mt-1 text-[11px] font-black text-gold-700">Editări nume rămase: {profile.nameEditsLeft}</p>
-              </div>
-            </div>
-
-            {profile.about && <p className="mt-4 rounded-2xl bg-black/[.035] p-3 text-xs leading-relaxed text-black/65">{profile.about}</p>}
-
-            <button
-              onClick={() => {
-                setDraftProfile(profile);
-                setPage("editProfile");
-              }}
-              className="mt-4 h-11 w-full rounded-2xl bg-gold-500 text-sm font-black text-black shadow-gold"
-            >
-              Editează Profil
-            </button>
-          </section>
-
-          <div className="grid grid-cols-3 gap-2">
-            <SmallStat value={userListings.length} label="Anunțuri" />
-            <SmallStat value={savedCount} label="Salvate" />
-            <SmallStat value="3" label="Mesaje" />
-          </div>
-
-          <section className="rounded-[30px] border border-gold-400/25 bg-black p-4 shadow-premium">
-            <h2 className="text-base font-black">Inbox</h2>
-            <p className="mt-1 text-xs text-white/55">Mesaje demo pentru lansare web.</p>
-
-            <div className="mt-3 space-y-2">
-              {[
-                ["Actualizare aplicație", "Am adăugat promovări, favorite și profil editabil."],
-                ["Sfat pentru firme", "Completează descrierea clar și adaugă un număr de WhatsApp."],
-                ["Siguranță", "Verifică firmele înainte de colaborare."]
-              ].map(([title, text]) => (
-                <div key={title} className="rounded-2xl border border-white/10 bg-white/10 p-3">
-                  <p className="text-xs font-black text-gold-300">{title}</p>
-                  <p className="mt-1 text-xs text-white/60">{text}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="white-card rounded-[30px] p-4 shadow-card">
-            <h2 className="text-base font-black">Spune-ne părerea ta</h2>
-            <p className="mt-1 text-xs text-black/55">Ajută-ne să facem aplicația mai bună.</p>
-
-            <form onSubmit={submitFeedback} className="mt-3 space-y-3">
-              <Field label="Despre ce vrei să ne dai feedback?">
-                <select value={feedback.type} onChange={(e) => setFeedback((c) => ({ ...c, type: e.target.value }))} className="input">
-                  {["Problemă tehnică", "Design aplicație", "Anunțuri", "Profil", "Mesaje", "Sugestie nouă", "Altceva"].map((item) => <option key={item}>{item}</option>)}
-                </select>
-              </Field>
-
-              <label className="block">
-                <span className="mb-1 flex justify-between text-xs font-black text-black/80">
-                  <span>Descriere feedback</span>
-                  <span>{feedback.text.length}/500</span>
-                </span>
-                <textarea
-                  value={feedback.text}
-                  maxLength="500"
-                  onChange={(e) => setFeedback((c) => ({ ...c, text: e.target.value.slice(0, 500) }))}
-                  rows="4"
-                  className="min-h-[112px] w-full resize-none rounded-2xl border border-black/10 bg-black/[.035] px-3 py-3 text-sm font-semibold outline-none focus:border-gold-500"
-                  placeholder="Scrie aici..."
-                />
-              </label>
-
-              <button type="submit" className="h-11 w-full rounded-2xl bg-black text-sm font-black text-gold-300">
-                Trimite feedback
-              </button>
-            </form>
-          </section>
-        </div>
-      );
-    }
-
-    function SmallStat({ value, label }) {
-      return (
-        <div className="glass rounded-2xl p-3 text-center">
-          <p className="text-lg font-black text-gold-300">{value}</p>
-          <p className="text-[11px] text-white/55">{label}</p>
-        </div>
-      );
-    }
-
-    function EditProfilePage({
-      profile,
-      draftProfile,
-      setDraftProfile,
-      saveProfile,
-      uploadProfilePhoto,
-      processing,
-      setPage
-    }) {
-      const nameLocked = Number(profile.nameEditsLeft ?? 0) <= 0;
-
-      function update(field, value) {
-        setDraftProfile((current) => ({ ...current, [field]: value }));
-      }
-
-      return (
-        <div className="space-y-4">
-          <section className="white-card rounded-[30px] p-4 shadow-card">
-            <button onClick={() => setPage("profile")} className="mb-3 flex items-center gap-1 text-xs font-black text-gold-700">
-              <Icon type="back" className="h-4 w-4" />
-              Înapoi la profil
-            </button>
-
-            <h1 className="text-xl font-black">Editează Profil</h1>
-            <p className="mt-1 text-xs text-black/55">Pozele sunt comprimate înainte de salvare ca aplicația să nu înghețe.</p>
-          </section>
-
-          <form onSubmit={saveProfile} className="white-card rounded-[30px] p-4 shadow-card">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="h-20 w-20 overflow-hidden rounded-3xl bg-black text-gold-300">
-                  {draftProfile.photo ? <img src={draftProfile.photo} alt="Profil" className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-xl font-black">{draftProfile.name.slice(0, 2).toUpperCase()}</div>}
-                </div>
-
-                <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-gold-500 bg-gold-50 px-3 py-4 text-xs font-black text-gold-800">
-                  <Icon type="camera" className="h-4 w-4" />
-                  Fotografia ta
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadProfilePhoto(e.target.files?.[0])} />
-                </label>
-              </div>
-
-              <Input label={`Nume ${nameLocked ? "(blocat)" : `(mai poți edita de ${profile.nameEditsLeft} ori)`}`} value={draftProfile.name} onChange={(v) => update("name", v)} disabled={nameLocked} />
-
-              <label className="block">
-                <span className="mb-1 flex justify-between text-xs font-black text-black/80">
-                  <span>Despre tine</span>
-                  <span>{draftProfile.about.length}/100</span>
-                </span>
-                <textarea
-                  value={draftProfile.about}
-                  maxLength="100"
-                  onChange={(e) => update("about", e.target.value.slice(0, 100))}
-                  rows="3"
-                  className="min-h-[96px] w-full resize-none rounded-2xl border border-black/10 bg-black/[.035] px-3 py-3 text-sm font-semibold outline-none focus:border-gold-500"
-                  placeholder="Scrie scurt despre tine..."
-                />
-              </label>
-
-              <div className="grid grid-cols-2 gap-2">
-                <Field label="Țară">
-                  <select value={draftProfile.country} onChange={(e) => update("country", e.target.value)} className="input">
-                    <option>România</option>
-                    <option>Italia</option>
-                    <option>Germania</option>
-                    <option>Spania</option>
-                  </select>
-                </Field>
-
-                <Field label="Limbă">
-                  <select value={draftProfile.language} onChange={(e) => update("language", e.target.value)} className="input">
-                    <option>Română</option>
-                    <option>Engleză</option>
-                    <option>Italiană</option>
-                  </select>
-                </Field>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <Field label="Județ">
-                  <select
-                    value={draftProfile.county}
-                    onChange={(e) => {
-                      const nextCounty = e.target.value;
-                      update("county", nextCounty);
-                      update("city", countyCities[nextCounty]?.[0] || "");
-                    }}
-                    className="input"
-                  >
-                    {counties.map((item) => <option key={item}>{item}</option>)}
-                  </select>
-                </Field>
-
-                <Field label="Oraș">
-                  <select value={draftProfile.city} onChange={(e) => update("city", e.target.value)} className="input">
-                    {(countyCities[draftProfile.county] || []).map((item) => <option key={item}>{item}</option>)}
-                  </select>
-                </Field>
-              </div>
-
-              <Input label="Telefon" value={draftProfile.phone} onChange={(v) => update("phone", v)} placeholder="+407..." />
-              <Input label="Email" value={draftProfile.email} onChange={(v) => update("email", v)} placeholder="email@example.com" />
-
-              <button type="submit" disabled={processing} className="h-12 w-full rounded-2xl bg-gold-500 text-sm font-black text-black shadow-gold disabled:opacity-60">
-                {processing ? "Procesez poza..." : "Salvează Profil"}
-              </button>
-            </div>
-          </form>
-        </div>
-      );
-    }
-
-    function DetailsModal({
-      item,
-      close,
-      isFavorite,
-      toggleFavorite,
-      phoneLink,
-      whatsappLink
-    }) {
-      return (
-        <div className="fixed inset-0 z-[80] bg-black/70 p-3 backdrop-blur-md">
-          <div className="modal-in mx-auto flex h-full max-w-2xl flex-col overflow-hidden rounded-[32px] bg-white text-black shadow-2xl">
-            <div className="relative h-64 shrink-0 bg-black">
-              <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-
-              <button onClick={close} className="absolute left-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-black/70 text-white backdrop-blur">
-                <Icon type="back" className="h-5 w-5" />
-              </button>
-
-              <button
-                onClick={() => toggleFavorite(item.id)}
-                className={`absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur ${
-                  isFavorite ? "bg-gold-500 text-black" : "bg-black/70 text-white"
-                }`}
-              >
-                <Icon type="heart" className="h-5 w-5" filled={isFavorite} />
-              </button>
-
-              {item.promoted && (
-                <span className="absolute bottom-3 left-3 rounded-full bg-gold-500 px-3 py-1 text-[11px] font-black text-black shadow-gold">
-                  Anunț promovat
-                </span>
-              )}
-            </div>
-
-            <div className="no-scrollbar flex-1 overflow-y-auto p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-black text-gold-700">{item.category}</p>
-                  <h2 className="mt-1 text-2xl font-black leading-tight">{item.title}</h2>
-                </div>
-                <span className="flex shrink-0 items-center gap-1 rounded-full bg-gold-100 px-3 py-1 text-xs font-black text-gold-800">
-                  <Icon type="star" className="h-3.5 w-3.5" filled />
-                  {item.rating}
-                </span>
-              </div>
-
-              <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-black/55">
-                <Icon type="pin" className="h-4 w-4" />
-                {item.location}
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <div className="rounded-3xl bg-black/[.04] p-4">
-                  <p className="text-[11px] font-black text-black/45">Preț orientativ</p>
-                  <p className="mt-1 text-lg font-black text-gold-700">{item.price}</p>
-                </div>
-
-                <div className="rounded-3xl bg-black/[.04] p-4">
-                  <p className="text-[11px] font-black text-black/45">Recenzii</p>
-                  <p className="mt-1 text-lg font-black">{item.reviews}</p>
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <h3 className="text-sm font-black">Descriere</h3>
-                <p className="mt-2 text-sm leading-relaxed text-black/65">{item.description}</p>
-              </div>
-
-              <div className="mt-4 rounded-3xl border border-gold-500/20 bg-gold-50 p-4">
-                <p className="flex items-center gap-2 text-sm font-black">
-                  <Icon type="shield" className="h-4 w-4 text-gold-700" />
-                  Siguranță înainte de colaborare
-                </p>
-                <p className="mt-1 text-xs leading-relaxed text-black/60">
-                  Verifică datele firmei, cere detalii înainte de deplasare și evită plata în avans dacă nu ai încredere.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid shrink-0 grid-cols-2 gap-2 border-t border-black/10 bg-white p-3">
-              <a href={phoneLink(item.phone)} className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-black text-sm font-black text-white">
-                <Icon type="phone" className="h-4 w-4" />
-                Sună
-              </a>
-              <a href={whatsappLink(item)} target="_blank" rel="noreferrer" className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-gold-500 text-sm font-black text-black shadow-gold">
-                <Icon type="wa" className="h-4 w-4" />
-                WhatsApp
-              </a>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    function MobileNav({ page, setPage }) {
-      const items = [
-        { id: "home", label: "Acasă", icon: "home" },
-        { id: "search", label: "Caută", icon: "search" },
-        { id: "publish", label: "Publică", icon: "plus", main: true },
-        { id: "saved", label: "Salvate", icon: "heart" },
-        { id: "profile", label: "Profil", icon: "user" }
-      ];
-
-      return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gold-400/20 bg-black/90 px-2 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 shadow-[0_-20px_45px_rgba(0,0,0,.45)] backdrop-blur-xl md:hidden">
-          <div className="mx-auto grid max-w-md grid-cols-5 items-end gap-1">
-            {items.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setPage(item.id)}
-                className={`flex flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-black transition ${
-                  item.main
-                    ? "-mt-7 h-16 bg-gold-500 text-white shadow-gold"
-                    : page === item.id
-                      ? "h-14 text-gold-300"
-                      : "h-14 text-white/45"
-                }`}
-              >
-                <span className={item.main ? "flex h-10 w-10 items-center justify-center rounded-full bg-white text-gold-700 shadow-card" : ""}>
-                  <Icon type={item.icon} className={item.main ? "h-6 w-6" : "h-5 w-5"} />
-                </span>
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </div>
-        </nav>
-      );
-    }
-
-    const style = document.createElement("style");
-    style.textContent = `
-      .input {
-        height: 40px;
-        width: 100%;
-        border-radius: 16px;
-        border: 1px solid rgba(0,0,0,.10);
-        background: rgba(0,0,0,.035);
-        padding: 0 12px;
-        font-size: 14px;
-        font-weight: 650;
-        outline: none;
-      }
-      .input:focus {
-        border-color: #d4af37;
-        background: #fff;
-      }
-    `;
-    document.head.appendChild(style);
-
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
   </script>
 </body>
 </html>
