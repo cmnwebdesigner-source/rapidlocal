@@ -447,7 +447,7 @@ function renderPublish(){
   <form id="publishForm">
     <div class="form-card"><h3>Serviciu</h3><div class="field"><label class="label">${t('category')}</label><select name="category" class="select" required>${categoryOptions('')}</select></div><div class="field"><label class="label">Descriere</label><textarea name="description" class="textarea" maxlength="900" required placeholder="Descrie serviciul, zona, disponibilitatea și detaliile importante."></textarea></div><div class="field"><label class="label">Tip promovare</label><select name="promotion_type" class="select"><option value="free">Gratuit</option><option value="promoted_7">Promovat 7 zile</option><option value="promoted_30">Promovat 30 zile</option><option value="premium">Premium</option></select></div></div>
     <div class="form-card"><h3>Poze anunț</h3><p class="hint">Poți adăuga maxim 3 poze. Prima poză apare în listă.</p><input id="listingPhotos" type="file" accept="image/*" multiple class="hidden"><div class="photos-grid" id="photosPreview">${[1,2,3].map(i=>`<button type="button" class="photo-slot" data-action="select-listing-photos"><small>Poza ${i}</small></button>`).join('')}</div><div style="margin-top:10px"><button type="button" class="btn soft" data-action="select-listing-photos">Adaugă poze</button></div></div>
-    <button class="btn gold full" type="submit" ${!complete?'disabled':''}>Publică anunț</button>
+    <button class="btn gold full" type="submit">Publică anunț</button>
   </form>`;
 }
 function providerProfileComplete(){const p=state.profile||{};return !!((p.company_name||p.full_name)&&p.phone&&p.county&&p.city);}
@@ -569,9 +569,14 @@ async function submitAuth(form){
   toast(state.authMode==='register'?'Cont creat.':'Bine ai revenit.','success');
 }
 async function chooseRole(role){
-  const {data,error}=await sb.from('profiles').update({role}).eq('id',state.user.id).select().single();
-  if(error){toast('Nu am putut salva rolul.','error');return;}
-  state.profile=data; localStorage.setItem('autorapid_role_chosen_'+state.user.id,'1'); state.roleChosen=true; state.view='home'; render();
+  const {data,error}=await sb.from('profiles').upsert({id:state.user.id,role,email_display:state.user.email},{onConflict:'id'}).select().single();
+  if(error){console.warn(error);toast('Nu am putut salva rolul.','error');return;}
+  state.profile=data;
+  localStorage.setItem('autorapid_role_chosen_'+state.user.id,'1');
+  state.roleChosen=true;
+  state.view = role === 'provider' ? 'editProfile' : 'home';
+  toast(role === 'provider' ? 'Completează profilul de prestator.' : 'Cont client activ.','success');
+  render();
 }
 async function logout(){await sb.auth.signOut();localStorage.removeItem('autorapid_role_chosen_'+state.user?.id);}
 
@@ -585,44 +590,189 @@ function handleProfileFile(file){if(!file)return; state.profileFile=file; const 
 function handleListingFiles(files){state.publishFiles=Array.from(files||[]).slice(0,3); const wrap=$('#photosPreview'); if(!wrap)return; wrap.innerHTML=[0,1,2].map(i=>state.publishFiles[i]?`<button type="button" class="photo-slot" data-action="select-listing-photos"><img src="${esc(URL.createObjectURL(state.publishFiles[i]))}" alt=""></button>`:`<button type="button" class="photo-slot" data-action="select-listing-photos"><small>Poza ${i+1}</small></button>`).join('');}
 
 async function saveProfile(form){
-  const fd=new FormData(form); const payload={
-    role:fd.get('role'), full_name:fd.get('full_name')||null, company_name:fd.get('company_name')||null, company_description:fd.get('company_description')||null,
-    phone:fd.get('phone')||null, whatsapp:fd.get('whatsapp')||null, email_display:fd.get('email_display')||null, schedule:fd.get('schedule')||null,
-    county:fd.get('county')||null, city:fd.get('city')||null, address:fd.get('address')||null, price_hint:fd.get('price_hint')||null
+  const fd=new FormData(form);
+  const submitBtn=form.querySelector('button[type="submit"]');
+  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Se salvează...';}
+  const payload={
+    id:state.user.id,
+    role:fd.get('role') || state.profile?.role || 'client',
+    full_name:fd.get('full_name')||null,
+    company_name:fd.get('company_name')||null,
+    company_description:fd.get('company_description')||null,
+    phone:fd.get('phone')||null,
+    whatsapp:fd.get('whatsapp')||null,
+    email_display:fd.get('email_display')||state.user.email||null,
+    schedule:fd.get('schedule')||null,
+    county:fd.get('county')||null,
+    city:fd.get('city')||null,
+    address:fd.get('address')||null,
+    price_hint:fd.get('price_hint')||null
   };
   try{
-    if(state.profileFile){const ext=(state.profileFile.name.split('.').pop()||'jpg').toLowerCase(); const url=await uploadFile(state.profileFile,`${state.user.id}/profile/avatar.${ext}`); payload.avatar_url=url; payload.logo_url=url;}
-    const {data,error}=await sb.from('profiles').update(payload).eq('id',state.user.id).select().single();
-    if(error)throw error; state.profile=data; state.profileFile=null; localStorage.setItem('autorapid_role_chosen_'+state.user.id,'1'); await loadListings(); toast('Profil salvat.','success'); state.view='profile'; render();
-  }catch(err){console.warn(err);toast('Nu am putut salva profilul.','error');}
+    if(state.profileFile){
+      const ext=(state.profileFile.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
+      const url=await uploadFile(state.profileFile,`${state.user.id}/profile/avatar.${ext}`);
+      payload.avatar_url=url;
+      payload.logo_url=url;
+    }
+    const {data,error}=await sb.from('profiles').upsert(payload,{onConflict:'id'}).select().single();
+    if(error)throw error;
+    state.profile=data;
+    state.profileFile=null;
+    localStorage.setItem('autorapid_role_chosen_'+state.user.id,'1');
+    await loadListings();
+    toast('Profil salvat.','success');
+    state.view='profile';
+    render();
+  }catch(err){
+    console.warn('Eroare salvare profil:',err);
+    toast(err.message || 'Nu am putut salva profilul.','error');
+  }finally{
+    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=t('save');}
+  }
 }
 async function saveSettings(form){
-  const fd=new FormData(form); const settings={language:fd.get('language'),theme:fd.get('theme'),notifications_enabled:fd.get('notifications_enabled')==='1',sound_enabled:fd.get('sound_enabled')==='1',vibration_enabled:fd.get('vibration_enabled')==='1',show_phone:fd.get('show_phone')==='1',show_city:fd.get('show_city')==='1',allow_messages:fd.get('allow_messages')==='1'};
-  const profile={profile_visibility:fd.get('profile_visibility'),is_24_7:fd.get('is_24_7')==='1',works_at_client_location:fd.get('works_at_client_location')==='1'};
-  const [sRes,pRes]=await Promise.all([sb.from('user_settings').update(settings).eq('user_id',state.user.id).select().single(),sb.from('profiles').update(profile).eq('id',state.user.id).select().single()]);
-  if(sRes.error||pRes.error){toast('Nu am putut salva setările.','error');return;}
-  state.settings=sRes.data; state.profile=pRes.data; toast('Setări salvate.','success'); render();
+  const fd=new FormData(form);
+  const submitBtn=form.querySelector('button[type="submit"]');
+  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Se salvează...';}
+  const settings={
+    user_id:state.user.id,
+    language:fd.get('language') || 'ro',
+    theme:fd.get('theme') || 'light',
+    notifications_enabled:fd.get('notifications_enabled')==='1',
+    sound_enabled:fd.get('sound_enabled')==='1',
+    vibration_enabled:fd.get('vibration_enabled')==='1',
+    show_phone:fd.get('show_phone')==='1',
+    show_city:fd.get('show_city')==='1',
+    allow_messages:fd.get('allow_messages')==='1'
+  };
+  const profile={
+    id:state.user.id,
+    profile_visibility:fd.get('profile_visibility') || 'public',
+    is_24_7:fd.get('is_24_7')==='1',
+    works_at_client_location:fd.get('works_at_client_location')==='1'
+  };
+  const [sRes,pRes]=await Promise.all([
+    sb.from('user_settings').upsert(settings,{onConflict:'user_id'}).select().single(),
+    sb.from('profiles').upsert(profile,{onConflict:'id'}).select().single()
+  ]);
+  if(sRes.error||pRes.error){
+    console.warn('Eroare setări:',sRes.error||pRes.error);
+    toast((sRes.error||pRes.error).message || 'Nu am putut salva setările.','error');
+    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=t('save');}
+    return;
+  }
+  state.settings=sRes.data;
+  state.profile={...(state.profile||{}),...pRes.data};
+  applyTheme();
+  toast('Setări salvate.','success');
+  if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=t('save');}
+  render();
 }
 function toggleSetting(name,btn){const input=document.querySelector(`input[name="${CSS.escape(name)}"]`); const on=input.value!=='1'; input.value=on?'1':'0'; btn.classList.toggle('on',on);}
 async function saveFeedback(form){const fd=new FormData(form); const {error}=await sb.from('feedback').insert({user_id:state.user.id,category:fd.get('category'),message:fd.get('message')}); if(error){toast('Nu am putut trimite feedback.','error');return;} form.reset(); toast('Feedback trimis.','success'); state.view='profile'; render();}
 
 async function publishListing(form){
-  if(!providerProfileComplete()){toast(t('completeProfile'),'error');return;}
-  const fd=new FormData(form); const p=state.profile;
-  const payload={owner_id:state.user.id,title:`${fd.get('category')} - ${profileName(p)}`,category:fd.get('category'),description:fd.get('description'),county:p.county,city:p.city,address:p.address,phone:p.phone,whatsapp:p.whatsapp||p.phone,schedule:p.schedule,price_hint:p.price_hint,promotion_type:fd.get('promotion_type'),status:'active'};
+  if(!isProvider()){toast('Doar conturile de prestator pot publica anunțuri.','error');state.view='profile';render();return;}
+  if(!providerProfileComplete()){
+    toast(t('completeProfile'),'error');
+    state.view='editProfile';
+    render();
+    return;
+  }
+
+  const submitBtn=form.querySelector('button[type="submit"]');
+  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Se publică...';}
+
+  const fd=new FormData(form);
+  const p=state.profile;
+  const category=String(fd.get('category')||'').trim();
+  const description=String(fd.get('description')||'').trim();
+  if(!category || !description){
+    toast('Alege categoria și scrie descrierea.','error');
+    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='Publică anunț';}
+    return;
+  }
+
+  const payload={
+    owner_id:state.user.id,
+    title:`${category} - ${profileName(p)}`,
+    category,
+    description,
+    county:p.county||null,
+    city:p.city||null,
+    address:p.address||null,
+    phone:p.phone||null,
+    whatsapp:p.whatsapp||p.phone||null,
+    schedule:p.schedule||null,
+    price_hint:p.price_hint||null,
+    promotion_type:fd.get('promotion_type')||'free',
+    status:'active'
+  };
+
   try{
-    const {data,error}=await sb.from('listings').insert(payload).select().single(); if(error)throw error;
-    for(let i=0;i<state.publishFiles.length;i++){const file=state.publishFiles[i]; const ext=(file.name.split('.').pop()||'jpg').toLowerCase(); const path=`${state.user.id}/listings/${data.id}-${i+1}.${ext}`; const url=await uploadFile(file,path); await sb.from('listing_images').insert({listing_id:data.id,user_id:state.user.id,image_url:url,storage_path:path,position:i+1});}
-    state.publishFiles=[]; await loadListings(); toast('Anunț publicat.','success'); state.view='myListings'; render();
-  }catch(err){console.warn(err);toast(err.message || 'Nu am putut publica anunțul.','error');}
+    const {data,error}=await sb.from('listings').insert(payload).select().single();
+    if(error)throw error;
+
+    let photoErrors=0;
+    const files=state.publishFiles.slice(0,3);
+    for(let i=0;i<files.length;i++){
+      try{
+        const file=files[i];
+        const safeExt=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
+        const path=`${state.user.id}/listings/${data.id}/${Date.now()}-${i+1}.${safeExt}`;
+        const url=await uploadFile(file,path);
+        const imgRes=await sb.from('listing_images').insert({listing_id:data.id,user_id:state.user.id,image_url:url,storage_path:path,position:i+1});
+        if(imgRes.error)throw imgRes.error;
+      }catch(photoErr){
+        photoErrors++;
+        console.warn('Eroare la poza anunțului:', photoErr);
+      }
+    }
+
+    state.publishFiles=[];
+    await loadListings();
+    toast(photoErrors ? 'Anunț publicat, dar unele poze nu s-au încărcat.' : 'Anunț publicat.','success');
+    state.view='myListings';
+    render();
+  }catch(err){
+    console.warn('Eroare publicare:', err);
+    toast(err.message || 'Nu am putut publica anunțul. Verifică profilul și baza de date.','error');
+    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='Publică anunț';}
+  }
 }
 async function deleteListing(id){if(!confirm('Ștergi anunțul?'))return; const {error}=await sb.from('listings').update({status:'deleted'}).eq('id',id).eq('owner_id',state.user.id); if(error){toast('Nu am putut șterge.','error');return;} await loadListings(); toast('Anunț șters.','success'); render();}
 function editListing(id){const l=state.listings.find(x=>x.id===id); if(!l)return; showEditListing(l);}
 
 async function toggleFavorite(id){
-  if(isSaved(id)){const {error}=await sb.from('favorites').delete().eq('user_id',state.user.id).eq('listing_id',id); if(error){toast('Eroare la salvare.','error');return;}}
-  else{const {error}=await sb.from('favorites').insert({user_id:state.user.id,listing_id:id}); if(error){toast('Eroare la salvare.','error');return;}}
-  await loadFavorites(); render();
+  if(!state.user){toast('Intră în cont ca să salvezi anunțuri.','error');return;}
+  if(!id){toast('Anunț invalid.','error');return;}
+  const wasSaved=isSaved(id);
+  const previous=[...state.favorites];
+
+  // actualizare instant în UI
+  if(wasSaved) state.favorites=state.favorites.filter(f=>f.listing_id!==id);
+  else state.favorites=[...state.favorites,{id:'local-'+id,user_id:state.user.id,listing_id:id,created_at:new Date().toISOString()}];
+  render();
+
+  try{
+    if(wasSaved){
+      const {error}=await sb.from('favorites').delete().eq('user_id',state.user.id).eq('listing_id',id);
+      if(error)throw error;
+      toast('Eliminat din salvate.','success');
+    }else{
+      const {error}=await sb.from('favorites').upsert({user_id:state.user.id,listing_id:id},{onConflict:'user_id,listing_id'});
+      if(error)throw error;
+      toast('Anunț salvat.','success');
+    }
+    await loadFavorites();
+    render();
+  }catch(err){
+    console.warn('Eroare favorite:',err);
+    state.favorites=previous;
+    render();
+    toast(err.message || 'Nu am putut salva anunțul. Verifică tabela favorites / RLS.','error');
+  }
 }
 function callListing(id){const l=state.listings.find(x=>x.id===id); if(l?.phone){sb.from('listings').update({phone_clicks_count:(l.phone_clicks_count||0)+1}).eq('id',id).then(()=>{}); location.href=`tel:${l.phone.replace(/\s/g,'')}`;}else toast('Telefon indisponibil.');}
 function whatsappListing(id){const l=state.listings.find(x=>x.id===id); const nr=(l?.whatsapp||l?.phone||'').replace(/\D/g,''); if(nr){sb.from('listings').update({whatsapp_clicks_count:(l.whatsapp_clicks_count||0)+1}).eq('id',id).then(()=>{}); window.open(`https://wa.me/${nr.startsWith('40')?nr:'40'+nr}?text=${encodeURIComponent('Salut! Am găsit anunțul tău pe AutoRapid RO.')}`,'_blank');}else toast('WhatsApp indisponibil.');}
@@ -630,7 +780,8 @@ function callProfile(id){const p=state.profilesById[id]||state.profile;if(p?.pho
 function waProfile(id){const p=state.profilesById[id]||state.profile;const nr=(p?.whatsapp||p?.phone||'').replace(/\D/g,'');if(nr)window.open(`https://wa.me/${nr.startsWith('40')?nr:'40'+nr}`,'_blank');}
 
 function openListingDetails(id){const l=state.listings.find(x=>x.id===id); if(!l)return; state.selectedListing=l; const p=state.profilesById[l.owner_id]||{}; sb.from('listings').update({views_count:(l.views_count||0)+1}).eq('id',id).then(()=>{});
-  modal.innerHTML=`<div class="sheet"><div class="sheet-head"><h3 class="sheet-title">${esc(l.category)}</h3><button class="close" data-modal-close>${icons.close}</button></div><img class="details-img" src="${esc(firstImage(l))}" alt=""><h2 class="profile-name">${esc(profileName(p))}</h2><p class="info-line">${esc(l.description)}</p><div class="details-row"><div class="info-line"><b>Locație</b><br>${esc([l.city,l.county].filter(Boolean).join(', ')||'-')}</div><div class="info-line"><b>Program</b><br>${esc(l.schedule||'-')}</div><div class="info-line"><b>Preț</b><br>${esc(l.price_hint||'-')}</div><div class="info-line"><b>Adresă</b><br>${esc(l.address||'-')}</div></div><div class="details-row"><button class="btn soft" data-action="modal-call" data-id="${esc(l.id)}">${t('call')}</button><button class="btn gold" data-action="modal-wa" data-id="${esc(l.id)}">${t('whatsapp')}</button><button class="btn soft" data-action="modal-message" data-id="${esc(l.id)}">${t('message')}</button><button class="btn soft" data-action="modal-profile" data-id="${esc(l.owner_id)}">${t('viewProfile')}</button></div><button class="btn ghost full" data-action="modal-report" data-id="${esc(l.id)}">${t('report')}</button></div>`;
+  const saved=isSaved(l.id);
+  modal.innerHTML=`<div class="sheet"><div class="sheet-head"><h3 class="sheet-title">${esc(l.category)}</h3><button class="close" data-modal-close>${icons.close}</button></div><img class="details-img" src="${esc(firstImage(l))}" alt=""><h2 class="profile-name">${esc(profileName(p))}</h2><p class="info-line">${esc(l.description)}</p><div class="details-row"><div class="info-line"><b>Locație</b><br>${esc([l.city,l.county].filter(Boolean).join(', ')||'-')}</div><div class="info-line"><b>Program</b><br>${esc(l.schedule||'-')}</div><div class="info-line"><b>Preț</b><br>${esc(l.price_hint||'-')}</div><div class="info-line"><b>Adresă</b><br>${esc(l.address||'-')}</div></div><div class="details-row"><button class="btn soft" data-action="modal-call" data-id="${esc(l.id)}">${t('call')}</button><button class="btn gold" data-action="modal-wa" data-id="${esc(l.id)}">${t('whatsapp')}</button><button class="btn soft" data-action="modal-message" data-id="${esc(l.id)}">${t('message')}</button><button class="btn soft" data-action="modal-profile" data-id="${esc(l.owner_id)}">${t('viewProfile')}</button></div><button class="btn ${saved?'soft':'gold'} full" data-action="modal-favorite" data-id="${esc(l.id)}">${saved?'Elimină din salvate':'Salvează anunț'}</button><button class="btn ghost full" data-action="modal-report" data-id="${esc(l.id)}">${t('report')}</button></div>`;
   modal.classList.add('show');
 }
 modal.addEventListener('click', async e=>{
@@ -641,6 +792,7 @@ modal.addEventListener('click', async e=>{
   if(action==='modal-wa')whatsappListing(id);
   if(action==='modal-profile'){modal.classList.remove('show');state.selectedProfileId=id;state.prevView=state.view;state.view='publicProfile';render();}
   if(action==='modal-message'){modal.classList.remove('show');await startConversation(id);}
+  if(action==='modal-favorite'){await toggleFavorite(id); openListingDetails(id);}
   if(action==='modal-report')showReport(id);
 });
 function showReport(id){modal.innerHTML=`<div class="sheet"><div class="sheet-head"><h3 class="sheet-title">Raportează anunț</h3><button class="close" data-modal-close>${icons.close}</button></div><form id="reportForm"><input type="hidden" name="listing_id" value="${esc(id)}"><div class="field"><label class="label">Motiv</label><select name="reason" class="select"><option>Informații false</option><option>Spam</option><option>Conținut nepotrivit</option><option>Altceva</option></select></div><div class="field"><label class="label">Detalii</label><textarea class="textarea" name="message"></textarea></div><button class="btn gold full" type="submit">Trimite raport</button></form></div>`;}
