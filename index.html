@@ -964,8 +964,8 @@
       4) Pentru cod OTP pe email, setează Auth > Email Templates cu {{ .Token }}.
     */
 
-    const SUPABASE_URL = "PASTE_SUPABASE_URL_AICI";
-    const SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY_AICI";
+    const SUPABASE_URL = "https://ncdutmwivbgmubiodkev.supabase.co/rest/v1/";
+    const SUPABASE_ANON_KEY = "const SUPABASE_ANON_KEY = "sb_publishable_Yfwqvy9Avytb0vXa4qUtnA_vBUENjlE";";
 
     const hasSupabaseConfig = SUPABASE_URL.startsWith("https://") && SUPABASE_ANON_KEY.length > 80 && !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
     const sb = hasSupabaseConfig && window.supabase
