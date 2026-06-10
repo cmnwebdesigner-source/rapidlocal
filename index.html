@@ -960,14 +960,15 @@
       AutoRapid RO - Single file app cu Supabase.
       1) Creează proiect în Supabase.
       2) Rulează SQL-ul din fișierul AutoRapid_RO_Supabase_SQL_Setup.txt.
-      3) Înlocuiește valorile de mai jos cu Project URL și anon public key.
+      3) Datele Supabase sunt completate deja cu Project URL și publishable key.
       4) Pentru cod OTP pe email, setează Auth > Email Templates cu {{ .Token }}.
     */
 
-    const SUPABASE_URL = "https://ncdutmwivbgmubiodkev.supabase.co/rest/v1/";
-    const SUPABASE_ANON_KEY = "const SUPABASE_ANON_KEY = "sb_publishable_Yfwqvy9Avytb0vXa4qUtnA_vBUENjlE";";
+    const SUPABASE_URL_RAW = "https://ncdutmwivbgmubiodkev.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_Yfwqvy9Avytb0vXa4qUtnA_vBUENjlE";
+    const SUPABASE_URL = SUPABASE_URL_RAW.replace(/\/rest\/v1\/?$/, "").replace(/\/$/, "");
 
-    const hasSupabaseConfig = SUPABASE_URL.startsWith("https://") && SUPABASE_ANON_KEY.length > 80 && !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
+    const hasSupabaseConfig = SUPABASE_URL.startsWith("https://") && SUPABASE_URL.includes(".supabase.co") && SUPABASE_ANON_KEY.length > 20 && !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
     const sb = hasSupabaseConfig && window.supabase
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
           auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
