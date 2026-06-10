@@ -658,23 +658,21 @@
         <div class="brand-text"><strong>AutoRapid RO</strong><span>Login cu email</span></div>
       </div>
       <h1>Intră în aplicație</h1>
-      <p>Scrie emailul, primești un cod și intri rapid în cont.</p>
+      <p>Login normal: email și parolă. Fără cod pe email, fără SMTP, fără bătăi de cap.</p>
       <div class="auth-form">
         <label>
           <span class="label">Email</span>
           <input id="authEmail" class="input" type="email" placeholder="exemplu@email.com" autocomplete="email" />
         </label>
-        <button id="sendOtpBtn" class="btn btn-primary" type="button">Trimite cod pe email</button>
-        <div id="otpStep" class="hidden">
-          <label>
-            <span class="label">Cod primit pe email</span>
-            <input id="authCode" class="input" type="text" inputmode="numeric" maxlength="8" placeholder="123456" autocomplete="one-time-code" />
-          </label>
-          <button id="verifyOtpBtn" class="btn btn-gold" type="button" style="width:100%;margin-top:10px">Verifică și intră</button>
-        </div>
+        <label>
+          <span class="label">Parolă</span>
+          <input id="authPassword" class="input" type="password" placeholder="Minim 6 caractere" autocomplete="current-password" />
+        </label>
+        <button id="loginBtn" class="btn btn-primary" type="button">Intră în cont</button>
+        <button id="signupBtn" class="btn btn-gold" type="button">Creează cont nou</button>
       </div>
       <div id="authStatus" class="auth-status"></div>
-      <div class="auth-note">Login cu cod pe email. Pentru public real: Supabase trebuie să aibă SMTP activ cu domeniu verificat și template-ul <strong>Magic link or OTP</strong> trebuie să conțină <strong>{{ .Token }}</strong>.</div>
+      <div class="auth-note">Pentru login simplu, în Supabase lasă activ providerul <strong>Email</strong> și dezactivează <strong>Confirm email</strong>, ca utilizatorul să intre imediat după creare cont.</div>
     </div>
   </div>
 
@@ -710,7 +708,7 @@
     </header>
 
     <div id="setupBanner" class="setup-banner">
-      <strong>Mod demo:</strong> completează <strong>SUPABASE_URL</strong> și <strong>SUPABASE_ANON_KEY</strong> în cod ca loginul, baza de date, favoritele și publicarea să meargă real prin Supabase.
+      <strong>Login simplu:</strong> folosește email + parolă prin Supabase. Dacă utilizatorul nu poate intra imediat după creare cont, dezactivează <strong>Confirm email</strong> din Authentication → Sign In / Providers → Email.
     </div>
 
     <main>
@@ -957,10 +955,11 @@
 
   <script>
     /*
-      AutoRapid RO - Single file app cu Supabase OTP.
-      Datele Supabase sunt completate deja.
-      Login-ul folosește cod pe email: signInWithOtp + verifyOtp.
-      Pentru ca prietenii/utilizatorii reali să primească email, configurează SMTP cu domeniu verificat în Resend și template cu {{ .Token }}.
+      AutoRapid RO - Single file app cu Supabase.
+      Login normal cu email + parolă, fără OTP, fără Magic Link și fără SMTP.
+      1) Rulează SQL-ul din fișierul AutoRapid_RO_Supabase_SQL_Setup.txt.
+      2) Datele Supabase sunt completate deja cu Project URL și publishable key.
+      3) În Supabase: Authentication > Sign In / Providers > Email > Confirm email OFF pentru login imediat.
     */
 
     const SUPABASE_URL_RAW = "https://ncdutmwivbgmubiodkev.supabase.co";
@@ -1047,8 +1046,7 @@
     let filters = {q:"", county:"", city:"", category:""};
     let publishImageData = "";
     let avatarImageData = "";
-    let pendingEmail = "";
-    let activePage = "home";
+        let activePage = "home";
 
     function defaultProfile(){
       return {full_name:"Utilizator AutoRapid",phone:"",contact_email:"",city:"",avatar_data:"",language:"ro",theme:localStorage.getItem("ar_theme") || "light",notifications:true,privacy:"standard"};
@@ -1092,13 +1090,14 @@
     }
 
     function cacheEls(){
-      ["authScreen","appShell","authEmail","authCode","sendOtpBtn","verifyOtpBtn","otpStep","authStatus","setupBanner","themeToggle","userPill","headerAvatar","headerName","searchInput","countyFilter","cityFilter","categoryFilter","clearFilters","filtersBlock","searchFiltersMount","listingsGrid","searchGrid","savedGrid","inboxList","publishForm","companyName","publishCategory","publishCounty","publishCity","publishAddress","publishPhone","publishWhatsapp","publishSchedule","publishPrice","publishDescription","publishImage","publishImagePreview","profileAvatar","profileName","profileEmail","profilePhone","profileCity","settingsForm","settingsName","settingsPhone","settingsEmail","settingsCity","settingsLanguage","settingsTheme","settingsNotifications","settingsPrivacy","settingsAvatarFile","settingsAvatarPreview","deleteAccountBtn","feedbackForm","feedbackCategory","feedbackText","feedbackCounter","feedbackSuccess","myListingsGrid","logoutBtn","detailModal","detailContent","closeDetail","toast","statListings","listTitle","listSubtitle","searchSubtitle"].forEach(id=>els[id]=document.getElementById(id));
+      ["authScreen","appShell","authEmail","authPassword","loginBtn","signupBtn","authStatus","setupBanner","themeToggle","userPill","headerAvatar","headerName","searchInput","countyFilter","cityFilter","categoryFilter","clearFilters","filtersBlock","searchFiltersMount","listingsGrid","searchGrid","savedGrid","inboxList","publishForm","companyName","publishCategory","publishCounty","publishCity","publishAddress","publishPhone","publishWhatsapp","publishSchedule","publishPrice","publishDescription","publishImage","publishImagePreview","profileAvatar","profileName","profileEmail","profilePhone","profileCity","settingsForm","settingsName","settingsPhone","settingsEmail","settingsCity","settingsLanguage","settingsTheme","settingsNotifications","settingsPrivacy","settingsAvatarFile","settingsAvatarPreview","deleteAccountBtn","feedbackForm","feedbackCategory","feedbackText","feedbackCounter","feedbackSuccess","myListingsGrid","logoutBtn","detailModal","detailContent","closeDetail","toast","statListings","listTitle","listSubtitle","searchSubtitle"].forEach(id=>els[id]=document.getElementById(id));
     }
 
     function bindEvents(){
       document.addEventListener("click", onDocumentClick);
-      els.sendOtpBtn.addEventListener("click", sendOtp);
-      els.verifyOtpBtn.addEventListener("click", verifyOtp);
+      els.loginBtn.addEventListener("click", loginWithPassword);
+      els.signupBtn.addEventListener("click", signupWithPassword);
+      els.authPassword.addEventListener("keydown", e=>{ if(e.key === "Enter") loginWithPassword(); });
       els.themeToggle.addEventListener("click", toggleTheme);
       els.searchInput.addEventListener("input", e=>{ filters.q = e.target.value.trim().toLowerCase(); renderAllListings(); });
       els.countyFilter.addEventListener("change", e=>{ filters.county = e.target.value; filters.city = ""; populateCities(els.cityFilter, filters.county, "Toate orașele"); renderAllListings(); });
@@ -1173,51 +1172,57 @@
       showPage(activePage || "home");
     }
 
-    async function sendOtp(){
-      if(!sb){ toast("Supabase nu este configurat încă."); return; }
+    function getAuthCredentials(){
       const email = els.authEmail.value.trim().toLowerCase();
-      if(!isEmail(email)){ setAuthStatus("Scrie un email valid."); return; }
-      pendingEmail = email;
-      setAuthLoading(true, "Trimit codul...");
-      const { error } = await sb.auth.signInWithOtp({
-        email,
-        options:{ shouldCreateUser:true, emailRedirectTo: window.location.origin }
-      });
-      setAuthLoading(false);
-      if(error){
-        const msg = String(error.message || "");
-        if(msg.toLowerCase().includes("magic link") || msg.toLowerCase().includes("smtp") || msg.toLowerCase().includes("email")){
-          setAuthStatus("Emailul nu a putut fi trimis. Verifică în Supabase: SMTP activ, parola Resend corectă și domeniu verificat pentru prieteni/utilizatori reali.");
-        } else {
-          setAuthStatus(msg || "Nu s-a putut trimite codul. Verifică setările Supabase.");
-        }
-        return;
-      }
-      els.otpStep.classList.remove("hidden");
-      setAuthStatus("Codul a fost trimis pe email. Verifică Inbox, Spam sau Promotions.");
-      els.authCode.focus();
+      const password = els.authPassword.value.trim();
+      if(!isEmail(email)){ setAuthStatus("Scrie un email valid."); return null; }
+      if(password.length < 6){ setAuthStatus("Parola trebuie să aibă minim 6 caractere."); return null; }
+      return { email, password };
     }
 
-    async function verifyOtp(){
+    async function loginWithPassword(){
       if(!sb){ toast("Supabase nu este configurat încă."); return; }
-      const token = els.authCode.value.trim();
-      if(!pendingEmail){ pendingEmail = els.authEmail.value.trim().toLowerCase(); }
-      if(!isEmail(pendingEmail)){ setAuthStatus("Emailul lipsește."); return; }
-      if(token.length < 4){ setAuthStatus("Scrie codul primit pe email."); return; }
-      setAuthLoading(true, "Verific codul...");
-      const { data, error } = await sb.auth.verifyOtp({ email: pendingEmail, token, type:"email" });
+      const credentials = getAuthCredentials();
+      if(!credentials) return;
+      setAuthLoading(true, "Verific datele...");
+      const { data, error } = await sb.auth.signInWithPassword(credentials);
       setAuthLoading(false);
-      if(error){ setAuthStatus("Cod invalid sau expirat. Verifică emailul și încearcă din nou."); return; }
+      if(error){
+        setAuthStatus(error.message === "Email not confirmed" ? "Emailul nu este confirmat. Dezactivează Confirm email în Supabase sau confirmă adresa." : error.message);
+        return;
+      }
       currentUser = data.user;
       await loadUserData();
       showApp();
       toast("Ai intrat în AutoRapid RO.");
     }
 
+    async function signupWithPassword(){
+      if(!sb){ toast("Supabase nu este configurat încă."); return; }
+      const credentials = getAuthCredentials();
+      if(!credentials) return;
+      setAuthLoading(true, "Creez contul...");
+      const { data, error } = await sb.auth.signUp({
+        email: credentials.email,
+        password: credentials.password,
+        options:{ data:{ full_name:"Utilizator AutoRapid" } }
+      });
+      setAuthLoading(false);
+      if(error){ setAuthStatus(error.message); return; }
+      if(data.session && data.user){
+        currentUser = data.user;
+        await loadUserData();
+        showApp();
+        toast("Cont creat. Ai intrat în aplicație.");
+      }else{
+        setAuthStatus("Cont creat. Dacă îți cere confirmare pe email, dezactivează Confirm email în Supabase pentru login imediat.");
+      }
+    }
+
     function setAuthStatus(text){ els.authStatus.textContent = text || ""; }
     function setAuthLoading(isLoading, text=""){
-      els.sendOtpBtn.disabled = isLoading;
-      els.verifyOtpBtn.disabled = isLoading;
+      els.loginBtn.disabled = isLoading;
+      els.signupBtn.disabled = isLoading;
       if(text) setAuthStatus(text);
     }
 
