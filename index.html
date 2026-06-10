@@ -1,162 +1,717 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="AutoRapid RO" />
   <title>AutoRapid RO</title>
-  <meta name="description" content="AutoRapid RO - marketplace curat pentru servicii auto din România." />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
-      --bg:#fbfaf7;--card:#fff;--text:#191917;--muted:#7d786d;--line:#eee6d4;
-      --gold:#ffd700;--gold-soft:#fff7c7;--gold-deep:#c79a00;--black:#151515;--green:#138a63;--red:#cf3d2e;
-      --shadow:0 18px 45px rgba(35,26,5,.07);--shadow-soft:0 8px 24px rgba(35,26,5,.055);
-      --r:24px;--nav-h:72px;
+      --bg:#f7f5f0;
+      --paper:#ffffff;
+      --paper-soft:#fbfaf7;
+      --ink:#111111;
+      --muted:#6f6f6f;
+      --line:#e8e1d2;
+      --gold:#f5c84b;
+      --gold-2:#ffd76a;
+      --gold-dark:#b88909;
+      --black:#111111;
+      --green:#12795f;
+      --danger:#c74343;
+      --shadow:0 14px 36px rgba(17,17,17,.07);
+      --radius:22px;
+      --max:1120px;
     }
-    [data-theme="dark"]{--bg:#10100f;--card:#171716;--text:#f7f2e8;--muted:#b8b0a3;--line:#2e2a1b;--gold-soft:#2b2610;--black:#050505;--shadow:0 18px 48px rgba(0,0,0,.35);--shadow-soft:0 8px 26px rgba(0,0,0,.24)}
-    *{box-sizing:border-box} html{overflow-x:hidden;scroll-behavior:smooth} body{margin:0;min-height:100vh;overflow-x:hidden;background:radial-gradient(circle at 50% -10%, rgba(255,215,0,.34), transparent 33%),radial-gradient(circle at 100% 18%, rgba(255,215,0,.10), transparent 26%),var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--text);font-weight:400;letter-spacing:-.01em} body.lock{overflow:hidden}
-    button,input,select,textarea{font:inherit} button{border:0;background:transparent;color:inherit;cursor:pointer} a{text-decoration:none;color:inherit} img{display:block;max-width:100%}.hidden{display:none!important}.container{width:min(1120px,calc(100% - 32px));margin:0 auto}.app{min-height:100vh;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))} b,strong{font-weight:520}.icon{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-    .logo-svg{display:block}.logo-mark{width:46px;height:46px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(145deg,#0f0f0f,#2a2308 47%,#ffd700);box-shadow:0 16px 34px rgba(255,215,0,.22);overflow:hidden}.brand{display:flex;align-items:center;gap:10px;min-width:max-content}.brand-title{font-size:18px;font-weight:560;letter-spacing:-.045em}.brand-sub{font-size:12px;color:var(--muted);margin-top:1px}
-    .boot{position:fixed;inset:0;z-index:9999;background:var(--bg);display:grid;place-items:center;transition:.35s ease}.boot.hide{opacity:0;pointer-events:none}.boot-card{text-align:center;display:grid;place-items:center;gap:13px}.boot .logo-mark{width:68px;height:68px;border-radius:24px}.boot-title{font-size:18px;font-weight:560}.boot-line{width:150px;height:4px;border-radius:999px;background:#eee5cd;overflow:hidden}.boot-line span{display:block;height:100%;width:42%;border-radius:inherit;background:linear-gradient(90deg,#d8aa00,#ffd700,#fff1a3);animation:load 1.05s ease-in-out infinite}@keyframes load{0%{transform:translateX(-110%)}100%{transform:translateX(250%)}}
-    .auth-screen{min-height:100vh;display:grid;place-items:center;padding:28px 16px;background:radial-gradient(circle at 50% 10%, rgba(255,215,0,.30), transparent 38%),var(--bg)}.auth-card{width:min(430px,100%);background:rgba(255,255,255,.84);backdrop-filter:blur(18px);border:1px solid rgba(238,230,212,.95);border-radius:30px;box-shadow:var(--shadow);padding:18px}.auth-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}.auth-title{font-size:22px;font-weight:560;letter-spacing:-.045em;margin:0}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;background:#f3eddd;border:1px solid var(--line);padding:5px;border-radius:999px;margin-bottom:14px}[data-theme="dark"] .auth-tabs{background:#221f16}.tab{height:42px;border-radius:999px;color:var(--muted);font-size:14px}.tab.active{background:var(--black);color:#fff}.auth-form{display:grid;gap:10px}.tiny{font-size:12px;color:var(--muted);line-height:1.45;margin:4px 0 0}.topbar{position:sticky;top:0;z-index:40;background:rgba(251,250,247,.86);backdrop-filter:blur(18px);border-bottom:1px solid rgba(238,230,212,.85)}[data-theme="dark"] .topbar{background:rgba(16,16,15,.86)}.top-inner{height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px}.desktop-nav{display:flex;gap:4px;padding:5px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.62)}[data-theme="dark"] .desktop-nav{background:rgba(255,255,255,.04)}.nav-btn{height:38px;border-radius:999px;padding:0 14px;color:var(--muted);font-size:14px}.nav-btn.active{background:var(--black);color:#fff}.top-actions{display:flex;align-items:center;gap:8px}.pill{min-height:40px;border-radius:999px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:520;white-space:nowrap}.pill.gold{background:linear-gradient(135deg,#fff3a3,#ffd700 55%,#e8b500);color:#151515;box-shadow:0 10px 22px rgba(255,215,0,.2)}.pill.dark{background:var(--black);color:#fff}.pill.light{border:1px solid var(--line);background:rgba(255,255,255,.66)}[data-theme="dark"] .pill.light{background:rgba(255,255,255,.05)}
-    .hero{padding:36px 0 12px;text-align:center;position:relative}.hero:before{content:"";position:absolute;left:50%;top:14px;transform:translateX(-50%);width:min(720px,92vw);height:210px;border-radius:999px;background:radial-gradient(circle,rgba(255,215,0,.32),rgba(255,215,0,.12) 52%,transparent 74%);filter:blur(2px);z-index:-1}.hero h1{margin:0 auto 10px;width:min(720px,100%);font-size:clamp(30px,6vw,56px);line-height:1;letter-spacing:-.07em;font-weight:560}.hero h1 span{background:linear-gradient(135deg,#111 8%,#8f6c00 44%,#ffd700 67%,#111 92%);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{margin:0 auto;width:min(610px,100%);font-size:15px;line-height:1.55;color:var(--muted)}
-    .search-shell{width:min(980px,100%);margin:24px auto 0}.search-card{border:1px solid rgba(238,230,212,.92);border-radius:30px;background:rgba(255,255,255,.88);box-shadow:var(--shadow);backdrop-filter:blur(18px);padding:12px}[data-theme="dark"] .search-card{background:rgba(23,23,22,.86)}.search-main{display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:10px}.search-field{position:relative}.search-field svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#a98400}.search-field input{padding-left:44px;min-height:52px}.filter-line{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px} input,select,textarea{width:100%;min-height:46px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--text);outline:none;padding:0 13px;font-size:14px;font-weight:400;transition:.15s ease}textarea{min-height:128px;padding:13px;line-height:1.45;resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(255,215,0,.15)}input[type=file]{display:none}.file-btn{min-height:46px;border:1px dashed rgba(199,154,0,.45);background:linear-gradient(135deg,rgba(255,215,0,.10),rgba(255,255,255,.7));border-radius:18px;display:flex;align-items:center;justify-content:center;gap:8px;color:#876700;font-size:14px;cursor:pointer}[data-theme="dark"] .file-btn{background:rgba(255,215,0,.08);color:#ffdf3d}.section{display:none;padding:22px 0 24px}.section.active{display:block;animation:fade .17s ease both}@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}.section-title{margin:0;font-size:25px;font-weight:560;letter-spacing:-.045em}.section-desc{margin:5px 0 0;color:var(--muted);font-size:14px;line-height:1.45}.count{color:var(--muted);font-size:14px}.chips{display:flex;gap:9px;overflow-x:auto;padding:2px 0 14px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:10px 13px;color:var(--muted);font-size:14px}.chip.active{border-color:rgba(255,215,0,.9);background:linear-gradient(135deg,rgba(255,215,0,.24),rgba(255,255,255,.9));color:#151515}
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.listing-card{position:relative;display:grid;grid-template-columns:86px 1fr;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:10px;box-shadow:var(--shadow-soft);transition:.16s ease}.listing-card:hover{transform:translateY(-1px);box-shadow:var(--shadow)}.card-logo{width:86px;height:86px;border-radius:20px;background:linear-gradient(135deg,#111,#403508 55%,#ffd700);display:grid;place-items:center;color:#fff;overflow:hidden}.card-logo img{width:100%;height:100%;object-fit:cover}.card-logo .logo-initial{font-size:22px;font-weight:560}.card-content{min-width:0}.card-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.listing-card h3{margin:1px 0 4px;font-size:16px;font-weight:560;letter-spacing:-.025em;line-height:1.22}.heart{width:36px;height:36px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.86);display:grid;place-items:center;color:#191917;flex:0 0 auto}.heart.saved{background:#151515;color:var(--gold)}[data-theme="dark"] .heart{background:#222}.tagline{font-size:13px;color:var(--muted);line-height:1.35;margin:0 0 8px}.card-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}.card-meta span{border:1px solid var(--line);background:var(--gold-soft);border-radius:999px;padding:6px 8px;font-size:12px;color:#725700}[data-theme="dark"] .card-meta span{color:#ffdf3d}.card-actions{display:flex;gap:7px;flex-wrap:wrap}.mini-btn{min-height:36px;border-radius:13px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:520}.mini-btn.black{background:#151515;color:#fff}.mini-btn.green{background:rgba(19,138,99,.12);border:1px solid rgba(19,138,99,.22);color:#0b704e}.mini-btn.line{border:1px solid var(--line);background:var(--card);color:var(--text)}.badge{position:absolute;left:14px;top:14px;z-index:2;border-radius:999px;background:linear-gradient(135deg,#fff2a0,#ffd700);color:#171717;padding:5px 8px;font-size:11px;font-weight:560}.empty{grid-column:1/-1;display:grid;place-items:center;text-align:center;border:1px dashed var(--line);background:rgba(255,255,255,.48);border-radius:26px;min-height:210px;padding:28px}.empty h3{margin:10px 0 6px;font-size:18px;font-weight:560}.empty p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}.panel{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow-soft);padding:16px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form-grid .wide{grid-column:1/-1}.profile-layout{display:grid;grid-template-columns:320px 1fr;gap:14px}.profile-card{text-align:center}.avatar{width:92px;height:92px;border-radius:30px;margin:0 auto 12px;background:linear-gradient(145deg,#111,#332b08,#ffd700);color:#fff;display:grid;place-items:center;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}.avatar span{font-size:28px;font-weight:560}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{border:1px solid var(--line);border-radius:18px;padding:10px;background:var(--gold-soft)}.stat b{display:block;font-size:18px;font-weight:560}.stat span{font-size:12px;color:var(--muted)}.menu-list{display:grid;gap:8px;margin-top:12px}.menu-item{min-height:48px;border:1px solid var(--line);border-radius:18px;padding:0 13px;display:flex;align-items:center;justify-content:space-between;background:var(--card);font-size:14px}.message{border:1px solid var(--line);background:var(--card);border-radius:22px;padding:13px;display:grid;grid-template-columns:40px 1fr;gap:10px;margin-bottom:9px}.dot{width:40px;height:40px;border-radius:15px;background:var(--gold-soft);color:#8a6d00;display:grid;place-items:center}.message h4{font-size:15px;margin:0 0 4px;font-weight:560}.message p{margin:0;color:var(--muted);font-size:13px;line-height:1.4}.modal-bg{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.42);display:none;align-items:flex-end;justify-content:center;padding:18px}.modal-bg.show{display:flex}.modal{width:min(760px,100%);max-height:88vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:30px;padding:14px;box-shadow:0 28px 80px rgba(0,0,0,.25)}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 4px 10px}.modal-head h3{margin:0;font-size:18px;font-weight:560}.x{width:42px;height:42px;border-radius:999px;border:1px solid var(--line);font-size:24px}.detail{display:grid;grid-template-columns:180px 1fr;gap:14px}.detail-photo{height:180px;border-radius:24px;background:linear-gradient(135deg,#111,#4a3c08,#ffd700);display:grid;place-items:center;color:#fff;overflow:hidden}.detail-photo img{width:100%;height:100%;object-fit:cover}.rows{display:grid;gap:8px;margin:12px 0}.row{display:flex;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:16px;padding:10px 12px}.row span{color:var(--muted);font-size:13px}.row b{font-size:13px;font-weight:520;text-align:right}.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 16px);transform:translateX(-50%) translateY(20px);z-index:120;background:#151515;color:#fff;border-radius:999px;padding:12px 16px;font-size:14px;opacity:0;pointer-events:none;transition:.2s ease;box-shadow:0 20px 50px rgba(0,0,0,.22)}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.9);border-top:1px solid var(--line);backdrop-filter:blur(18px);padding:7px 10px calc(7px + env(safe-area-inset-bottom))}[data-theme="dark"] .bottom-nav{background:rgba(17,17,17,.9)}.bottom-inner{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:3px}.mnav{height:56px;border-radius:18px;display:grid;place-items:center;color:var(--muted);font-size:11px}.mnav svg{width:20px;height:20px}.mnav.active{background:var(--black);color:#fff}.install-note{border:1px solid rgba(255,215,0,.32);background:linear-gradient(135deg,rgba(255,215,0,.16),rgba(255,255,255,.70));border-radius:22px;padding:13px;color:var(--muted);font-size:13px;line-height:1.45}.install-note b{color:var(--text)}
-    @media(max-width:900px){.desktop-nav{display:none}.grid{grid-template-columns:1fr}.profile-layout{grid-template-columns:1fr}.detail{grid-template-columns:1fr}.detail-photo{height:190px}.top-actions .pill.light{display:none}.section-head{align-items:flex-start;flex-direction:column}.form-grid{grid-template-columns:1fr}.filter-line{grid-template-columns:1fr}.search-main{grid-template-columns:1fr}.search-main .pill{min-height:48px}.hero{padding-top:28px}.hero h1{font-size:36px}.container{width:min(100% - 24px,1120px)}.listing-card{grid-template-columns:74px 1fr;padding:9px;border-radius:22px}.card-logo{width:74px;height:74px;border-radius:18px}.card-actions{display:grid;grid-template-columns:1fr 1fr}.mini-btn.line{grid-column:1/-1}.brand-sub{display:none}.top-inner{height:64px}.top-actions{gap:6px}.pill{padding:0 12px}.modal-bg{padding:10px}.modal{border-radius:26px}.auth-card{border-radius:26px;padding:15px}}
+    [data-theme="dark"]{
+      --bg:#0f0f0f;
+      --paper:#171717;
+      --paper-soft:#1d1d1d;
+      --ink:#f4f0e8;
+      --muted:#b7b0a3;
+      --line:#312b20;
+      --shadow:0 14px 36px rgba(0,0,0,.32);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;overflow-x:hidden}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 50% -18%, rgba(255,215,106,.34), transparent 38%),
+        linear-gradient(180deg,var(--bg),var(--bg));
+      color:var(--ink);
+      line-height:1.45;
+      overflow-x:hidden;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+    a{color:inherit;text-decoration:none}
+    button,input,select,textarea{font:inherit}
+    button{border:0;cursor:pointer}
+    img{max-width:100%;display:block}
+    .hidden{display:none!important}
+
+    /* Loading */
+    .loader{
+      position:fixed;inset:0;z-index:9999;
+      display:grid;place-items:center;
+      background:var(--paper);
+      transition:.25s ease;
+    }
+    .loader.done{opacity:0;pointer-events:none}
+    .load-card{display:grid;place-items:center;gap:14px;color:var(--ink)}
+    .logo-mark{
+      width:48px;height:48px;border-radius:16px;display:grid;place-items:center;
+      background:linear-gradient(135deg,#fff7d8,#f5c84b 55%,#111 56%,#111);
+      box-shadow:0 12px 26px rgba(184,137,9,.25);
+    }
+    .logo-mark svg{width:29px;height:29px;fill:none;stroke:#111;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .loader .logo-mark svg{stroke:#111}
+    .pulse{width:150px;height:4px;border-radius:999px;overflow:hidden;background:#efe6d2}
+    .pulse span{display:block;width:38%;height:100%;border-radius:999px;background:var(--gold);animation:load 1s infinite ease-in-out}
+    @keyframes load{0%{transform:translateX(-100%)}100%{transform:translateX(280%)}}
+
+    /* Auth */
+    .auth-screen{min-height:100svh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 5%,rgba(255,215,106,.3),transparent 36%),var(--bg)}
+    .auth-box{width:min(420px,100%);background:var(--paper);border:1px solid var(--line);border-radius:30px;padding:22px;box-shadow:var(--shadow)}
+    .auth-head{display:grid;place-items:center;text-align:center;gap:8px;margin:8px 0 18px}
+    .brand-row{display:flex;align-items:center;gap:10px;justify-content:center}
+    .brand-text{font-size:19px;font-weight:650;letter-spacing:-.03em}
+    .auth-title{font-size:24px;font-weight:600;letter-spacing:-.04em;margin:10px 0 0}
+    .auth-sub{font-size:14px;color:var(--muted);margin:0;max-width:300px}
+    .tabs{display:grid;grid-template-columns:1fr 1fr;padding:4px;background:var(--paper-soft);border:1px solid var(--line);border-radius:16px;margin-bottom:14px}
+    .tab{height:42px;border-radius:13px;background:transparent;color:var(--muted);font-weight:520}
+    .tab.active{background:var(--ink);color:var(--paper)}
+    .field{display:grid;gap:7px;margin:10px 0}
+    .field label{font-size:13px;color:var(--muted)}
+    .input,.select,.textarea{
+      width:100%;min-height:48px;border:1px solid var(--line);background:var(--paper);
+      color:var(--ink);border-radius:16px;padding:12px 14px;outline:none;
+      transition:.15s ease;
+    }
+    .textarea{resize:vertical;min-height:110px}
+    .input:focus,.select:focus,.textarea:focus{border-color:var(--gold-dark);box-shadow:0 0 0 4px rgba(245,200,75,.16)}
+    .btn{min-height:48px;padding:0 18px;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:560;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+    .btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#111;box-shadow:0 10px 22px rgba(245,200,75,.22)}
+    .btn.light{background:var(--paper-soft);color:var(--ink);border:1px solid var(--line)}
+    .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+    .btn.danger{background:#fff0f0;color:var(--danger);border:1px solid #f2c7c7}
+    .btn.small{min-height:38px;padding:0 13px;font-size:14px}
+    .btn.block{width:100%}
+    .auth-msg,.toast{font-size:14px;color:var(--muted);min-height:20px;margin-top:10px;text-align:center}
+
+    /* App */
+    .app{min-height:100svh;padding-bottom:86px}
+    .topbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.84);backdrop-filter:blur(16px);border-bottom:1px solid rgba(232,225,210,.78)}
+    [data-theme="dark"] .topbar{background:rgba(15,15,15,.82)}
+    .top-inner{max-width:var(--max);margin:0 auto;padding:12px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+    .brand{display:flex;align-items:center;gap:10px;min-width:max-content}
+    .brand b{font-size:18px;font-weight:650;letter-spacing:-.04em}
+    .desktop-nav{display:flex;gap:4px;align-items:center;justify-content:flex-end}
+    .nav-btn{height:40px;padding:0 13px;border-radius:999px;background:transparent;color:var(--muted);font-size:14px;font-weight:520}
+    .nav-btn.active,.nav-btn:hover{background:var(--paper-soft);color:var(--ink)}
+    .searchline{display:flex;align-items:center;gap:8px;min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px;box-shadow:0 6px 20px rgba(17,17,17,.04)}
+    .searchline input{min-width:0;width:100%;height:38px;border:0;outline:0;background:transparent;padding:0 8px;color:var(--ink)}
+    .searchline svg{width:19px;height:19px;margin-left:10px;stroke:var(--muted)}
+    .icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+    .wrap{max-width:var(--max);margin:0 auto;padding:18px 16px 0}
+    .page{display:none;animation:fade .18s ease}
+    .page.active{display:block}
+    @keyframes fade{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+    .hero{padding:24px 4px 18px;display:grid;gap:12px;max-width:720px;margin:0 auto;text-align:center}
+    .hero::before{content:"";height:84px;max-width:520px;width:72%;margin:0 auto -80px;border-radius:999px;background:radial-gradient(circle,rgba(255,215,106,.38),rgba(255,215,106,.16),transparent 72%);filter:blur(2px);pointer-events:none}
+    .eyebrow{font-size:13px;color:var(--gold-dark);font-weight:560;margin:0;letter-spacing:.02em}
+    h1{font-size:clamp(28px,5vw,46px);line-height:1.03;letter-spacing:-.065em;margin:0;font-weight:620}
+    .lead{margin:0 auto;color:var(--muted);font-size:15px;max-width:560px}
+
+    .panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .filters{padding:14px;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr auto;gap:10px;align-items:end;margin:10px 0 18px}
+    .filter-field{display:grid;gap:6px;min-width:0}
+    .filter-field label{font-size:12px;color:var(--muted);padding-left:4px}
+    .filter-field .input,.filter-field .select{min-height:44px;border-radius:14px}
+    .chips{display:flex;gap:8px;overflow:auto;padding:2px 0 12px;scrollbar-width:none}
+    .chips::-webkit-scrollbar{display:none}
+    .chip{height:38px;padding:0 14px;border-radius:999px;background:var(--paper);border:1px solid var(--line);color:var(--ink);white-space:nowrap;font-size:14px}
+    .chip.active{background:#111;color:#fff;border-color:#111}
+
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:12px 0}
+    .section-head h2{font-size:19px;letter-spacing:-.035em;margin:0;font-weight:600}
+    .count{font-size:13px;color:var(--muted)}
+
+    .grid{display:grid;gap:12px}
+    .service-card{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:14px;border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 8px 22px rgba(17,17,17,.035);transition:.15s ease}
+    .service-card:hover{transform:translateY(-1px);box-shadow:0 14px 28px rgba(17,17,17,.06)}
+    .card-logo{width:52px;height:52px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,#fff7da,#f5c84b);color:#111;font-weight:650;letter-spacing:-.04em;overflow:hidden;flex-shrink:0}
+    .card-logo img{width:100%;height:100%;object-fit:cover}
+    .card-main{min-width:0}
+    .card-top{display:flex;align-items:center;gap:8px;min-width:0;margin-bottom:4px}
+    .card-title{font-size:16px;font-weight:600;letter-spacing:-.025em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0;min-width:0}
+    .badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;background:#fff7d7;color:#8b6500;border:1px solid #f2df9b;font-size:12px;white-space:nowrap}
+    .meta{display:flex;flex-wrap:wrap;gap:6px 10px;color:var(--muted);font-size:13px;margin:6px 0}
+    .desc{font-size:14px;color:var(--ink);margin:8px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .heart{width:38px;height:38px;border-radius:999px;background:var(--paper-soft);border:1px solid var(--line);display:grid;place-items:center;color:var(--ink)}
+    .heart.saved{background:#111;color:#fff;border-color:#111}
+    .card-side{display:grid;gap:8px;justify-items:end}
+    .price{font-size:13px;color:var(--muted);white-space:nowrap}
+
+    .empty{border:1px dashed var(--line);background:rgba(255,255,255,.54);border-radius:22px;padding:28px;text-align:center;color:var(--muted)}
+    .empty h3{margin:0 0 6px;color:var(--ink);font-size:18px;font-weight:600;letter-spacing:-.03em}
+    .empty p{margin:0;font-size:14px}
+
+    .two-col{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+    .card-pad{padding:16px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .form-grid .full{grid-column:1/-1}
+    .profile-card{display:flex;align-items:center;gap:14px}
+    .avatar{width:72px;height:72px;border-radius:24px;display:grid;place-items:center;background:linear-gradient(135deg,#fff8dc,#f5c84b);color:#111;font-size:23px;font-weight:650;overflow:hidden;border:1px solid rgba(184,137,9,.2)}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .profile-card h2{font-size:20px;margin:0;font-weight:600;letter-spacing:-.04em}
+    .profile-card p{margin:4px 0 0;color:var(--muted);font-size:14px;word-break:break-word}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+    .stat{background:var(--paper-soft);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+    .stat b{font-size:18px;font-weight:600;display:block}
+    .stat span{font-size:12px;color:var(--muted)}
+    .note{font-size:13px;color:var(--muted);margin:8px 0 0}
+    .file-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .file-name{font-size:13px;color:var(--muted);max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .menu-list{display:grid;gap:8px}
+    .menu-item{width:100%;min-height:50px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;color:var(--ink);text-align:left}
+
+    .message{display:flex;gap:12px;padding:14px;border:1px solid var(--line);border-radius:18px;background:var(--paper)}
+    .dot{width:40px;height:40px;border-radius:14px;background:var(--paper-soft);display:grid;place-items:center;color:var(--gold-dark);flex-shrink:0}
+    .message h4{font-size:15px;margin:0;font-weight:600}.message p{font-size:14px;color:var(--muted);margin:4px 0 0}
+
+    .bottom-nav{position:fixed;left:10px;right:10px;bottom:10px;z-index:120;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:24px;display:none;grid-template-columns:repeat(5,1fr);padding:6px;box-shadow:0 18px 38px rgba(17,17,17,.14)}
+    [data-theme="dark"] .bottom-nav{background:rgba(23,23,23,.92)}
+    .bottom-nav button{height:50px;border-radius:18px;background:transparent;color:var(--muted);display:grid;place-items:center;font-size:11px;gap:1px}
+    .bottom-nav .icon{width:19px;height:19px}.bottom-nav button.active{background:#111;color:#fff}
+
+    .modal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.42);display:none;place-items:end center;padding:16px}
+    .modal.open{display:grid}
+    .modal-card{width:min(620px,100%);max-height:88svh;overflow:auto;background:var(--paper);border-radius:28px;border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.25);padding:16px}
+    .modal-head{display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:10px}.modal-head h2{font-size:22px;margin:0;font-weight:600;letter-spacing:-.04em}
+    .toast{position:fixed;z-index:800;left:50%;bottom:88px;transform:translateX(-50%) translateY(12px);background:#111;color:#fff;min-height:auto;border-radius:999px;padding:11px 16px;box-shadow:0 18px 30px rgba(0,0,0,.22);opacity:0;pointer-events:none;transition:.18s ease;white-space:nowrap}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    .install-mini{display:flex;align-items:center;gap:8px;padding:12px;border-radius:18px;background:linear-gradient(135deg,rgba(245,200,75,.25),rgba(255,255,255,.2));border:1px solid var(--line)}
+    .install-mini p{margin:0;font-size:13px;color:var(--muted)}
+
+    @media (max-width:900px){
+      .top-inner{grid-template-columns:1fr auto}.top-inner .searchline{grid-column:1/-1;order:3}.desktop-nav{display:none}.bottom-nav{display:grid}.wrap{padding:14px 12px 0}.filters{grid-template-columns:1fr 1fr}.filters .wide{grid-column:1/-1}.filters .btn{grid-column:1/-1;width:100%}.two-col{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.hero{text-align:left;margin:0;padding:16px 2px 10px}.hero::before{margin-left:0;width:90%}.section-head{align-items:start}.service-card{grid-template-columns:auto 1fr}.card-side{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}.actions{width:100%}.actions .btn{flex:1;min-width:130px}.auth-screen{padding:14px}.auth-box{border-radius:24px;padding:18px}.toast{max-width:calc(100% - 24px);white-space:normal;text-align:center}.stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:520px){
+      .brand b{font-size:16px}.logo-mark{width:42px;height:42px;border-radius:14px}.hero h1{font-size:31px}.lead{font-size:14px}.filters{gap:8px;padding:10px;border-radius:20px}.service-card{padding:12px;border-radius:18px}.card-logo{width:46px;height:46px;border-radius:15px}.card-title{font-size:15px}.meta,.desc{font-size:13px}.btn{min-height:46px}.profile-card{align-items:flex-start}.avatar{width:62px;height:62px;border-radius:20px}.modal{padding:8px}.modal-card{border-radius:24px}.bottom-nav{left:8px;right:8px;bottom:8px}.bottom-nav button{height:48px;font-size:10px}
+    }
   </style>
 </head>
 <body>
-  <div class="boot" id="boot"><div class="boot-card"><div class="logo-mark" id="bootLogo"></div><div class="boot-title">AutoRapid RO</div><div class="boot-line"><span></span></div></div></div>
+  <div id="loader" class="loader">
+    <div class="load-card">
+      <div class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 15l1.6-4.2A3 3 0 0 1 8.4 9h7.2a3 3 0 0 1 2.8 1.8L20 15"/><path d="M3 15h18v3H3z"/><path d="M7 18.5h.01M17 18.5h.01"/><path d="M8 9l1.4-2h5.2L16 9"/></svg></div>
+      <div class="pulse"><span></span></div>
+    </div>
+  </div>
 
-  <section class="auth-screen hidden" id="authScreen">
-    <div class="auth-card">
-      <div class="auth-head"><div class="logo-mark" id="authLogo"></div><div><h1 class="auth-title">AutoRapid RO</h1><p class="tiny" data-i18n="authSubtitle">Intră în cont ca să publici, salvezi și editezi profilul.</p></div></div>
-      <div class="auth-tabs"><button class="tab active" data-auth="login" data-i18n="login">Intră</button><button class="tab" data-auth="signup" data-i18n="signup">Creează cont</button></div>
-      <form class="auth-form" id="loginForm">
-        <input id="loginEmail" type="email" autocomplete="email" placeholder="Email" required>
-        <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Parolă" minlength="6" required>
-        <button class="pill gold" type="submit" data-i18n="loginBtn">Intră în aplicație</button>
-      </form>
-      <form class="auth-form hidden" id="signupForm">
-        <input id="signupName" type="text" placeholder="Nume / firmă" required>
-        <input id="signupEmail" type="email" autocomplete="email" placeholder="Email" required>
-        <input id="signupPassword" type="password" autocomplete="new-password" placeholder="Parolă minim 6 caractere" minlength="6" required>
-        <button class="pill gold" type="submit" data-i18n="signupBtn">Creează cont</button>
+  <section id="authScreen" class="auth-screen hidden">
+    <div class="auth-box">
+      <div class="auth-head">
+        <div class="brand-row"><div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M4 15l1.6-4.2A3 3 0 0 1 8.4 9h7.2a3 3 0 0 1 2.8 1.8L20 15"/><path d="M3 15h18v3H3z"/><path d="M7 18.5h.01M17 18.5h.01"/><path d="M8 9l1.4-2h5.2L16 9"/></svg></div><div class="brand-text">AutoRapid RO</div></div>
+        <h1 class="auth-title" data-i18n="authTitle">Intră în cont</h1>
+        <p class="auth-sub" data-i18n="authSub">Conectare simplă cu email și parolă.</p>
+      </div>
+      <div class="tabs"><button id="loginTab" class="tab active" type="button" data-auth-tab="login" data-i18n="login">Login</button><button id="registerTab" class="tab" type="button" data-auth-tab="register" data-i18n="register">Creează cont</button></div>
+      <form id="authForm" novalidate>
+        <div class="field" id="nameWrap" style="display:none"><label data-i18n="name">Nume / firmă</label><input class="input" id="authName" autocomplete="name" placeholder="Ex: Rapid Service Brașov" data-i18n-placeholder="namePh"></div>
+        <div class="field"><label>Email</label><input class="input" id="authEmail" type="email" autocomplete="email" placeholder="email@exemplu.ro" required></div>
+        <div class="field"><label data-i18n="password">Parolă</label><input class="input" id="authPassword" type="password" autocomplete="current-password" placeholder="Minim 6 caractere" required data-i18n-placeholder="passPh"></div>
+        <button class="btn gold block" id="authSubmit" type="submit" data-i18n="enter">Intră</button>
+        <div id="authMsg" class="auth-msg"></div>
       </form>
     </div>
   </section>
 
-  <div class="app hidden" id="app">
-    <header class="topbar"><div class="container top-inner">
-      <button class="brand" data-page="home" aria-label="AutoRapid RO"><div class="logo-mark" id="topLogo"></div><div><div class="brand-title">AutoRapid RO</div><div class="brand-sub">marketplace auto</div></div></button>
-      <nav class="desktop-nav"><button class="nav-btn active" data-page="home" data-i18n="navHome">Acasă</button><button class="nav-btn" data-page="search" data-i18n="navSearch">Caută</button><button class="nav-btn" data-page="publish" data-i18n="navPublish">Publică</button><button class="nav-btn" data-page="saved" data-i18n="navSaved">Salvate</button><button class="nav-btn" data-page="profile" data-i18n="navProfile">Profil</button></nav>
-      <div class="top-actions"><button class="pill light" id="installBtn" data-i18n="addHome">Adaugă pe ecran</button><button class="pill gold" data-page="publish" data-i18n="publishSmall">Publică</button></div>
-    </div></header>
+  <main id="app" class="app hidden">
+    <header class="topbar">
+      <div class="top-inner">
+        <button class="brand" type="button" data-page="home" aria-label="AutoRapid RO">
+          <span class="logo-mark"><svg viewBox="0 0 24 24"><path d="M4 15l1.6-4.2A3 3 0 0 1 8.4 9h7.2a3 3 0 0 1 2.8 1.8L20 15"/><path d="M3 15h18v3H3z"/><path d="M7 18.5h.01M17 18.5h.01"/><path d="M8 9l1.4-2h5.2L16 9"/></svg></span>
+          <b>AutoRapid RO</b>
+        </button>
+        <div class="searchline" role="search">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input id="topSearch" placeholder="Caută tractări, service, ITP..." data-i18n-placeholder="searchPh" />
+          <button class="btn small gold" id="topSearchBtn" type="button" data-i18n="search">Caută</button>
+        </div>
+        <nav class="desktop-nav" aria-label="Navigație desktop">
+          <button class="nav-btn active" data-page="home" data-i18n="home">Acasă</button>
+          <button class="nav-btn" data-page="search" data-i18n="search">Caută</button>
+          <button class="nav-btn" data-page="publish" data-i18n="publish">Publică</button>
+          <button class="nav-btn" data-page="saved" data-i18n="saved">Salvate</button>
+          <button class="nav-btn" data-page="profile" data-i18n="profile">Profil</button>
+        </nav>
+      </div>
+    </header>
 
-    <main>
-      <section class="hero"><div class="container"><h1><span data-i18n="heroTitle">Servicii auto, găsite rapid.</span></h1><p data-i18n="heroText">Caută firme auto din orașul tău. Simplu, curat și fără aglomerație.</p>
-        <div class="search-shell"><div class="search-card"><div class="search-main"><div class="search-field"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="qInput" placeholder="Caută: tractări, ITP, Brașov..." data-i18n-placeholder="searchPlaceholder"></div><button class="pill dark" id="searchButton" data-i18n="searchBtn">Caută</button></div><div class="filter-line"><select id="countyFilter"></select><select id="cityFilter"></select><select id="categoryFilter"></select></div></div></div>
-      </div></section>
+    <div class="wrap">
+      <section id="home" class="page active">
+        <div class="hero">
+          <p class="eyebrow" data-i18n="eyebrow">Marketplace auto România</p>
+          <h1 data-i18n="heroTitle">Servicii auto, găsite rapid.</h1>
+          <p class="lead" data-i18n="heroText">Caută firme auto după oraș, categorie și disponibilitate. Simplu, curat, fără aglomerație.</p>
+        </div>
+        <div class="panel filters">
+          <div class="filter-field wide"><label data-i18n="searchLabel">Caută</label><input id="homeSearch" class="input" placeholder="Ex: vulcanizare Brașov" data-i18n-placeholder="searchExample"></div>
+          <div class="filter-field"><label data-i18n="county">Județ</label><select id="countyFilter" class="select"></select></div>
+          <div class="filter-field"><label data-i18n="city">Oraș</label><select id="cityFilter" class="select"></select></div>
+          <div class="filter-field"><label data-i18n="category">Categorie</label><select id="catFilter" class="select"></select></div>
+          <button id="homeSearchBtn" class="btn gold" type="button" data-i18n="search">Caută</button>
+        </div>
+        <div id="quickCats" class="chips"></div>
+        <div class="section-head"><h2 data-i18n="latest">Anunțuri recente</h2><span id="resultCount" class="count">0 rezultate</span></div>
+        <div id="listingGrid" class="grid"></div>
+      </section>
 
-      <section class="section active" id="home"><div class="container"><div class="section-head"><div><h2 class="section-title" data-i18n="latestListings">Anunțuri</h2><p class="section-desc" data-i18n="latestDesc">Rezultatele apar aici după publicare.</p></div><span class="count" id="resultCount">0 rezultate</span></div><div class="chips" id="quickCats"></div><div class="grid" id="listingGrid"></div></div></section>
-      <section class="section" id="search"><div class="container"><div class="section-head"><div><h2 class="section-title" data-i18n="searchTitle">Caută servicii</h2><p class="section-desc" data-i18n="searchDesc">Folosește bara de sus și filtrele pentru rezultate exacte.</p></div></div><div class="grid" id="searchGrid"></div></div></section>
+      <section id="search" class="page">
+        <div class="section-head"><h2 data-i18n="searchResults">Căutare</h2><span id="searchCount" class="count">0 rezultate</span></div>
+        <div class="panel filters">
+          <div class="filter-field wide"><label data-i18n="searchLabel">Caută</label><input id="searchInput" class="input" placeholder="Caută după nume, oraș, categorie" data-i18n-placeholder="searchDeep"></div>
+          <div class="filter-field"><label data-i18n="county">Județ</label><select id="searchCounty" class="select"></select></div>
+          <div class="filter-field"><label data-i18n="city">Oraș</label><select id="searchCity" class="select"></select></div>
+          <div class="filter-field"><label data-i18n="category">Categorie</label><select id="searchCat" class="select"></select></div>
+          <button id="searchBtn" class="btn gold" type="button" data-i18n="search">Caută</button>
+        </div>
+        <div id="searchGrid" class="grid"></div>
+      </section>
 
-      <section class="section" id="publish"><div class="container"><div class="section-head"><div><h2 class="section-title" data-i18n="publishTitle">Publică anunț</h2><p class="section-desc" data-i18n="publishDesc">Alegi categoria și descrierea. Datele firmei se iau din profil.</p></div></div><div class="panel"><div class="install-note" id="profileHint"></div><form id="publishForm" class="form-grid" style="margin-top:12px"><div class="wide"><select id="pubCategory" required></select></div><div class="wide"><textarea id="pubDescription" maxlength="700" placeholder="Descrie serviciul, zona, programul și ce oferi..." data-i18n-placeholder="publishPlaceholder" required></textarea><p class="tiny"><span id="pubCounter">0</span>/700</p></div><div class="wide"><label class="file-btn" for="pubImage"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg><span id="pubImageLabel" data-i18n="choosePhotoOptional">Alege poză / logo opțional</span></label><input id="pubImage" type="file" accept="image/*"></div><div class="wide"><select id="pubPromo"><option>Gratuit</option><option>Promovat 7 zile</option><option>Promovat 30 zile</option><option>Premium</option></select></div><button class="pill gold wide" type="submit" data-i18n="publishBtn">Publică anunț</button></form></div></div></section>
+      <section id="publish" class="page">
+        <div class="two-col">
+          <div class="panel card-pad">
+            <div class="section-head"><h2 data-i18n="publishTitle">Publică anunț</h2></div>
+            <p class="note" data-i18n="publishInfo">Completezi doar categoria și descrierea. Datele firmei sunt preluate automat din profil.</p>
+            <form id="publishForm" class="form-grid" novalidate>
+              <div class="field full"><label data-i18n="category">Categorie</label><select id="pubCategory" class="select" required></select></div>
+              <div class="field full"><label data-i18n="description">Descriere</label><textarea id="pubDescription" class="textarea" maxlength="700" placeholder="Scrie pe scurt ce serviciu oferi, program, zonă, detalii utile." data-i18n-placeholder="descPh" required></textarea></div>
+              <div class="field full"><label data-i18n="promotion">Promovare</label><select id="pubPromo" class="select"><option>Gratuit</option><option>Promovat 7 zile</option><option>Promovat 30 zile</option><option>Premium</option></select></div>
+              <div class="full"><button class="btn gold block" type="submit" data-i18n="publishBtn">Publică anunț</button></div>
+            </form>
+          </div>
+          <aside class="panel card-pad">
+            <h2 style="margin:0 0 10px;font-size:18px;font-weight:600" data-i18n="profileData">Date folosite din profil</h2>
+            <div id="publishProfileBox" class="note"></div>
+            <button class="btn light block" type="button" data-page="profile" style="margin-top:14px" data-i18n="editProfile">Editează profil</button>
+          </aside>
+        </div>
+      </section>
 
-      <section class="section" id="saved"><div class="container"><div class="section-head"><div><h2 class="section-title" data-i18n="savedTitle">Salvate</h2><p class="section-desc" data-i18n="savedDesc">Anunțurile salvate apar aici.</p></div><span class="count" id="savedCount">0 salvate</span></div><div class="grid" id="savedGrid"></div></div></section>
-      <section class="section" id="inbox"><div class="container"><div class="section-head"><div><h2 class="section-title">Inbox</h2><p class="section-desc" data-i18n="inboxDesc">Mesaje, notificări și actualizări.</p></div></div><div id="inboxList"></div></div></section>
-      <section class="section" id="feedback"><div class="container"><div class="section-head"><div><h2 class="section-title" data-i18n="feedbackTitle">Dă-ne feedback</h2><p class="section-desc" data-i18n="feedbackDesc">Ajută-ne să îmbunătățim aplicația.</p></div></div><form class="panel form-grid" id="feedbackForm"><div class="wide"><select id="fbCategory"><option>Problemă tehnică</option><option>Design aplicație</option><option>Anunțuri</option><option>Profil</option><option>Mesaje</option><option>Sugestie nouă</option><option>Altceva</option></select></div><div class="wide"><textarea id="fbText" maxlength="500" placeholder="Descriere feedback" required></textarea><p class="tiny"><span id="fbCounter">0</span>/500</p></div><button class="pill gold wide" type="submit" data-i18n="sendFeedback">Trimite feedback</button></form></div></section>
+      <section id="saved" class="page">
+        <div class="section-head"><h2 data-i18n="saved">Salvate</h2><span id="savedCount" class="count">0 salvate</span></div>
+        <div id="savedGrid" class="grid"></div>
+      </section>
 
-      <section class="section" id="profile"><div class="container"><div class="section-head"><div><h2 class="section-title" data-i18n="profileTitle">Profil</h2><p class="section-desc" data-i18n="profileDesc">Editează datele folosite pentru anunțuri.</p></div></div><div class="profile-layout"><aside class="panel profile-card"><div class="avatar" id="avatarBox"></div><h3 id="profileName" style="margin:0;font-size:20px;font-weight:560">Utilizator</h3><p class="tiny" id="profileEmail"></p><label class="file-btn" for="profileAvatar" style="margin-top:12px"><svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg><span data-i18n="changePhoto">Schimbă poza</span></label><input id="profileAvatar" type="file" accept="image/*"><div class="stats"><div class="stat"><b id="statListings">0</b><span data-i18n="myListings">Anunțuri</span></div><div class="stat"><b id="statSaved">0</b><span data-i18n="savedMini">Salvate</span></div><div class="stat"><b id="statInbox">0</b><span>Inbox</span></div></div><div class="menu-list"><button class="menu-item" data-page="settings"><span data-i18n="settings">Setări</span><span>›</span></button><button class="menu-item" data-page="feedback"><span data-i18n="feedbackMenu">Spune-ne părerea ta</span><span>›</span></button><button class="menu-item" data-page="inbox"><span>Inbox</span><span>›</span></button><button class="menu-item" id="logoutBtn"><span data-i18n="logout">Deconectare</span><span>›</span></button></div></aside><form class="panel form-grid" id="profileForm"><div><input id="profName" placeholder="Nume / firmă" required></div><div><input id="profPhone" placeholder="Telefon" required></div><div><input id="profEmail" placeholder="Email profil"></div><div><select id="profCounty"></select></div><div><select id="profCity"></select></div><div><input id="profSchedule" placeholder="Program ex: 09:00 - 18:00"></div><div><input id="profPrice" placeholder="Preț orientativ ex: de la 100 lei"></div><div class="wide"><input id="profAddress" placeholder="Adresă / zonă"></div><button class="pill gold wide" type="submit" data-i18n="saveProfile">Salvează profilul</button></form></div></div></section>
+      <section id="profile" class="page">
+        <div class="two-col">
+          <div class="grid">
+            <div class="panel card-pad">
+              <div class="profile-card">
+                <div id="avatarBox" class="avatar">AR</div>
+                <div>
+                  <h2 id="profileName">AutoRapid</h2>
+                  <p id="profileEmail"></p>
+                </div>
+              </div>
+              <div class="stats">
+                <div class="stat"><b id="statListings">0</b><span data-i18n="myListings">Anunțuri</span></div>
+                <div class="stat"><b id="statSaved">0</b><span data-i18n="saved">Salvate</span></div>
+                <div class="stat"><b id="statInbox">0</b><span>Inbox</span></div>
+              </div>
+            </div>
+            <div class="panel card-pad">
+              <div class="section-head"><h2 data-i18n="editProfile">Editează profil</h2></div>
+              <form id="profileForm" class="form-grid" novalidate>
+                <div class="field full"><label data-i18n="companyName">Nume firmă / utilizator</label><input id="profName" class="input" placeholder="Numele firmei tale" data-i18n-placeholder="companyPh" required></div>
+                <div class="field"><label data-i18n="phone">Telefon / WhatsApp</label><input id="profPhone" class="input" placeholder="07xx xxx xxx" required></div>
+                <div class="field"><label>Email</label><input id="profEmail" class="input" type="email" readonly></div>
+                <div class="field"><label data-i18n="county">Județ</label><select id="profCounty" class="select" required></select></div>
+                <div class="field"><label data-i18n="city">Oraș</label><select id="profCity" class="select" required></select></div>
+                <div class="field full"><label data-i18n="address">Adresă</label><input id="profAddress" class="input" placeholder="Stradă / zonă" data-i18n-placeholder="addressPh"></div>
+                <div class="field"><label data-i18n="schedule">Program</label><input id="profSchedule" class="input" placeholder="Luni - Vineri 09:00 - 18:00"></div>
+                <div class="field"><label data-i18n="price">Preț orientativ</label><input id="profPrice" class="input" placeholder="de la 100 lei"></div>
+                <div class="field full"><label data-i18n="profilePhoto">Poză profil / logo</label><div class="file-row"><input id="avatarInput" class="hidden" type="file" accept="image/*"><button class="btn light" type="button" data-pick-avatar data-i18n="choosePhoto">Alege poză</button><span id="avatarFileName" class="file-name" data-i18n="noFile">Nicio poză aleasă</span></div></div>
+                <div class="full"><button class="btn gold block" type="submit" data-i18n="saveProfile">Salvează profil</button></div>
+              </form>
+            </div>
+          </div>
+          <aside class="grid">
+            <div class="panel card-pad">
+              <div class="section-head"><h2 data-i18n="settings">Setări</h2></div>
+              <form id="settingsForm" class="grid" novalidate>
+                <div class="field"><label data-i18n="language">Limba aplicației</label><select id="setLanguage" class="select"><option>Română</option><option>Engleză</option><option>Italiană</option></select></div>
+                <div class="field"><label data-i18n="theme">Temă</label><select id="setTheme" class="select"><option value="light">Light</option><option value="dark">Dark</option></select></div>
+                <label class="menu-item"><span data-i18n="notifications">Notificări</span><input id="setNotify" type="checkbox" checked></label>
+                <button class="btn gold block" type="submit" data-i18n="saveSettings">Salvează setări</button>
+              </form>
+            </div>
+            <div class="panel card-pad install-mini">
+              <div class="dot"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg></div>
+              <div style="flex:1"><b style="font-weight:600" data-i18n="addHome">Adaugă pe ecran</b><p data-i18n="addHomeText">Instalează aplicația pe telefon.</p></div>
+              <button class="btn small light" type="button" id="installBtn" data-i18n="add">Adaugă</button>
+            </div>
+            <div class="panel card-pad">
+              <div class="section-head"><h2>Inbox</h2></div>
+              <div id="inboxList" class="grid"></div>
+            </div>
+            <div class="panel card-pad">
+              <div class="section-head"><h2 data-i18n="feedback">Feedback</h2></div>
+              <form id="feedbackForm" class="grid" novalidate>
+                <select id="feedbackCategory" class="select"><option>Problemă tehnică</option><option>Design aplicație</option><option>Anunțuri</option><option>Profil</option><option>Mesaje</option><option>Sugestie nouă</option><option>Altceva</option></select>
+                <textarea id="feedbackText" class="textarea" maxlength="500" placeholder="Descriere feedback" data-i18n-placeholder="feedbackPh"></textarea>
+                <div class="count"><span id="feedbackCount">0</span>/500</div>
+                <button class="btn light block" type="submit" data-i18n="sendFeedback">Trimite feedback</button>
+              </form>
+            </div>
+            <button id="logoutBtn" class="btn danger block" type="button" data-i18n="logout">Deconectare</button>
+          </aside>
+        </div>
+      </section>
+    </div>
 
-      <section class="section" id="settings"><div class="container"><div class="section-head"><div><h2 class="section-title" data-i18n="settings">Setări</h2><p class="section-desc" data-i18n="settingsDesc">Preferințe cont și aplicație.</p></div></div><form class="panel form-grid" id="settingsForm"><div><input id="setName" placeholder="Nume / firmă"></div><div><input id="setPhone" placeholder="Telefon"></div><div class="wide"><label class="file-btn" for="settingsAvatar"><svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg><span data-i18n="chooseProfilePhoto">Schimbă poza de profil</span></label><input id="settingsAvatar" type="file" accept="image/*"></div><div><select id="setLanguage"><option>Română</option><option>Engleză</option><option>Italiană</option></select></div><div><select id="setTheme"><option value="light">Mod luminos</option><option value="dark">Mod întunecat</option></select></div><div class="wide"><label class="menu-item"><span data-i18n="notifications">Notificări</span><input id="setNotify" type="checkbox" style="width:auto;min-height:auto" checked></label></div><div class="wide"><button class="pill light" type="button" id="installBtnSettings" data-i18n="addHome">Adaugă pe ecran</button></div><button class="pill gold wide" type="submit" data-i18n="saveSettings">Salvează setările</button></form></div></section>
-    </main>
+    <nav class="bottom-nav" aria-label="Navigație mobilă">
+      <button class="active" data-page="home"><svg class="icon" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21H3z"></path></svg><span data-i18n="home">Acasă</span></button>
+      <button data-page="search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span data-i18n="search">Caută</span></button>
+      <button data-page="publish"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg><span data-i18n="publish">Publică</span></button>
+      <button data-page="saved"><svg class="icon" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg><span data-i18n="saved">Salvate</span></button>
+      <button data-page="profile"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><span data-i18n="profile">Profil</span></button>
+    </nav>
+  </main>
 
-    <nav class="bottom-nav"><div class="bottom-inner"><button class="mnav active" data-page="home"><svg class="icon" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/></svg><span data-i18n="navHome">Acasă</span></button><button class="mnav" data-page="search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span data-i18n="navSearch">Caută</span></button><button class="mnav" data-page="publish"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="navPublish">Publică</span></button><button class="mnav" data-page="saved"><svg class="icon" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span data-i18n="navSaved">Salvate</span></button><button class="mnav" data-page="profile"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg><span data-i18n="navProfile">Profil</span></button></div></nav>
+  <div id="detailsModal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-head"><h2 id="modalTitle">Anunț</h2><button class="btn small light" type="button" data-close-modal>Închide</button></div>
+      <div id="modalBody"></div>
+    </div>
   </div>
 
-  <div class="modal-bg" id="detailModal"><div class="modal"><div class="modal-head"><h3 data-i18n="listingDetails">Detalii anunț</h3><button class="x" id="closeDetail">×</button></div><div id="detailContent"></div></div></div>
-  <div class="toast" id="toast"></div>
+  <div id="toast" class="toast"></div>
 
   <script>
-  (function(){
-    'use strict';
-    const SUPABASE_URL = "https://ncdutmwivbgmubiodkev.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_Yfwqvy9Avytb0vXa4qUtnA_vBUENjlE";
-    const $ = id => document.getElementById(id);
-    const qsa = sel => Array.from(document.querySelectorAll(sel));
-    const store = {get(k,d){try{return JSON.parse(localStorage.getItem(k)) ?? d}catch{return d}},set(k,v){localStorage.setItem(k,JSON.stringify(v))},del(k){localStorage.removeItem(k)}};
-    const CATEGORIES = ['Tractări auto','Vulcanizare','Service auto','ITP','Diagnoză auto','Schimb ulei','Piese auto','Spălătorie auto','Detailing auto','Tinichigerie','Vopsitorie','Electrician auto','Închirieri auto','Dezmembrări auto','Anvelope','Asigurări auto','Platformă auto','Mecanic la domiciliu'];
-    const CITIES = {
-      'Alba':['Alba Iulia','Aiud','Blaj','Sebeș','Cugir'],'Arad':['Arad','Ineu','Lipova','Nădlac','Chișineu-Criș'],'Argeș':['Pitești','Mioveni','Câmpulung','Curtea de Argeș','Costești'],'Bacău':['Bacău','Onești','Moinești','Comănești','Buhuși'],'Bihor':['Oradea','Salonta','Marghita','Beiuș','Aleșd'],'Bistrița-Năsăud':['Bistrița','Năsăud','Beclean','Sângeorz-Băi'],'Botoșani':['Botoșani','Dorohoi','Darabani','Săveni'],'Brașov':['Brașov','Făgăraș','Săcele','Zărnești','Codlea','Râșnov'],'Brăila':['Brăila','Ianca','Făurei','Însurăței'],'București':['București','Sector 1','Sector 2','Sector 3','Sector 4','Sector 5','Sector 6'],'Buzău':['Buzău','Râmnicu Sărat','Nehoiu','Pogoanele'],'Caraș-Severin':['Reșița','Caransebeș','Bocșa','Oravița','Moldova Nouă'],'Călărași':['Călărași','Oltenița','Lehliu Gară','Budești'],'Cluj':['Cluj-Napoca','Turda','Dej','Câmpia Turzii','Gherla','Huedin'],'Constanța':['Constanța','Mangalia','Medgidia','Năvodari','Cernavodă','Eforie'],'Covasna':['Sfântu Gheorghe','Târgu Secuiesc','Covasna','Baraolt'],'Dâmbovița':['Târgoviște','Moreni','Pucioasa','Găești','Titu'],'Dolj':['Craiova','Băilești','Calafat','Filiași','Dăbuleni'],'Galați':['Galați','Tecuci','Târgu Bujor','Berești'],'Giurgiu':['Giurgiu','Bolintin-Vale','Mihăilești'],'Gorj':['Târgu Jiu','Motru','Rovinari','Târgu Cărbunești'],'Harghita':['Miercurea Ciuc','Odorheiu Secuiesc','Gheorgheni','Toplița'],'Hunedoara':['Deva','Hunedoara','Petroșani','Lupeni','Orăștie','Brad'],'Ialomița':['Slobozia','Fetești','Urziceni','Țăndărei'],'Iași':['Iași','Pașcani','Hârlău','Târgu Frumos'],'Ilfov':['Otopeni','Voluntari','Buftea','Bragadiru','Chitila','Măgurele','Pantelimon','Popești-Leordeni'],'Maramureș':['Baia Mare','Sighetu Marmației','Borșa','Vișeu de Sus','Târgu Lăpuș'],'Mehedinți':['Drobeta-Turnu Severin','Orșova','Strehaia','Vânju Mare'],'Mureș':['Târgu Mureș','Reghin','Sighișoara','Târnăveni','Luduș'],'Neamț':['Piatra Neamț','Roman','Târgu Neamț','Bicaz'],'Olt':['Slatina','Caracal','Corabia','Balș','Scornicești'],'Prahova':['Ploiești','Câmpina','Sinaia','Bușteni','Azuga','Mizil'],'Sălaj':['Zalău','Șimleu Silvaniei','Jibou','Cehu Silvaniei'],'Satu Mare':['Satu Mare','Carei','Negrești-Oaș','Tășnad'],'Sibiu':['Sibiu','Mediaș','Cisnădie','Agnita','Avrig'],'Suceava':['Suceava','Fălticeni','Rădăuți','Câmpulung Moldovenesc','Vatra Dornei'],'Teleorman':['Alexandria','Roșiori de Vede','Turnu Măgurele','Zimnicea','Videle'],'Timiș':['Timișoara','Lugoj','Sânnicolau Mare','Jimbolia','Recaș'],'Tulcea':['Tulcea','Măcin','Babadag','Isaccea'],'Vâlcea':['Râmnicu Vâlcea','Drăgășani','Băile Olănești','Călimănești','Horezu'],'Vaslui':['Vaslui','Bârlad','Huși','Negrești'],'Vrancea':['Focșani','Adjud','Mărășești','Panciu']
-    };
-    const DEMO_NAMES = new Set(['Tractări Auto București','Vulcanizare Mobilă Cluj','Service Auto Brașov','ITP Sibiu Rapid','Diagnoză Auto Timișoara','Schimb Ulei Constanța']);
-    const T = {
-      'Română':{authSubtitle:'Intră în cont ca să publici, salvezi și editezi profilul.',login:'Intră',signup:'Creează cont',loginBtn:'Intră în aplicație',signupBtn:'Creează cont',navHome:'Acasă',navSearch:'Caută',navPublish:'Publică',navSaved:'Salvate',navProfile:'Profil',addHome:'Adaugă pe ecran',publishSmall:'Publică',heroTitle:'Servicii auto, găsite rapid.',heroText:'Caută firme auto din orașul tău. Simplu, curat și fără aglomerație.',searchPlaceholder:'Caută: tractări, ITP, Brașov...',searchBtn:'Caută',latestListings:'Anunțuri',latestDesc:'Rezultatele apar aici după publicare.',searchTitle:'Caută servicii',searchDesc:'Folosește bara de sus și filtrele pentru rezultate exacte.',publishTitle:'Publică anunț',publishDesc:'Alegi categoria și descrierea. Datele firmei se iau din profil.',publishPlaceholder:'Descrie serviciul, zona, programul și ce oferi...',choosePhotoOptional:'Alege poză / logo opțional',publishBtn:'Publică anunț',savedTitle:'Salvate',savedDesc:'Anunțurile salvate apar aici.',inboxDesc:'Mesaje, notificări și actualizări.',feedbackTitle:'Dă-ne feedback',feedbackDesc:'Ajută-ne să îmbunătățim aplicația.',sendFeedback:'Trimite feedback',profileTitle:'Profil',profileDesc:'Editează datele folosite pentru anunțuri.',changePhoto:'Schimbă poza',myListings:'Anunțuri',savedMini:'Salvate',settings:'Setări',feedbackMenu:'Spune-ne părerea ta',logout:'Deconectare',saveProfile:'Salvează profilul',settingsDesc:'Preferințe cont și aplicație.',chooseProfilePhoto:'Schimbă poza de profil',notifications:'Notificări',saveSettings:'Salvează setările',listingDetails:'Detalii anunț',allCounties:'Toate județele',allCities:'Toate orașele',chooseCounty:'Alege județ',allCategories:'Toate categoriile',chooseCategory:'Alege categorie',emptyTitle:'Nu există anunțuri încă',emptyDesc:'După ce cineva publică un serviciu, apare aici.',noSaved:'Nu ai anunțuri salvate',noSavedDesc:'Apasă pe inimă la un anunț ca să îl salvezi.',profileNeed:'Completează profilul cu nume, telefon, județ și oraș înainte să publici.',profileReady:'Anunțul va folosi datele din profilul tău.',installInfo:'Pe iPhone: Share → Add to Home Screen. Pe Android apare butonul de instalare dacă browserul permite.'},
-      'Engleză':{authSubtitle:'Sign in to post, save and edit your profile.',login:'Login',signup:'Create account',loginBtn:'Enter app',signupBtn:'Create account',navHome:'Home',navSearch:'Search',navPublish:'Post',navSaved:'Saved',navProfile:'Profile',addHome:'Add to Home',publishSmall:'Post',heroTitle:'Auto services, found fast.',heroText:'Find auto businesses in your city. Clean, simple and fast.',searchPlaceholder:'Search: towing, MOT, Brașov...',searchBtn:'Search',latestListings:'Listings',latestDesc:'Results appear here after publishing.',searchTitle:'Search services',searchDesc:'Use the top bar and filters for exact results.',publishTitle:'Post listing',publishDesc:'Choose category and description. Business details come from your profile.',publishPlaceholder:'Describe the service, area, schedule and what you offer...',choosePhotoOptional:'Choose optional photo / logo',publishBtn:'Post listing',savedTitle:'Saved',savedDesc:'Your saved listings appear here.',inboxDesc:'Messages, notifications and updates.',feedbackTitle:'Send feedback',feedbackDesc:'Help us improve the app.',sendFeedback:'Send feedback',profileTitle:'Profile',profileDesc:'Edit details used for listings.',changePhoto:'Change photo',myListings:'Listings',savedMini:'Saved',settings:'Settings',feedbackMenu:'Send feedback',logout:'Logout',saveProfile:'Save profile',settingsDesc:'Account and app preferences.',chooseProfilePhoto:'Change profile photo',notifications:'Notifications',saveSettings:'Save settings',listingDetails:'Listing details',allCounties:'All counties',allCities:'All cities',chooseCounty:'Choose county',allCategories:'All categories',chooseCategory:'Choose category',emptyTitle:'No listings yet',emptyDesc:'When someone posts a service, it will appear here.',noSaved:'No saved listings',noSavedDesc:'Tap the heart on a listing to save it.',profileNeed:'Complete your profile with name, phone, county and city before posting.',profileReady:'The listing will use your profile details.',installInfo:'On iPhone: Share → Add to Home Screen. On Android the install button appears when supported.'},
-      'Italiană':{authSubtitle:'Accedi per pubblicare, salvare e modificare il profilo.',login:'Accedi',signup:'Crea account',loginBtn:'Entra nell’app',signupBtn:'Crea account',navHome:'Home',navSearch:'Cerca',navPublish:'Pubblica',navSaved:'Salvati',navProfile:'Profilo',addHome:'Aggiungi alla Home',publishSmall:'Pubblica',heroTitle:'Servizi auto, trovati veloce.',heroText:'Trova aziende auto nella tua città. Semplice, pulito e rapido.',searchPlaceholder:'Cerca: traino, ITP, Brașov...',searchBtn:'Cerca',latestListings:'Annunci',latestDesc:'I risultati appaiono qui dopo la pubblicazione.',searchTitle:'Cerca servizi',searchDesc:'Usa la barra e i filtri per risultati precisi.',publishTitle:'Pubblica annuncio',publishDesc:'Scegli categoria e descrizione. I dati arrivano dal profilo.',publishPlaceholder:'Descrivi servizio, zona, orario e cosa offri...',choosePhotoOptional:'Scegli foto / logo opzionale',publishBtn:'Pubblica annuncio',savedTitle:'Salvati',savedDesc:'Gli annunci salvati appaiono qui.',inboxDesc:'Messaggi, notifiche e aggiornamenti.',feedbackTitle:'Invia feedback',feedbackDesc:'Aiutaci a migliorare l’app.',sendFeedback:'Invia feedback',profileTitle:'Profilo',profileDesc:'Modifica i dati usati negli annunci.',changePhoto:'Cambia foto',myListings:'Annunci',savedMini:'Salvati',settings:'Impostazioni',feedbackMenu:'Dicci la tua opinione',logout:'Esci',saveProfile:'Salva profilo',settingsDesc:'Preferenze account e app.',chooseProfilePhoto:'Cambia foto profilo',notifications:'Notifiche',saveSettings:'Salva impostazioni',listingDetails:'Dettagli annuncio',allCounties:'Tutte le contee',allCities:'Tutte le città',chooseCounty:'Scegli contea',allCategories:'Tutte le categorie',chooseCategory:'Scegli categoria',emptyTitle:'Nessun annuncio',emptyDesc:'Quando qualcuno pubblica un servizio, appare qui.',noSaved:'Nessun salvato',noSavedDesc:'Premi il cuore su un annuncio per salvarlo.',profileNeed:'Completa il profilo con nome, telefono, contea e città prima di pubblicare.',profileReady:'L’annuncio userà i dati del tuo profilo.',installInfo:'Su iPhone: Condividi → Aggiungi alla Home. Su Android appare il pulsante se supportato.'}
-    };
-    const state={sb:null,user:null,profile:{},listings:[],favorites:new Set(),inbox:[],filters:{q:'',county:'',city:'',category:''},page:'home',lang:store.get('ar_lang','Română'),deferredInstall:null};
-    function esc(v){return String(v ?? '').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-    function tr(k){return (T[state.lang]&&T[state.lang][k])||T['Română'][k]||k}
-    function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2400)}
-    function phone(v){return String(v||'').replace(/[^\d+]/g,'')} function wa(v){let p=phone(v); if(p.startsWith('0')) p='40'+p.slice(1); return 'https://wa.me/'+p} function getId(x){return String(x.id)} function initials(){const base=(state.profile.full_name||state.user?.email||'AR').trim();return base.split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'AR'}
-    function logo(){return '<svg class="logo-svg" viewBox="0 0 64 64" width="100%" height="100%" aria-hidden="true"><defs><linearGradient id="g" x1="10" y1="8" x2="56" y2="56"><stop stop-color="#fff4a8"/><stop offset=".45" stop-color="#ffd700"/><stop offset="1" stop-color="#b98500"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="#121212"/><path d="M16 39l4-12h24l4 12" fill="none" stroke="url(#g)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 39h20" stroke="url(#g)" stroke-width="4" stroke-linecap="round"/><circle cx="22" cy="43" r="4" fill="url(#g)"/><circle cx="42" cy="43" r="4" fill="url(#g)"/><path d="M27 21h10" stroke="#fff8c8" stroke-width="3" stroke-linecap="round"/></svg>'}
-    function setLogos(){['bootLogo','authLogo','topLogo'].forEach(id=>{if($(id))$(id).innerHTML=logo()})}
-    function applyLanguage(){document.documentElement.lang=state.lang==='Engleză'?'en':state.lang==='Italiană'?'it':'ro';qsa('[data-i18n]').forEach(el=>el.textContent=tr(el.dataset.i18n));qsa('[data-i18n-placeholder]').forEach(el=>el.placeholder=tr(el.dataset.i18nPlaceholder));fillSelects();renderAll(false)}
-    function initSupabase(){if(window.supabase){state.sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}}
-    function opt(arr,label){return `<option value="">${esc(label)}</option>`+arr.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}
-    function fillSelects(){const counties=Object.keys(CITIES); if($('countyFilter')){$('countyFilter').innerHTML=opt(counties,tr('allCounties'));$('countyFilter').value=state.filters.county||'';} if($('profCounty')){$('profCounty').innerHTML='<option value="">'+esc(tr('chooseCounty'))+'</option>'+counties.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');$('profCounty').value=state.profile.county||'';} if($('categoryFilter')){$('categoryFilter').innerHTML=opt(CATEGORIES,tr('allCategories'));$('categoryFilter').value=state.filters.category||'';} if($('pubCategory'))$('pubCategory').innerHTML='<option value="">'+esc(tr('chooseCategory'))+'</option>'+CATEGORIES.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join(''); updateCity('filter'); updateCity('profile'); if($('cityFilter'))$('cityFilter').value=state.filters.city||''; if($('profCity'))$('profCity').value=state.profile.city||''; if($('quickCats'))$('quickCats').innerHTML=['',...CATEGORIES.slice(0,10)].map((c,i)=>`<button class="chip ${state.filters.category===c||(!state.filters.category&&!c)?'active':''}" data-cat="${esc(c)}">${i===0?esc(tr('allCategories')).replace('Toate ','').replace('All ','').replace('Tutte ',''):esc(c)}</button>`).join('')}
-    function updateCity(kind){if(kind==='filter'){const county=$('countyFilter')?.value||state.filters.county||''; const cities=county?(CITIES[county]||[]):[]; if($('cityFilter'))$('cityFilter').innerHTML=`<option value="">${esc(county?tr('allCities'):tr('chooseCounty'))}</option>`+cities.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');}
-      if(kind==='profile'){const county=$('profCounty')?.value||state.profile.county||''; const cities=county?(CITIES[county]||[]):[]; if($('profCity'))$('profCity').innerHTML=`<option value="">${esc(county?tr('allCities'):tr('chooseCounty'))}</option>`+cities.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');}}
-    function isDemo(x){return DEMO_NAMES.has(x.business_name)||['0712345678','0722222222','0733333333','0744444444','0755555555','0766666666'].includes(phone(x.phone))}
-    function bind(){document.addEventListener('click',e=>{const p=e.target.closest('[data-page]'); if(p){showPage(p.dataset.page)}});qsa('.tab').forEach(b=>b.onclick=()=>switchAuth(b.dataset.auth));$('loginForm').onsubmit=login;$('signupForm').onsubmit=signup;$('logoutBtn').onclick=logout;$('searchButton').onclick=doSearch;$('qInput').addEventListener('input',()=>{state.filters.q=$('qInput').value.trim();renderListings()});$('qInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();doSearch()}});$('countyFilter').onchange=()=>{state.filters.county=$('countyFilter').value;state.filters.city='';updateCity('filter');renderListings()};$('cityFilter').onchange=()=>{state.filters.city=$('cityFilter').value;renderListings()};$('categoryFilter').onchange=()=>{state.filters.category=$('categoryFilter').value;renderListings();renderChips()};$('quickCats').onclick=e=>{const b=e.target.closest('[data-cat]');if(!b)return;state.filters.category=b.dataset.cat;$('categoryFilter').value=state.filters.category;renderChips();renderListings()};$('publishForm').onsubmit=submitListing;$('pubDescription').oninput=()=>{$('pubCounter').textContent=$('pubDescription').value.length};$('pubImage').onchange=()=>{$('pubImageLabel').textContent=$('pubImage').files[0]?.name||tr('choosePhotoOptional')};$('profileForm').onsubmit=saveProfileForm;$('profileAvatar').onchange=avatarChange;$('settingsAvatar').onchange=avatarChange;$('settingsForm').onsubmit=saveSettings;$('profCounty').onchange=()=>{updateCity('profile')};$('feedbackForm').onsubmit=sendFeedback;$('fbText').oninput=()=>{$('fbCounter').textContent=$('fbText').value.length};$('closeDetail').onclick=closeDetail;$('detailModal').onclick=e=>{if(e.target.id==='detailModal')closeDetail()};$('installBtn').onclick=installApp;$('installBtnSettings').onclick=installApp;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.deferredInstall=e});}
-    function renderChips(){qsa('#quickCats .chip').forEach(b=>b.classList.toggle('active',b.dataset.cat===state.filters.category||(!b.dataset.cat&&!state.filters.category)))}
-    function switchAuth(mode){qsa('.tab').forEach(t=>t.classList.toggle('active',t.dataset.auth===mode));$('loginForm').classList.toggle('hidden',mode!=='login');$('signupForm').classList.toggle('hidden',mode!=='signup')}
-    async function login(e){e.preventDefault();if(!state.sb)return toast('Supabase nu este încărcat');const {error}=await state.sb.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});if(error)return toast(error.message);await loadAuth();await refreshAll();showApp();toast('Bine ai venit')}
-    async function signup(e){e.preventDefault();if(!state.sb)return toast('Supabase nu este încărcat');const email=$('signupEmail').value.trim(), password=$('signupPassword').value;const {data,error}=await state.sb.auth.signUp({email,password,options:{data:{full_name:$('signupName').value.trim()}}});if(error)return toast(error.message);if(!data.session){await state.sb.auth.signInWithPassword({email,password})}state.user=(data.session?.user||data.user);await saveProfileData({full_name:$('signupName').value.trim(),email});await loadAuth();await refreshAll();showApp();toast('Cont creat')}
-    async function logout(){if(state.sb)await state.sb.auth.signOut();state.user=null;state.profile={};showAuth()}
-    async function loadAuth(){if(!state.sb)return;const {data}=await state.sb.auth.getSession();state.user=data.session?.user||null;if(state.user)await loadProfile();state.sb.auth.onAuthStateChange(async(_,session)=>{state.user=session?.user||null;if(state.user){await loadProfile();await refreshAll();showApp()}else showAuth()})}
-    function showAuth(){$('authScreen').classList.remove('hidden');$('app').classList.add('hidden')} function showApp(){$('authScreen').classList.add('hidden');$('app').classList.remove('hidden')}
-    async function loadProfile(){if(!state.user)return;let p=null;if(state.sb){const {data,error}=await state.sb.from('profiles').select('*').eq('id',state.user.id).maybeSingle();if(!error)p=data}const local=store.get('ar_profile_'+state.user.id,{});state.profile={email:state.user.email,...(p||{}),...local};if(!state.profile.email)state.profile.email=state.user.email;state.lang=state.profile.language||store.get('ar_lang','Română')||'Română'}
-    async function saveProfileData(patch){if(!state.user)return;state.profile={...state.profile,...patch,updated_at:new Date().toISOString()};store.set('ar_profile_'+state.user.id,state.profile);state.lang=state.profile.language||state.lang;store.set('ar_lang',state.lang);let sent=false;if(state.sb){const row={id:state.user.id,email:state.user.email,full_name:state.profile.full_name||'',phone:state.profile.phone||'',city:state.profile.city||'',language:state.profile.language||state.lang,notifications:state.profile.notifications!==false,privacy:state.profile.privacy!==false,avatar_data:state.profile.avatar_data||'',updated_at:new Date().toISOString()}; if('county' in state.profile) row.county=state.profile.county||''; const res=await state.sb.from('profiles').upsert(row,{onConflict:'id'}).select('*').maybeSingle(); if(res.error && row.county!==undefined){delete row.county; const r2=await state.sb.from('profiles').upsert(row,{onConflict:'id'}).select('*').maybeSingle(); sent=!r2.error}else sent=!res.error}return sent}
-    async function refreshAll(){await loadListings();await loadFavorites();await loadInbox();renderAll()}
-    async function loadListings(){let data=[];if(state.sb){const {data:rows,error}=await state.sb.from('listings').select('*').order('created_at',{ascending:false});if(!error)data=rows||[]}const local=store.get('ar_local_listings',[]);state.listings=[...data,...local].filter(x=>!isDemo(x));}
-    async function loadFavorites(){state.favorites=new Set(store.get('ar_favorites',[]));if(state.sb&&state.user){const {data,error}=await state.sb.from('favorites').select('listing_id').eq('user_id',state.user.id);if(!error){state.favorites=new Set((data||[]).map(x=>String(x.listing_id)));store.set('ar_favorites',[...state.favorites])}}}
-    async function loadInbox(){let rows=[];if(state.sb){const {data,error}=await state.sb.from('inbox_messages').select('*').or(`user_id.is.null,user_id.eq.${state.user?.id}`).order('created_at',{ascending:false});if(!error)rows=data||[]}state.inbox=rows}
-    function showPage(page){state.page=page;qsa('.section').forEach(s=>s.classList.toggle('active',s.id===page));qsa('.nav-btn,.mnav').forEach(b=>b.classList.toggle('active',b.dataset.page===page));if(page==='search'){setTimeout(()=>$('qInput').focus(),120);renderListings()}if(page==='publish')renderPublishHint();window.scrollTo({top:0,behavior:'smooth'})}
-    function doSearch(){state.filters.q=$('qInput').value.trim();renderListings();showPage('search')}
-    function applyFilters(list){const f=state.filters,q=f.q.toLowerCase();return list.filter(x=>(!f.county||x.county===f.county)&&(!f.city||x.city===f.city)&&(!f.category||x.category===f.category)&&(!q||[x.business_name,x.category,x.city,x.county,x.description,x.address].join(' ').toLowerCase().includes(q))).sort((a,b)=>(b.promoted?1:0)-(a.promoted?1:0))}
-    function renderListings(){const list=applyFilters(state.listings);$('resultCount').textContent=list.length+' rezultate';const html=list.length?list.map(card).join(''):empty(tr('emptyTitle'),tr('emptyDesc'));$('listingGrid').innerHTML=html;$('searchGrid').innerHTML=html;renderSaved();bindCards()}
-    function renderSaved(){const list=state.listings.filter(x=>state.favorites.has(getId(x)));$('savedCount').textContent=list.length+' salvate';$('savedGrid').innerHTML=list.length?list.map(card).join(''):empty(tr('noSaved'),tr('noSavedDesc'));bindCards()}
-    function empty(t,d){return `<div class="empty"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M9 15h6"/></svg><h3>${esc(t)}</h3><p>${esc(d)}</p></div>`}
-    function card(x){const id=getId(x),saved=state.favorites.has(id);const img=x.image_url?`<img src="${esc(x.image_url)}" alt="${esc(x.business_name)}">`:`<span class="logo-initial">${esc((x.business_name||'AR').slice(0,2).toUpperCase())}</span>`;return `<article class="listing-card" data-id="${esc(id)}">${x.promoted?'<span class="badge">Premium</span>':''}<div class="card-logo">${img}</div><div class="card-content"><div class="card-top"><div><h3>${esc(x.business_name||'Serviciu auto')}</h3><p class="tagline">${esc(x.category)} • ${esc(x.city||'')}${x.county?', '+esc(x.county):''}</p></div><button class="heart ${saved?'saved':''}" data-fav="${esc(id)}" aria-label="Salvează"><svg class="icon" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg></button></div><p class="tagline">${esc((x.description||'').slice(0,110))}${(x.description||'').length>110?'...':''}</p><div class="card-meta"><span>${esc(x.schedule||'Program în profil')}</span><span>${esc(x.price||'Preț la cerere')}</span></div><div class="card-actions"><a class="mini-btn black" href="tel:${esc(phone(x.phone))}">Sună</a><a class="mini-btn green" href="${esc(wa(x.whatsapp||x.phone))}" target="_blank" rel="noopener">WhatsApp</a><button class="mini-btn line" data-open="${esc(id)}">Detalii</button></div></div></article>`}
-    function bindCards(){qsa('[data-fav]').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleFavorite(b.dataset.fav)});qsa('[data-open]').forEach(b=>b.onclick=()=>openDetail(b.dataset.open))}
-    async function toggleFavorite(id){if(!state.user)return showAuth();const saved=state.favorites.has(id); if(saved)state.favorites.delete(id);else state.favorites.add(id);store.set('ar_favorites',[...state.favorites]);renderListings();if(state.sb){if(saved)await state.sb.from('favorites').delete().eq('user_id',state.user.id).eq('listing_id',id);else await state.sb.from('favorites').insert({user_id:state.user.id,listing_id:id})}toast(saved?'Scos de la salvate':'Salvat')}
-    function renderPublishHint(){const ok=profileReady();$('profileHint').innerHTML=ok?`<b>${esc(tr('profileReady'))}</b><br>${esc(state.profile.full_name||'')} • ${esc(state.profile.phone||'')} • ${esc(state.profile.city||'')}, ${esc(state.profile.county||'')}`:`<b>${esc(tr('profileNeed'))}</b><br><button class="pill light" data-page="profile" style="margin-top:10px">Profil</button>`}
-    function profileReady(){return !!(state.profile.full_name&&state.profile.phone&&state.profile.county&&state.profile.city)}
-    async function submitListing(e){e.preventDefault();if(!profileReady()){toast(tr('profileNeed'));showPage('profile');return}const image=await fileToDataUrl($('pubImage').files[0]);const promo=$('pubPromo').value;const row={user_id:state.user.id,business_name:state.profile.full_name,category:$('pubCategory').value,county:state.profile.county,city:state.profile.city,address:state.profile.address||'',phone:state.profile.phone,whatsapp:state.profile.phone,schedule:state.profile.schedule||'',price:state.profile.price||'',description:$('pubDescription').value.trim(),image_url:image||state.profile.avatar_data||'',promo_type:promo,promoted:promo!=='Gratuit',rating:4.8};if(!row.category||!row.description)return toast('Alege categoria și descrierea');let inserted=null;if(state.sb){const {data,error}=await state.sb.from('listings').insert(row).select('*').single();if(!error)inserted=data}if(!inserted){inserted={...row,id:'local-'+Date.now(),created_at:new Date().toISOString()};const a=store.get('ar_local_listings',[]);a.unshift(inserted);store.set('ar_local_listings',a)}state.listings.unshift(inserted);e.target.reset();$('pubCounter').textContent='0';$('pubImageLabel').textContent=tr('choosePhotoOptional');toast('Anunț publicat');showPage('home');renderListings()}
-    function renderProfile(){if(!state.user)return;state.profile.language=state.profile.language||state.lang;$('profileName').textContent=state.profile.full_name||'Utilizator';$('profileEmail').textContent=state.profile.email||state.user.email||'';renderAvatar();$('profName').value=state.profile.full_name||'';$('profPhone').value=state.profile.phone||'';$('profEmail').value=state.profile.email||state.user.email||'';$('profSchedule').value=state.profile.schedule||'';$('profPrice').value=state.profile.price||'';$('profAddress').value=state.profile.address||'';$('profCounty').value=state.profile.county||'';updateCity('profile');$('profCity').value=state.profile.city||'';$('statListings').textContent=state.listings.filter(x=>x.user_id===state.user.id).length;$('statSaved').textContent=state.favorites.size;$('statInbox').textContent=state.inbox.length;$('setName').value=state.profile.full_name||'';$('setPhone').value=state.profile.phone||'';$('setLanguage').value=state.profile.language||state.lang;$('setTheme').value=document.documentElement.dataset.theme||'light';$('setNotify').checked=state.profile.notifications!==false;renderPublishHint()}
-    function renderAvatar(){const el=$('avatarBox');if(!el)return;if(state.profile.avatar_data)el.innerHTML=`<img src="${esc(state.profile.avatar_data)}" alt="Profil">`;else el.innerHTML=`<span>${esc(initials())}</span>`}
-    async function saveProfileForm(e){e.preventDefault();await saveProfileData({full_name:$('profName').value.trim(),phone:$('profPhone').value.trim(),email:$('profEmail').value.trim(),county:$('profCounty').value,city:$('profCity').value,schedule:$('profSchedule').value.trim(),price:$('profPrice').value.trim(),address:$('profAddress').value.trim()});renderAll();toast('Profil salvat')}
-    async function saveSettings(e){e.preventDefault();const lang=$('setLanguage').value;setTheme($('setTheme').value);await saveProfileData({full_name:$('setName').value.trim(),phone:$('setPhone').value.trim(),language:lang,notifications:$('setNotify').checked});state.lang=lang;applyLanguage();renderAll();toast('Setări salvate')}
-    async function avatarChange(e){const file=e.target.files[0];if(!file)return;const data=await fileToDataUrl(file,720);await saveProfileData({avatar_data:data});renderAll();toast('Poza a fost schimbată');e.target.value=''}
-    function setTheme(v){document.documentElement.dataset.theme=v||'light';store.set('ar_theme',v||'light')}
-    async function sendFeedback(e){e.preventDefault();const row={user_id:state.user?.id||null,category:$('fbCategory').value,description:$('fbText').value.trim()};if(!row.description)return toast('Scrie feedback-ul');let ok=false;if(state.sb){const {error}=await state.sb.from('feedback').insert(row);ok=!error}if(!ok){const a=store.get('ar_feedback',[]);a.push({...row,created_at:new Date().toISOString()});store.set('ar_feedback',a)}$('fbText').value='';$('fbCounter').textContent='0';toast('Feedback trimis')}
-    function renderInbox(){$('inboxList').innerHTML=state.inbox.map(m=>`<div class="message"><div class="dot"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16v14H5.2L4 20V4z"/></svg></div><div><h4>${esc(m.title)}</h4><p>${esc(m.message)}</p><p class="tiny">${esc(m.type||'Mesaj')}</p></div></div>`).join('')||empty('Inbox gol','Nu ai mesaje momentan.')}
-    function openDetail(id){const x=state.listings.find(i=>getId(i)===String(id));if(!x)return;const saved=state.favorites.has(getId(x));$('detailContent').innerHTML=`<div class="detail"><div class="detail-photo">${x.image_url?`<img src="${esc(x.image_url)}" alt="${esc(x.business_name)}">`:logo()}</div><div><h2 style="margin:0 0 8px;font-weight:560">${esc(x.business_name)}</h2><div class="card-meta"><span>${esc(x.category)}</span><span>${esc(x.city)}, ${esc(x.county)}</span><span>★ ${esc(x.rating||4.8)}</span></div><p class="section-desc">${esc(x.description||'')}</p><div class="rows"><div class="row"><span>Adresă</span><b>${esc(x.address||'-')}</b></div><div class="row"><span>Program</span><b>${esc(x.schedule||'-')}</b></div><div class="row"><span>Telefon</span><b>${esc(x.phone||'-')}</b></div><div class="row"><span>Preț</span><b>${esc(x.price||'-')}</b></div></div><div class="card-actions"><a class="mini-btn black" href="tel:${esc(phone(x.phone))}">Sună</a><a class="mini-btn green" href="${esc(wa(x.whatsapp||x.phone))}" target="_blank">WhatsApp</a><button class="mini-btn line" id="detailSave">${saved?'Scos':'Salvează'}</button><button class="mini-btn line" id="detailReport">Raportează</button></div></div></div>`;$('detailSave').onclick=()=>toggleFavorite(getId(x));$('detailReport').onclick=()=>reportListing(getId(x));$('detailModal').classList.add('show');document.body.classList.add('lock')}
-    function closeDetail(){$('detailModal').classList.remove('show');document.body.classList.remove('lock')}
-    async function reportListing(id){let ok=false;if(state.sb){const {error}=await state.sb.from('reports').insert({listing_id:id,user_id:state.user?.id||null,reason:'Raport trimis din aplicație'});ok=!error}if(!ok){const a=store.get('ar_reports',[]);a.push({listing_id:id,user_id:state.user?.id||null,created_at:new Date().toISOString()});store.set('ar_reports',a)}toast('Raport trimis');closeDetail()}
-    function renderAll(skipLang){if(!skipLang){qsa('[data-i18n]').forEach(el=>el.textContent=tr(el.dataset.i18n));qsa('[data-i18n-placeholder]').forEach(el=>el.placeholder=tr(el.dataset.i18nPlaceholder))}renderChips();renderListings();renderProfile();renderInbox()}
-    function fileToDataUrl(file,max=900){return new Promise(resolve=>{if(!file)return resolve('');const img=new Image();const reader=new FileReader();reader.onload=()=>{img.onload=()=>{const scale=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.82))};img.onerror=()=>resolve(reader.result);img.src=reader.result};reader.onerror=()=>resolve('');reader.readAsDataURL(file)})}
-    function installApp(){if(state.deferredInstall){state.deferredInstall.prompt();state.deferredInstall.userChoice.finally(()=>state.deferredInstall=null)}else toast(tr('installInfo'))}
-    function setupPWA(){const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="120" fill="#111"/><path d="M120 315l42-126h188l42 126" fill="none" stroke="#FFD700" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/><path d="M170 315h172" stroke="#FFD700" stroke-width="34" stroke-linecap="round"/><circle cx="177" cy="355" r="35" fill="#FFD700"/><circle cx="335" cy="355" r="35" fill="#FFD700"/><path d="M215 150h82" stroke="#FFF4A8" stroke-width="26" stroke-linecap="round"/></svg>';const icon='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);const manifest={name:'AutoRapid RO',short_name:'AutoRapid',start_url:location.href,display:'standalone',background_color:'#fbfaf7',theme_color:'#ffd700',icons:[{src:icon,sizes:'192x192',type:'image/svg+xml'},{src:icon,sizes:'512x512',type:'image/svg+xml'}]};const link=document.createElement('link');link.rel='manifest';link.href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/json'}));document.head.appendChild(link);}
-    async function boot(){setTheme(store.get('ar_theme','light'));setLogos();setupPWA();initSupabase();fillSelects();bind();await loadAuth();if(state.user){await refreshAll();showApp()}else showAuth();applyLanguage();setTimeout(()=>$('boot').classList.add('hide'),500)}
-    document.addEventListener('DOMContentLoaded',boot);
-  })();
+  'use strict';
+  const SUPABASE_URL = "https://ncdutmwivbgmubiodkev.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_Yfwqvy9Avytb0vXa4qUtnA_vBUENjlE";
+
+  const $ = id => document.getElementById(id);
+  const qsa = sel => Array.from(document.querySelectorAll(sel));
+  const store = {get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),del:k=>localStorage.removeItem(k)};
+  const safe = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const norm = v => String(v ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const idOf = x => String(x.id || x.listing_id || '');
+  const DEMO_NAMES = new Set(['Tractări Auto București','Vulcanizare Mobilă Cluj','Service Auto Brașov','ITP Sibiu Rapid','Diagnoză Auto Timișoara','Schimb Ulei Constanța']);
+
+  const CATEGORIES = ['Tractări auto','Vulcanizare','Service auto','ITP','Diagnoză auto','Schimb ulei','Piese auto','Spălătorie auto','Detailing auto','Tinichigerie','Vopsitorie','Electrician auto','Închirieri auto','Dezmembrări auto','Anvelope','Asigurări auto','Platformă auto','Mecanic la domiciliu'];
+  const COUNTIES = {
+    'Alba':['Alba Iulia','Aiud','Blaj','Sebeș','Cugir'], 'Arad':['Arad','Ineu','Lipova','Pecica'], 'Argeș':['Pitești','Mioveni','Câmpulung','Curtea de Argeș'], 'Bacău':['Bacău','Onești','Moinești','Comănești'],
+    'Bihor':['Oradea','Salonta','Marghita','Beiuș'], 'Bistrița-Năsăud':['Bistrița','Năsăud','Beclean'], 'Botoșani':['Botoșani','Dorohoi','Săveni'], 'Brașov':['Brașov','Făgăraș','Săcele','Codlea','Râșnov','Zărnești'],
+    'Brăila':['Brăila','Ianca','Făurei'], 'București':['Sector 1','Sector 2','Sector 3','Sector 4','Sector 5','Sector 6'], 'Buzău':['Buzău','Râmnicu Sărat','Nehoiu'], 'Călărași':['Călărași','Oltenița','Lehliu Gară'],
+    'Caraș-Severin':['Reșița','Caransebeș','Bocșa','Oravița'], 'Cluj':['Cluj-Napoca','Turda','Dej','Câmpia Turzii','Gherla'], 'Constanța':['Constanța','Mangalia','Medgidia','Năvodari','Cernavodă'], 'Covasna':['Sfântu Gheorghe','Târgu Secuiesc','Covasna'],
+    'Dâmbovița':['Târgoviște','Moreni','Pucioasa','Găești'], 'Dolj':['Craiova','Băilești','Calafat','Filiași'], 'Galați':['Galați','Tecuci','Târgu Bujor'], 'Giurgiu':['Giurgiu','Bolintin-Vale','Mihăilești'],
+    'Gorj':['Târgu Jiu','Motru','Rovinari','Târgu Cărbunești'], 'Harghita':['Miercurea Ciuc','Odorheiu Secuiesc','Gheorgheni','Toplița'], 'Hunedoara':['Deva','Hunedoara','Petroșani','Orăștie','Vulcan'], 'Ialomița':['Slobozia','Fetești','Urziceni'],
+    'Iași':['Iași','Pașcani','Hârlău','Târgu Frumos'], 'Ilfov':['Voluntari','Chiajna','Otopeni','Buftea','Popești-Leordeni'], 'Maramureș':['Baia Mare','Sighetu Marmației','Borșa','Baia Sprie'], 'Mehedinți':['Drobeta-Turnu Severin','Orșova','Strehaia'],
+    'Mureș':['Târgu Mureș','Reghin','Sighișoara','Târnăveni'], 'Neamț':['Piatra Neamț','Roman','Târgu Neamț','Bicaz'], 'Olt':['Slatina','Caracal','Balș','Corabia'], 'Prahova':['Ploiești','Câmpina','Sinaia','Bușteni','Mizil'],
+    'Sălaj':['Zalău','Șimleu Silvaniei','Jibou'], 'Satu Mare':['Satu Mare','Carei','Negrești-Oaș'], 'Sibiu':['Sibiu','Mediaș','Cisnădie','Agnita'], 'Suceava':['Suceava','Fălticeni','Rădăuți','Câmpulung Moldovenesc'],
+    'Teleorman':['Alexandria','Roșiori de Vede','Turnu Măgurele'], 'Timiș':['Timișoara','Lugoj','Sânnicolau Mare','Jimbolia'], 'Tulcea':['Tulcea','Măcin','Babadag'], 'Vâlcea':['Râmnicu Vâlcea','Drăgășani','Băile Olănești'],
+    'Vaslui':['Vaslui','Bârlad','Huși'], 'Vrancea':['Focșani','Adjud','Mărășești']
+  };
+
+  const T = {
+    'Română': {authTitle:'Intră în cont',authSub:'Conectare simplă cu email și parolă.',login:'Login',register:'Creează cont',name:'Nume / firmă',namePh:'Ex: Rapid Service Brașov',password:'Parolă',passPh:'Minim 6 caractere',enter:'Intră',home:'Acasă',search:'Caută',publish:'Publică',saved:'Salvate',profile:'Profil',eyebrow:'Marketplace auto România',heroTitle:'Servicii auto, găsite rapid.',heroText:'Caută firme auto după oraș, categorie și disponibilitate. Simplu, curat, fără aglomerație.',searchPh:'Caută tractări, service, ITP...',searchLabel:'Caută',searchExample:'Ex: vulcanizare Brașov',searchDeep:'Caută după nume, oraș, categorie',county:'Județ',city:'Oraș',category:'Categorie',latest:'Anunțuri recente',searchResults:'Căutare',publishTitle:'Publică anunț',publishInfo:'Completezi doar categoria și descrierea. Datele firmei sunt preluate automat din profil.',description:'Descriere',descPh:'Scrie pe scurt ce serviciu oferi, program, zonă, detalii utile.',promotion:'Promovare',publishBtn:'Publică anunț',profileData:'Date folosite din profil',editProfile:'Editează profil',myListings:'Anunțuri',settings:'Setări',companyName:'Nume firmă / utilizator',companyPh:'Numele firmei tale',phone:'Telefon / WhatsApp',address:'Adresă',addressPh:'Stradă / zonă',schedule:'Program',price:'Preț orientativ',profilePhoto:'Poză profil / logo',choosePhoto:'Alege poză',noFile:'Nicio poză aleasă',saveProfile:'Salvează profil',language:'Limba aplicației',theme:'Temă',notifications:'Notificări',saveSettings:'Salvează setări',addHome:'Adaugă pe ecran',addHomeText:'Instalează aplicația pe telefon.',add:'Adaugă',feedback:'Feedback',feedbackPh:'Descriere feedback',sendFeedback:'Trimite feedback',logout:'Deconectare',emptyTitle:'Nu există anunțuri încă',emptyDesc:'Când o firmă publică un anunț, apare aici.',noSaved:'Nu ai anunțuri salvate',noSavedDesc:'Apasă inimă pe un anunț ca să îl salvezi.',call:'Sună',whatsapp:'WhatsApp',details:'Detalii',save:'Salvează',remove:'Elimină',report:'Raportează',close:'Închide',profileNeed:'Completează profilul înainte să publici.',profileReady:'Profil pregătit pentru publicare.',all:'Toate'},
+    'Engleză': {authTitle:'Sign in',authSub:'Simple email and password login.',login:'Login',register:'Create account',name:'Name / company',namePh:'Ex: Rapid Service Brașov',password:'Password',passPh:'Minimum 6 characters',enter:'Enter',home:'Home',search:'Search',publish:'Publish',saved:'Saved',profile:'Profile',eyebrow:'Romanian auto marketplace',heroTitle:'Auto services, found fast.',heroText:'Search auto companies by city, category and availability. Simple, clean, no clutter.',searchPh:'Search towing, service, ITP...',searchLabel:'Search',searchExample:'Ex: tire service Brașov',searchDeep:'Search by name, city, category',county:'County',city:'City',category:'Category',latest:'Recent listings',searchResults:'Search',publishTitle:'Publish listing',publishInfo:'Fill only category and description. Company details come from your profile.',description:'Description',descPh:'Briefly describe the service, schedule, area and useful details.',promotion:'Promotion',publishBtn:'Publish listing',profileData:'Profile data used',editProfile:'Edit profile',myListings:'Listings',settings:'Settings',companyName:'Company / user name',companyPh:'Your company name',phone:'Phone / WhatsApp',address:'Address',addressPh:'Street / area',schedule:'Schedule',price:'Estimated price',profilePhoto:'Profile photo / logo',choosePhoto:'Choose photo',noFile:'No photo selected',saveProfile:'Save profile',language:'App language',theme:'Theme',notifications:'Notifications',saveSettings:'Save settings',addHome:'Add to home',addHomeText:'Install the app on your phone.',add:'Add',feedback:'Feedback',feedbackPh:'Feedback description',sendFeedback:'Send feedback',logout:'Log out',emptyTitle:'No listings yet',emptyDesc:'When a company publishes a listing, it will appear here.',noSaved:'No saved listings',noSavedDesc:'Tap the heart on a listing to save it.',call:'Call',whatsapp:'WhatsApp',details:'Details',save:'Save',remove:'Remove',report:'Report',close:'Close',profileNeed:'Complete your profile before publishing.',profileReady:'Profile ready for publishing.',all:'All'},
+    'Italiană': {authTitle:'Accedi',authSub:'Accesso semplice con email e password.',login:'Login',register:'Crea account',name:'Nome / azienda',namePh:'Es: Rapid Service Brașov',password:'Password',passPh:'Minimo 6 caratteri',enter:'Entra',home:'Home',search:'Cerca',publish:'Pubblica',saved:'Salvati',profile:'Profilo',eyebrow:'Marketplace auto Romania',heroTitle:'Servizi auto, trovati velocemente.',heroText:'Cerca aziende auto per città, categoria e disponibilità. Semplice, pulito, senza confusione.',searchPh:'Cerca traino, service, ITP...',searchLabel:'Cerca',searchExample:'Es: gommista Brașov',searchDeep:'Cerca per nome, città, categoria',county:'Provincia',city:'Città',category:'Categoria',latest:'Annunci recenti',searchResults:'Ricerca',publishTitle:'Pubblica annuncio',publishInfo:'Compila solo categoria e descrizione. I dati aziendali vengono dal profilo.',description:'Descrizione',descPh:'Descrivi brevemente servizio, orario, zona e dettagli utili.',promotion:'Promozione',publishBtn:'Pubblica annuncio',profileData:'Dati usati dal profilo',editProfile:'Modifica profilo',myListings:'Annunci',settings:'Impostazioni',companyName:'Nome azienda / utente',companyPh:'Nome della tua azienda',phone:'Telefono / WhatsApp',address:'Indirizzo',addressPh:'Via / zona',schedule:'Orario',price:'Prezzo indicativo',profilePhoto:'Foto profilo / logo',choosePhoto:'Scegli foto',noFile:'Nessuna foto scelta',saveProfile:'Salva profilo',language:'Lingua app',theme:'Tema',notifications:'Notifiche',saveSettings:'Salva impostazioni',addHome:'Aggiungi alla home',addHomeText:'Installa l’app sul telefono.',add:'Aggiungi',feedback:'Feedback',feedbackPh:'Descrizione feedback',sendFeedback:'Invia feedback',logout:'Esci',emptyTitle:'Nessun annuncio',emptyDesc:'Quando un’azienda pubblica un annuncio, apparirà qui.',noSaved:'Nessun salvato',noSavedDesc:'Tocca il cuore su un annuncio per salvarlo.',call:'Chiama',whatsapp:'WhatsApp',details:'Dettagli',save:'Salva',remove:'Rimuovi',report:'Segnala',close:'Chiudi',profileNeed:'Completa il profilo prima di pubblicare.',profileReady:'Profilo pronto per pubblicare.',all:'Tutti'}
+  };
+
+  const state = {sb:null,user:null,profile:{},listings:[],favorites:new Set(),inbox:[],filters:{q:'',county:'',city:'',category:''},page:'home',authMode:'login',lang:store.get('ar_lang','Română'),theme:store.get('ar_theme','light'),deferredInstall:null};
+  function tr(k){return (T[state.lang] && T[state.lang][k]) || T['Română'][k] || k}
+  function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2600)}
+
+  function setupManifest(){
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="118" fill="#111"/><circle cx="256" cy="256" r="180" fill="#f5c84b"/><path d="M142 292l28-82c10-28 37-46 67-46h38c30 0 57 18 67 46l28 82" fill="none" stroke="#111" stroke-width="32" stroke-linecap="round"/><path d="M120 292h272v70H120z" fill="#111"/><circle cx="190" cy="362" r="28" fill="#f5c84b"/><circle cx="322" cy="362" r="28" fill="#f5c84b"/></svg>`;
+    const icon = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    const manifest = {name:'AutoRapid RO',short_name:'AutoRapid',start_url:'/',display:'standalone',background_color:'#ffffff',theme_color:'#ffffff',icons:[{src:icon,sizes:'512x512',type:'image/svg+xml'}]};
+    const link=document.createElement('link');link.rel='manifest';link.href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(manifest));document.head.appendChild(link);
+    const apple=document.createElement('link');apple.rel='apple-touch-icon';apple.href=icon;document.head.appendChild(apple);
+  }
+
+  function fillSelect(id, arr, all=true){const el=$(id);if(!el)return;const val=el.value;el.innerHTML=(all?`<option value="">${tr('all')}</option>`:'')+arr.map(x=>`<option value="${safe(x)}">${safe(x)}</option>`).join('');if(arr.includes(val)||val==='')el.value=val}
+  function cityList(county){return county && COUNTIES[county] ? COUNTIES[county] : Object.values(COUNTIES).flat().slice(0,120)}
+  function fillAllSelects(){
+    const counties=Object.keys(COUNTIES);
+    ['countyFilter','searchCounty'].forEach(id=>fillSelect(id,counties,true));
+    fillSelect('profCounty',counties,true);
+    fillSelect('cityFilter',cityList($('countyFilter')?.value),true);
+    fillSelect('searchCity',cityList($('searchCounty')?.value),true);
+    fillSelect('profCity',cityList($('profCounty')?.value),true);
+    ['catFilter','searchCat'].forEach(id=>fillSelect(id,CATEGORIES,true));
+    fillSelect('pubCategory',CATEGORIES,false);
+    $('quickCats').innerHTML=['',...CATEGORIES.slice(0,8)].map(c=>`<button class="chip ${c===state.filters.category?'active':''}" type="button" data-chip="${safe(c)}">${safe(c||tr('all'))}</button>`).join('');
+  }
+  function applyLang(){
+    document.documentElement.lang = state.lang==='Engleză' ? 'en' : state.lang==='Italiană' ? 'it' : 'ro';
+    qsa('[data-i18n]').forEach(el=>el.textContent=tr(el.dataset.i18n));
+    qsa('[data-i18n-placeholder]').forEach(el=>el.placeholder=tr(el.dataset.i18nPlaceholder));
+    fillAllSelects();renderAll();
+  }
+  function setTheme(t){state.theme=t||'light';document.documentElement.dataset.theme=state.theme;store.set('ar_theme',state.theme)}
+
+  function isFake(x){return DEMO_NAMES.has(x.business_name)||['0712345678','0722222222','0733333333','0744444444','0755555555','0766666666'].includes(String(x.phone||''))}
+  function initials(){const n=state.profile.full_name||state.user?.email||'AR';return n.split(/[\s@.]+/).filter(Boolean).slice(0,2).map(s=>s[0]).join('').toUpperCase()||'AR'}
+  function profileReady(){return !!(state.profile.full_name && state.profile.phone && state.profile.county && state.profile.city)}
+
+  async function init(){
+    setupManifest();setTheme(state.theme);applyLang();
+    try{if(window.supabase)state.sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}catch(e){console.warn(e)}
+    window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.deferredInstall=e});
+    bindEvents();
+    await new Promise(r=>setTimeout(r,550));
+    let session=null;
+    if(state.sb){const {data}=await state.sb.auth.getSession();session=data?.session||null;state.sb.auth.onAuthStateChange((_e,s)=>{if(s?.user){state.user=s.user;bootApp()}else showAuth()})}
+    if(session?.user){state.user=session.user;await bootApp()}else showAuth();
+    $('loader').classList.add('done');setTimeout(()=>$('loader').classList.add('hidden'),260);
+  }
+
+  function showAuth(){state.user=null;$('app').classList.add('hidden');$('authScreen').classList.remove('hidden');}
+  function showApp(){ $('authScreen').classList.add('hidden');$('app').classList.remove('hidden');}
+  async function bootApp(){showApp();await loadProfile();await Promise.all([loadListings(),loadFavorites(),loadInbox()]);renderAll();go('home')}
+
+  async function authSubmit(e){
+    e.preventDefault();
+    const email=$('authEmail').value.trim(); const password=$('authPassword').value;
+    $('authMsg').textContent='';
+    if(!email || password.length<6){$('authMsg').textContent='Completează emailul și parola.';return}
+    if(!state.sb){store.set('local_user',{id:'local',email});state.user={id:'local',email};await bootApp();return}
+    try{
+      if(state.authMode==='register'){
+        const {data,error}=await state.sb.auth.signUp({email,password,options:{data:{full_name:$('authName').value.trim()}}});
+        if(error)throw error;
+        if(data.user && !data.session){
+          const r=await state.sb.auth.signInWithPassword({email,password});
+          if(r.error)throw r.error;
+        }
+        if($('authName').value.trim()) setTimeout(()=>saveProfileData({full_name:$('authName').value.trim()}),500);
+      }else{
+        const {error}=await state.sb.auth.signInWithPassword({email,password}); if(error)throw error;
+      }
+    }catch(err){$('authMsg').textContent=err.message || 'Nu s-a putut face conectarea.'}
+  }
+
+  function setAuthMode(m){state.authMode=m;$('loginTab').classList.toggle('active',m==='login');$('registerTab').classList.toggle('active',m==='register');$('nameWrap').style.display=m==='register'?'grid':'none';$('authSubmit').textContent=m==='login'?tr('enter'):tr('register')}
+
+  async function loadProfile(){
+    const local=store.get('ar_profile_'+state.user.id,{}); let p=null;
+    if(state.sb && state.user.id!=='local'){
+      const {data,error}=await state.sb.from('profiles').select('*').eq('id',state.user.id).maybeSingle(); if(!error)p=data;
+    }
+    state.profile={email:state.user.email,...(p||{}),...local};
+    state.lang=state.profile.language||state.lang||'Română'; state.theme=state.profile.theme||state.theme||'light'; setTheme(state.theme);store.set('ar_lang',state.lang);
+  }
+  async function saveProfileData(patch){
+    if(!state.user)return false;
+    state.profile={...state.profile,...patch,email:state.user.email,updated_at:new Date().toISOString()};
+    store.set('ar_profile_'+state.user.id,state.profile);store.set('ar_lang',state.profile.language||state.lang);store.set('ar_theme',state.profile.theme||state.theme);
+    if(!state.sb || state.user.id==='local')return true;
+    const row={id:state.user.id,email:state.user.email,full_name:state.profile.full_name||'',phone:state.profile.phone||'',county:state.profile.county||'',city:state.profile.city||'',address:state.profile.address||'',schedule:state.profile.schedule||'',price:state.profile.price||'',language:state.profile.language||state.lang,notifications:state.profile.notifications!==false,privacy:true,avatar_data:state.profile.avatar_data||'',updated_at:new Date().toISOString()};
+    const {error}=await state.sb.from('profiles').upsert(row,{onConflict:'id'});
+    if(error){console.warn('save profile',error);return false} return true;
+  }
+
+  async function loadListings(){
+    let rows=[];
+    if(state.sb){const {data,error}=await state.sb.from('listings').select('*').order('created_at',{ascending:false}).limit(300); if(!error) rows=data||[]; else console.warn(error)}
+    const local=store.get('ar_local_listings',[]);
+    const merged=[...local,...rows].filter(x=>!isFake(x));
+    const seen=new Set(); state.listings=merged.filter(x=>{const id=idOf(x); if(seen.has(id))return false; seen.add(id); return true});
+  }
+  async function loadFavorites(){
+    const local=new Set(store.get('ar_favs_'+state.user.id,[]));
+    if(state.sb && state.user.id!=='local'){
+      const {data,error}=await state.sb.from('favorites').select('listing_id').eq('user_id',state.user.id); if(!error)(data||[]).forEach(x=>local.add(String(x.listing_id)));
+    }
+    state.favorites=local;
+  }
+  async function loadInbox(){
+    let rows=[];
+    if(state.sb && state.user.id!=='local'){
+      const {data,error}=await state.sb.from('inbox_messages').select('*').or(`user_id.is.null,user_id.eq.${state.user.id}`).order('created_at',{ascending:false}).limit(20); if(!error)rows=data||[];
+    }
+    state.inbox=rows.length?rows:[{title:'Bun venit în AutoRapid RO',message:'Profilul, favoritele, publicarea, feedback-ul și raportările sunt active.',type:'Actualizare'}];
+  }
+
+  function applyFilters(list=state.listings){
+    const f=state.filters; const q=norm(f.q);
+    return list.filter(x=>{
+      if(f.county && x.county!==f.county)return false;
+      if(f.city && x.city!==f.city)return false;
+      if(f.category && x.category!==f.category)return false;
+      if(q){const blob=norm([x.business_name,x.category,x.city,x.county,x.description,x.address].join(' ')); if(!blob.includes(q))return false;}
+      return true;
+    });
+  }
+  function card(x){
+    const id=idOf(x), saved=state.favorites.has(id), avatar=x.image_url||'';
+    const phone=String(x.phone||'').replace(/\s+/g,'');
+    const wa=String(x.whatsapp||x.phone||'').replace(/\D/g,'');
+    return `<article class="service-card" data-listing="${safe(id)}">
+      <div class="card-logo">${avatar?`<img src="${safe(avatar)}" alt="">`:safe((x.business_name||'AR').slice(0,2).toUpperCase())}</div>
+      <div class="card-main">
+        <div class="card-top"><h3 class="card-title">${safe(x.business_name||'Firmă auto')}</h3>${x.promoted?`<span class="badge">Premium</span>`:''}</div>
+        <div class="meta"><span>${safe(x.category||'Auto')}</span><span>•</span><span>${safe(x.city||'')}${x.county?', '+safe(x.county):''}</span>${x.rating?`<span>• ★ ${safe(x.rating)}</span>`:''}</div>
+        <p class="desc">${safe(x.description||'')}</p>
+        <div class="actions">
+          <a class="btn small light" href="tel:${safe(phone)}">${tr('call')}</a>
+          <a class="btn small light" href="https://wa.me/${safe(wa)}" target="_blank" rel="noopener">${tr('whatsapp')}</a>
+          <button class="btn small ghost" type="button" data-open="${safe(id)}">${tr('details')}</button>
+        </div>
+      </div>
+      <div class="card-side"><button class="heart ${saved?'saved':''}" type="button" data-fav="${safe(id)}" aria-label="${saved?tr('remove'):tr('save')}"><svg class="icon" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg></button><span class="price">${safe(x.price||'')}</span></div>
+    </article>`;
+  }
+  function empty(title,desc){return `<div class="empty"><h3>${safe(title)}</h3><p>${safe(desc)}</p></div>`}
+  function renderListings(){
+    const list=applyFilters();
+    $('resultCount').textContent=`${list.length} rezultate`;$('searchCount').textContent=`${list.length} rezultate`;
+    const html=list.length?list.map(card).join(''):empty(tr('emptyTitle'),tr('emptyDesc'));
+    $('listingGrid').innerHTML=html;$('searchGrid').innerHTML=html;
+    renderSaved();renderChips();
+  }
+  function renderSaved(){
+    const list=state.listings.filter(x=>state.favorites.has(idOf(x)));
+    $('savedCount').textContent=`${list.length} salvate`;
+    $('savedGrid').innerHTML=list.length?list.map(card).join(''):empty(tr('noSaved'),tr('noSavedDesc'));
+  }
+  function renderChips(){qsa('[data-chip]').forEach(b=>b.classList.toggle('active',b.dataset.chip===state.filters.category||(!b.dataset.chip&&!state.filters.category)))}
+  function renderProfile(){
+    if(!state.user)return;
+    $('profileName').textContent=state.profile.full_name||'AutoRapid RO';$('profileEmail').textContent=state.profile.email||state.user.email||'';
+    $('avatarBox').innerHTML=state.profile.avatar_data?`<img src="${safe(state.profile.avatar_data)}" alt="Profil">`:safe(initials());
+    $('profName').value=state.profile.full_name||'';$('profPhone').value=state.profile.phone||'';$('profEmail').value=state.profile.email||state.user.email||'';
+    $('profCounty').value=state.profile.county||'';fillSelect('profCity',cityList($('profCounty').value),true);$('profCity').value=state.profile.city||'';
+    $('profAddress').value=state.profile.address||'';$('profSchedule').value=state.profile.schedule||'';$('profPrice').value=state.profile.price||'';
+    $('setLanguage').value=state.profile.language||state.lang;$('setTheme').value=state.profile.theme||state.theme;$('setNotify').checked=state.profile.notifications!==false;
+    $('statListings').textContent=state.listings.filter(x=>x.user_id===state.user.id).length;$('statSaved').textContent=state.favorites.size;$('statInbox').textContent=state.inbox.length;
+    const ok=profileReady();$('publishProfileBox').innerHTML= ok ? `<b style="font-weight:600">${safe(state.profile.full_name)}</b><br>${safe(state.profile.phone)}<br>${safe(state.profile.city)}, ${safe(state.profile.county)}<br>${safe(state.profile.address||'')}` : `<b style="font-weight:600">${tr('profileNeed')}</b>`;
+  }
+  function renderInbox(){
+    $('inboxList').innerHTML=state.inbox.length?state.inbox.map(m=>`<div class="message"><div class="dot"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16v14H5.2L4 20V4z"></path></svg></div><div><h4>${safe(m.title)}</h4><p>${safe(m.message)}</p><p>${safe(m.type||'Mesaj')}</p></div></div>`).join(''):empty('Inbox gol','Nu ai mesaje momentan.');
+  }
+  function renderAll(){fillAllSelects();renderListings();renderProfile();renderInbox();syncInputs();}
+  function syncInputs(){['topSearch','homeSearch','searchInput'].forEach(id=>{if($(id))$(id).value=state.filters.q});['countyFilter','searchCounty'].forEach(id=>{if($(id))$(id).value=state.filters.county});['catFilter','searchCat'].forEach(id=>{if($(id))$(id).value=state.filters.category});fillSelect('cityFilter',cityList(state.filters.county),true);fillSelect('searchCity',cityList(state.filters.county),true);['cityFilter','searchCity'].forEach(id=>{if($(id))$(id).value=state.filters.city})}
+
+  async function toggleFavorite(id){
+    if(!id)return;
+    const has=state.favorites.has(id); if(has)state.favorites.delete(id); else state.favorites.add(id);
+    store.set('ar_favs_'+state.user.id,[...state.favorites]); renderListings();
+    if(state.sb && state.user.id!=='local'){
+      if(has) await state.sb.from('favorites').delete().eq('user_id',state.user.id).eq('listing_id',id);
+      else await state.sb.from('favorites').insert({user_id:state.user.id,listing_id:id});
+    }
+  }
+  async function publishListing(e){
+    e.preventDefault();
+    if(!profileReady()){toast(tr('profileNeed'));go('profile');return}
+    const category=$('pubCategory').value, description=$('pubDescription').value.trim(), promo=$('pubPromo').value;
+    if(!category||description.length<8){toast('Completează categoria și descrierea.');return}
+    const row={user_id:state.user.id,business_name:state.profile.full_name,category,county:state.profile.county,city:state.profile.city,address:state.profile.address||'',phone:state.profile.phone,whatsapp:state.profile.phone,schedule:state.profile.schedule||'',price:state.profile.price||'',description,image_url:state.profile.avatar_data||'',promo_type:promo,promoted:promo!=='Gratuit',rating:4.9,created_at:new Date().toISOString()};
+    if(state.sb && state.user.id!=='local'){
+      const {data,error}=await state.sb.from('listings').insert(row).select('*').single();
+      if(error){toast('Nu s-a putut publica. Verifică Supabase.');console.warn(error);return}
+      state.listings=[data,...state.listings];
+    }else{row.id='local_'+Date.now();const list=store.get('ar_local_listings',[]);list.unshift(row);store.set('ar_local_listings',list);state.listings=[row,...state.listings]}
+    $('publishForm').reset();toast('Anunț publicat.');go('home');renderAll();
+  }
+  async function saveProfile(e){
+    e.preventDefault();
+    const patch={full_name:$('profName').value.trim(),phone:$('profPhone').value.trim(),county:$('profCounty').value,city:$('profCity').value,address:$('profAddress').value.trim(),schedule:$('profSchedule').value.trim(),price:$('profPrice').value.trim()};
+    if(!patch.full_name||!patch.phone||!patch.county||!patch.city){toast('Completează nume, telefon, județ și oraș.');return}
+    await saveProfileData(patch);toast('Profil salvat.');renderAll();
+  }
+  async function saveSettings(e){
+    e.preventDefault();state.lang=$('setLanguage').value;state.theme=$('setTheme').value;setTheme(state.theme);
+    await saveProfileData({language:state.lang,theme:state.theme,notifications:$('setNotify').checked});applyLang();toast('Setări salvate.');
+  }
+  async function sendFeedback(e){
+    e.preventDefault();const txt=$('feedbackText').value.trim();if(txt.length<3){toast('Scrie feedback-ul.');return}
+    const row={user_id:state.user?.id||null,category:$('feedbackCategory').value,description:txt,created_at:new Date().toISOString()};
+    if(state.sb && state.user.id!=='local') await state.sb.from('feedback').insert(row);
+    $('feedbackText').value='';$('feedbackCount').textContent='0';toast('Feedback trimis.');
+  }
+  async function reportListing(id){
+    const reason=prompt('De ce raportezi acest anunț?') || 'Raport trimis din aplicație';
+    if(state.sb && state.user?.id!=='local') await state.sb.from('reports').insert({listing_id:id,user_id:state.user?.id||null,reason});
+    const reps=store.get('ar_reports',[]);reps.push({listing_id:id,user_id:state.user?.id||null,reason,created_at:new Date().toISOString()});store.set('ar_reports',reps);toast('Raport trimis.');
+  }
+
+  function openDetails(id){
+    const x=state.listings.find(i=>idOf(i)===String(id)); if(!x)return;
+    $('modalTitle').textContent=x.business_name||'Anunț';
+    const phone=String(x.phone||'').replace(/\s+/g,''); const wa=String(x.whatsapp||x.phone||'').replace(/\D/g,'');
+    $('modalBody').innerHTML=`<div class="grid">
+      <div class="profile-card"><div class="avatar">${x.image_url?`<img src="${safe(x.image_url)}" alt="">`:safe((x.business_name||'AR').slice(0,2).toUpperCase())}</div><div><h2 style="margin:0;font-weight:600">${safe(x.business_name)}</h2><p>${safe(x.category)} • ${safe(x.city)}, ${safe(x.county)}</p></div></div>
+      <p>${safe(x.description||'')}</p>
+      <div class="grid" style="gap:8px"><div class="menu-item"><span>${tr('address')}</span><span>${safe(x.address||'-')}</span></div><div class="menu-item"><span>${tr('schedule')}</span><span>${safe(x.schedule||'-')}</span></div><div class="menu-item"><span>${tr('price')}</span><span>${safe(x.price||'-')}</span></div><div class="menu-item"><span>Rating</span><span>★ ${safe(x.rating||4.9)}</span></div></div>
+      <div class="actions"><a class="btn gold" href="tel:${safe(phone)}">${tr('call')}</a><a class="btn light" href="https://wa.me/${safe(wa)}" target="_blank" rel="noopener">${tr('whatsapp')}</a><button class="btn ghost" data-fav="${safe(id)}">${state.favorites.has(id)?tr('remove'):tr('save')}</button><button class="btn danger" data-report="${safe(id)}">${tr('report')}</button></div>
+    </div>`;
+    $('detailsModal').classList.add('open');
+  }
+
+  function setFiltersFrom(source){
+    const prefix=source==='search'?'search':'';
+    state.filters.q = (source==='top' ? $('topSearch').value : source==='search' ? $('searchInput').value : $('homeSearch').value).trim();
+    if(source==='search'){state.filters.county=$('searchCounty').value;state.filters.city=$('searchCity').value;state.filters.category=$('searchCat').value;}
+    else if(source==='home'){state.filters.county=$('countyFilter').value;state.filters.city=$('cityFilter').value;state.filters.category=$('catFilter').value;}
+    renderListings();
+  }
+  function go(page){state.page=page;qsa('.page').forEach(p=>p.classList.toggle('active',p.id===page));qsa('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));window.scrollTo({top:0,behavior:'smooth'});renderAll()}
+  function closeModal(){$('detailsModal').classList.remove('open')}
+
+  async function resizeImage(file){
+    return new Promise((resolve,reject)=>{const img=new Image();const r=new FileReader();r.onload=()=>{img.onload=()=>{const max=420;let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max}else if(h>max){w=Math.round(w*max/h);h=max}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);resolve(c.toDataURL('image/jpeg',.82))};img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})
+  }
+  async function pickAvatar(file){if(!file)return;try{const data=await resizeImage(file);$('avatarFileName').textContent=file.name;await saveProfileData({avatar_data:data});renderAll();toast('Poza a fost salvată.')}catch{toast('Nu s-a putut încărca poza.')}}
+  async function installApp(){
+    if(state.deferredInstall){state.deferredInstall.prompt();await state.deferredInstall.userChoice;state.deferredInstall=null;return}
+    alert('Pentru instalare: pe telefon apasă Share / Menu, apoi „Add to Home Screen” sau „Adaugă pe ecranul principal”.');
+  }
+  async function logout(){if(state.sb)await state.sb.auth.signOut();store.del('local_user');showAuth()}
+
+  function bindEvents(){
+    $('authForm').addEventListener('submit',authSubmit);qsa('[data-auth-tab]').forEach(b=>b.addEventListener('click',()=>setAuthMode(b.dataset.authTab)));
+    document.addEventListener('click',e=>{
+      const page=e.target.closest('[data-page]')?.dataset.page;if(page){go(page);return}
+      const fav=e.target.closest('[data-fav]')?.dataset.fav;if(fav){toggleFavorite(fav);return}
+      const open=e.target.closest('[data-open]')?.dataset.open;if(open){openDetails(open);return}
+      const rep=e.target.closest('[data-report]')?.dataset.report;if(rep){reportListing(rep);return}
+      if(e.target.closest('[data-close-modal]'))closeModal();
+      if(e.target.closest('[data-pick-avatar]'))$('avatarInput').click();
+      const chip=e.target.closest('[data-chip]');if(chip){state.filters.category=chip.dataset.chip;syncInputs();renderListings()}
+    });
+    $('topSearchBtn').addEventListener('click',()=>{setFiltersFrom('top');go('search')});$('topSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){$('topSearchBtn').click()}});
+    $('homeSearchBtn').addEventListener('click',()=>{setFiltersFrom('home');go('search')});$('searchBtn').addEventListener('click',()=>setFiltersFrom('search'));
+    ['homeSearch','searchInput'].forEach(id=>$(id).addEventListener('input',()=>{state.filters.q=$(id).value;syncInputs();renderListings()}));
+    $('countyFilter').addEventListener('change',()=>{state.filters.county=$('countyFilter').value;state.filters.city='';syncInputs();renderListings()});
+    $('cityFilter').addEventListener('change',()=>{state.filters.city=$('cityFilter').value;syncInputs();renderListings()});
+    $('catFilter').addEventListener('change',()=>{state.filters.category=$('catFilter').value;syncInputs();renderListings()});
+    $('searchCounty').addEventListener('change',()=>{state.filters.county=$('searchCounty').value;state.filters.city='';syncInputs();renderListings()});
+    $('searchCity').addEventListener('change',()=>{state.filters.city=$('searchCity').value;syncInputs();renderListings()});
+    $('searchCat').addEventListener('change',()=>{state.filters.category=$('searchCat').value;syncInputs();renderListings()});
+    $('profCounty').addEventListener('change',()=>{fillSelect('profCity',cityList($('profCounty').value),true)});
+    $('publishForm').addEventListener('submit',publishListing);$('profileForm').addEventListener('submit',saveProfile);$('settingsForm').addEventListener('submit',saveSettings);$('feedbackForm').addEventListener('submit',sendFeedback);$('feedbackText').addEventListener('input',()=>{$('feedbackCount').textContent=$('feedbackText').value.length});
+    $('avatarInput').addEventListener('change',e=>pickAvatar(e.target.files[0]));$('installBtn').addEventListener('click',installApp);$('logoutBtn').addEventListener('click',logout);$('detailsModal').addEventListener('click',e=>{if(e.target.id==='detailsModal')closeModal()});
+  }
+
+  init();
   </script>
 </body>
 </html>
