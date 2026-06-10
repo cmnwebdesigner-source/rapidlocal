@@ -674,7 +674,7 @@
         </div>
       </div>
       <div id="authStatus" class="auth-status"></div>
-      <div class="auth-note">Pentru cod OTP pe email, în Supabase setează template-ul de email să folosească <strong>{{ .Token }}</strong>, nu doar link magic.</div>
+      <div class="auth-note">Login cu cod pe email. Pentru public real: Supabase trebuie să aibă SMTP activ cu domeniu verificat și template-ul <strong>Magic link or OTP</strong> trebuie să conțină <strong>{{ .Token }}</strong>.</div>
     </div>
   </div>
 
@@ -957,11 +957,10 @@
 
   <script>
     /*
-      AutoRapid RO - Single file app cu Supabase.
-      1) Creează proiect în Supabase.
-      2) Rulează SQL-ul din fișierul AutoRapid_RO_Supabase_SQL_Setup.txt.
-      3) Datele Supabase sunt completate deja cu Project URL și publishable key.
-      4) Pentru cod OTP pe email, setează Auth > Email Templates cu {{ .Token }}.
+      AutoRapid RO - Single file app cu Supabase OTP.
+      Datele Supabase sunt completate deja.
+      Login-ul folosește cod pe email: signInWithOtp + verifyOtp.
+      Pentru ca prietenii/utilizatorii reali să primească email, configurează SMTP cu domeniu verificat în Resend și template cu {{ .Token }}.
     */
 
     const SUPABASE_URL_RAW = "https://ncdutmwivbgmubiodkev.supabase.co";
@@ -1185,9 +1184,17 @@
         options:{ shouldCreateUser:true, emailRedirectTo: window.location.origin }
       });
       setAuthLoading(false);
-      if(error){ setAuthStatus(error.message); return; }
+      if(error){
+        const msg = String(error.message || "");
+        if(msg.toLowerCase().includes("magic link") || msg.toLowerCase().includes("smtp") || msg.toLowerCase().includes("email")){
+          setAuthStatus("Emailul nu a putut fi trimis. Verifică în Supabase: SMTP activ, parola Resend corectă și domeniu verificat pentru prieteni/utilizatori reali.");
+        } else {
+          setAuthStatus(msg || "Nu s-a putut trimite codul. Verifică setările Supabase.");
+        }
+        return;
+      }
       els.otpStep.classList.remove("hidden");
-      setAuthStatus("Codul a fost trimis pe email. Verifică și Spam/Promotions.");
+      setAuthStatus("Codul a fost trimis pe email. Verifică Inbox, Spam sau Promotions.");
       els.authCode.focus();
     }
 
@@ -1200,7 +1207,7 @@
       setAuthLoading(true, "Verific codul...");
       const { data, error } = await sb.auth.verifyOtp({ email: pendingEmail, token, type:"email" });
       setAuthLoading(false);
-      if(error){ setAuthStatus(error.message); return; }
+      if(error){ setAuthStatus("Cod invalid sau expirat. Verifică emailul și încearcă din nou."); return; }
       currentUser = data.user;
       await loadUserData();
       showApp();
