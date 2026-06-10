@@ -1,1216 +1,670 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ro">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AutoRapid RO</title>
-    <meta name="description" content="Marketplace modern pentru servicii auto în România.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="AutoRapid RO" />
+  <title>AutoRapid RO</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --surface:#ffffff;
+      --soft:#f6f6f4;
+      --soft2:#efefec;
+      --text:#151515;
+      --muted:#6b6b66;
+      --line:#ecece8;
+      --gold:#f5c542;
+      --gold2:#ffd700;
+      --goldSoft:#fff7db;
+      --danger:#d0342c;
+      --success:#147a3d;
+      --blue:#1769ff;
+      --radius:18px;
+      --shadow:0 10px 30px rgba(20,20,20,.06);
+      --bottom:74px;
+      font-synthesis-weight:none;
+    }
 
-    <style>
-        /* ================= CSS VARIABLES (VINTED STYLE) ================= */
-        :root {
-            --primary: #F5C542; /* Auriu premium */
-            --primary-hover: #e0b33c;
-            --bg: #ffffff;
-            --surface: #f9fafb;
-            --surface-hover: #f3f4f6;
-            --text-main: #111827;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --nav-height: 60px;
-        }
+    *{box-sizing:border-box}
+    html,body{width:100%;min-height:100%;margin:0;overflow-x:hidden;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+    body.dark{--bg:#11110f;--surface:#181816;--soft:#20201d;--soft2:#2a2a26;--text:#f5f3ed;--muted:#aaa69c;--line:#2f2f2b;--goldSoft:#2d2712;--shadow:0 10px 35px rgba(0,0,0,.28)}
+    button,input,select,textarea{font:inherit}
+    button{border:0;background:none;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    .hidden{display:none!important}
 
-        /* Dark Mode variables (optional toggle) */
-        [data-theme="dark"] {
-            --bg: #111827;
-            --surface: #1f2937;
-            --surface-hover: #374151;
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
-            --border: #374151;
-        }
+    .app{min-height:100vh;background:var(--bg)}
+    .shell{width:min(1040px,100%);margin:0 auto;padding:0 14px calc(var(--bottom) + 22px)}
 
-        /* ================= RESET & BASE ================= */
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); overflow-x: hidden; line-height: 1.5; }
-        a { text-decoration: none; color: inherit; }
-        ul { list-style: none; }
-        button, input, select, textarea { font-family: inherit; outline: none; border: none; background: none; }
-        button { cursor: pointer; transition: all 0.2s; }
-        img { max-width: 100%; height: auto; display: block; }
-        
-        /* ================= TYPOGRAPHY & UTILS ================= */
-        h1, h2, h3, h4 { font-weight: 600; color: var(--text-main); }
-        .text-muted { color: var(--text-muted); font-size: 0.9rem; }
-        .flex { display: flex; } .flex-col { display: flex; flex-direction: column; }
-        .items-center { align-items: center; } .justify-between { justify-content: space-between; } .justify-center { justify-content: center; }
-        .gap-1 { gap: 4px; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; }
-        .p-4 { padding: 16px; } .py-4 { padding-top: 16px; padding-bottom: 16px; }
-        .mt-2 { margin-top: 8px; } .mt-4 { margin-top: 16px; } .mb-4 { margin-bottom: 16px; }
-        .w-full { width: 100%; } .text-center { text-align: center; }
-        .hidden { display: none !important; }
+    .splash{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:.25s ease}
+    .splash.out{opacity:0;pointer-events:none}
+    .splash-card{display:flex;flex-direction:column;align-items:center;gap:14px}
+    .logo-mark{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#141414,#2a2615 55%,#f5c542);display:grid;place-items:center;box-shadow:0 14px 35px rgba(245,197,66,.20)}
+    .logo-mark svg{width:34px;height:34px}
+    .brand-row{display:flex;align-items:center;gap:9px;min-width:0}
+    .brand-mini{width:34px;height:34px;border-radius:10px;background:#151515;display:grid;place-items:center;flex:0 0 auto}
+    .brand-mini svg{width:22px;height:22px}
+    .brand-title{font-size:16px;letter-spacing:-.02em;font-weight:650;white-space:nowrap}
+    .loader-line{width:72px;height:3px;background:var(--line);border-radius:99px;overflow:hidden}.loader-line span{display:block;width:38%;height:100%;border-radius:99px;background:var(--gold);animation:load 1s infinite ease-in-out}@keyframes load{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
 
-        /* ================= BUTTONS ================= */
-        .btn { padding: 12px 20px; border-radius: var(--radius-md); font-weight: 500; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background: var(--primary); color: #000; box-shadow: var(--shadow-sm); }
-        .btn-primary:hover { background: var(--primary-hover); }
-        .btn-outline { border: 1px solid var(--border); color: var(--text-main); background: var(--bg); }
-        .btn-outline:hover { background: var(--surface); }
-        .btn-ghost { color: var(--text-main); } .btn-ghost:hover { background: var(--surface); border-radius: var(--radius-md); }
-        .btn-icon { padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--surface); border: 1px solid var(--border); }
-        
-        /* ================= FORMS ================= */
-        .form-group { margin-bottom: 16px; }
-        .form-label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; }
-        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg); color: var(--text-main); font-size: 1rem; transition: border-color 0.2s; }
-        .form-control:focus { border-color: var(--primary); }
-        textarea.form-control { resize: vertical; min-height: 100px; }
+    .toast{position:fixed;left:50%;bottom:calc(var(--bottom) + 12px);z-index:900;transform:translateX(-50%) translateY(12px);background:#151515;color:#fff;padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.3;max-width:calc(100% - 28px);opacity:0;pointer-events:none;transition:.2s ease;box-shadow:var(--shadow)}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.success{background:#13703b}.toast.error{background:#b52b26}
 
-        /* ================= LAYOUT ================= */
-        #app-container { min-height: 100vh; display: flex; flex-direction: column; padding-bottom: var(--nav-height); }
-        .top-header { position: sticky; top: 0; z-index: 40; background: var(--bg); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
-        .desktop-nav { display: none; gap: 24px; align-items: center; }
-        .desktop-nav a { font-weight: 500; cursor: pointer; }
-        .desktop-nav a:hover { color: var(--primary); }
-        
-        .main-content { flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; padding: 16px; }
-        .screen { display: none; animation: fadeIn 0.3s ease; } .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    body.dark .topbar{background:rgba(17,17,15,.92)}
+    .topbar-inner{height:58px;width:min(1040px,100%);margin:0 auto;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .top-actions{display:flex;align-items:center;gap:8px}
+    .icon-btn{width:40px;height:40px;border-radius:50%;background:var(--soft);display:grid;place-items:center;position:relative;border:1px solid transparent}
+    .icon-btn:active{transform:scale(.98)}
+    .icon-btn svg{width:20px;height:20px;stroke-width:1.9}
+    .notif-dot{position:absolute;right:7px;top:7px;min-width:16px;height:16px;border-radius:99px;background:var(--gold2);color:#151515;font-size:10px;line-height:16px;text-align:center;padding:0 4px;font-weight:700;border:2px solid var(--surface)}
+    .avatar-sm{width:34px;height:34px;border-radius:50%;background:var(--goldSoft);object-fit:cover;border:1px solid var(--line)}
 
-        /* ================= BOTTOM NAV (MOBILE) ================= */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 1px solid var(--border); height: var(--nav-height); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; width: 20%; }
-        .nav-item.active { color: var(--text-main); font-weight: 600; }
-        .nav-item i { width: 24px; height: 24px; }
-        .nav-item.active svg { stroke: var(--primary); }
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:7px 7px calc(7px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+    body.dark .bottom-nav{background:rgba(17,17,15,.96)}
+    .bottom-nav-inner{width:min(520px,100%);display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+    .nav-item{height:52px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--muted);font-size:11px}
+    .nav-item svg{width:21px;height:21px;stroke-width:1.8}.nav-item.active{color:var(--text);background:var(--soft)}.nav-item.active svg{stroke:var(--gold)}
 
-        /* ================= CARDS (VINTED STYLE) ================= */
-        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-        .ad-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; position: relative; transition: box-shadow 0.2s; cursor: pointer; display: flex; flex-direction: column; }
-        .ad-card:hover { box-shadow: var(--shadow-md); }
-        .ad-card-header { padding: 12px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid var(--surface); }
-        .ad-card-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--surface); object-fit: cover; border: 1px solid var(--border); }
-        .ad-card-title { font-weight: 600; font-size: 1rem; line-height: 1.2; }
-        .ad-card-cat { font-size: 0.8rem; color: var(--text-muted); }
-        .ad-card-body { padding: 12px; flex: 1; }
-        .ad-card-info { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
-        .ad-card-price { font-weight: 600; color: var(--text-main); margin-top: 8px; font-size: 1.1rem; }
-        .ad-card-actions { padding: 12px; display: flex; gap: 8px; border-top: 1px solid var(--surface); background: var(--surface); }
-        .ad-card-actions .btn { flex: 1; padding: 8px; font-size: 0.85rem; }
-        .btn-fav { position: absolute; top: 12px; right: 12px; background: var(--bg); border: none; border-radius: 50%; padding: 6px; box-shadow: var(--shadow-sm); z-index: 10; }
-        .btn-fav svg { width: 20px; height: 20px; stroke: var(--text-muted); }
-        .btn-fav.active svg { fill: red; stroke: red; }
+    .page{display:none;animation:fade .16s ease}.page.active{display:block}@keyframes fade{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:none}}
+    .page-head{padding:17px 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}.page-title{font-size:22px;line-height:1.1;letter-spacing:-.04em;font-weight:650;margin:0}.page-sub{font-size:13px;color:var(--muted);margin:5px 0 0;line-height:1.35}.back-btn{width:38px;height:38px;border-radius:50%;background:var(--soft);display:grid;place-items:center}.back-btn svg{width:20px;height:20px}
 
-        /* ================= PROFILE DASHBOARD ================= */
-        .profile-header { text-align: center; padding: 24px 16px; background: var(--surface); border-radius: var(--radius-lg); margin-bottom: 24px; }
-        .profile-avatar-lg { width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 16px; object-fit: cover; border: 3px solid var(--bg); box-shadow: var(--shadow-sm); }
-        .profile-stats { display: flex; justify-content: center; gap: 24px; margin-top: 16px; }
-        .stat-box { text-align: center; } .stat-num { font-size: 1.25rem; font-weight: 600; } .stat-lbl { font-size: 0.8rem; color: var(--text-muted); }
-        .profile-menu { display: flex; flex-direction: column; gap: 8px; }
-        .profile-menu-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; transition: background 0.2s; }
-        .profile-menu-item:hover { background: var(--surface); }
-        .profile-menu-item-left { display: flex; align-items: center; gap: 12px; font-weight: 500; }
+    .auth-wrap{min-height:100vh;padding:28px 18px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#fff 0%,#fffdf5 50%,#fff 100%)}
+    body.dark .auth-wrap{background:var(--bg)}
+    .auth-card{width:min(420px,100%);background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:22px;box-shadow:var(--shadow)}
+    .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}.auth-logo .logo-mark{width:42px;height:42px;border-radius:14px}.auth-logo h1{font-size:20px;margin:0;font-weight:650;letter-spacing:-.03em}.auth-logo p{font-size:13px;color:var(--muted);margin:3px 0 0}
+    .seg{height:44px;padding:4px;border-radius:999px;background:var(--soft);display:grid;grid-template-columns:1fr 1fr;margin:10px 0 16px}.seg button{border-radius:999px;font-size:13px;color:var(--muted)}.seg button.active{background:var(--surface);color:var(--text);box-shadow:0 3px 10px rgba(0,0,0,.05)}
+    .field{margin-bottom:12px}.label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}.input,.select,.textarea{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:15px;min-height:46px;padding:12px 13px;outline:0;font-size:14px}.input:focus,.select:focus,.textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,66,.14)}.textarea{min-height:112px;resize:vertical;line-height:1.45}.hint{font-size:12px;color:var(--muted);line-height:1.35}.char-row{display:flex;justify-content:space-between;align-items:center;margin-top:5px;color:var(--muted);font-size:12px}
+    .btn{min-height:44px;padding:0 15px;border-radius:999px;background:var(--text);color:var(--bg);font-size:14px;font-weight:520;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}.btn svg{width:18px;height:18px}.btn:disabled{opacity:.55;cursor:not-allowed}.btn.gold{background:var(--gold2);color:#151515}.btn.soft{background:var(--soft);color:var(--text)}.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}.btn.danger{background:#d0342c;color:#fff}.btn.full{width:100%}.btn.small{min-height:36px;font-size:13px;padding:0 12px}
 
-        /* ================= CUSTOM UPLOAD BUTTON ================= */
-        .custom-upload { display: inline-block; position: relative; cursor: pointer; }
-        .custom-upload input[type="file"] { position: absolute; width: 0; height: 0; opacity: 0; }
-        .upload-btn-ui { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-weight: 500; }
-        .upload-btn-ui:hover { background: var(--border); }
+    .role-screen{min-height:calc(100vh - 58px);display:grid;align-content:center;gap:14px;padding:20px 0}.role-grid{display:grid;grid-template-columns:1fr;gap:12px}.role-card{border:1px solid var(--line);background:var(--surface);border-radius:22px;padding:18px;display:flex;gap:14px;text-align:left;box-shadow:var(--shadow)}.role-ico{width:48px;height:48px;border-radius:16px;background:var(--goldSoft);display:grid;place-items:center;flex:0 0 auto}.role-ico svg{width:25px;height:25px}.role-card h3{font-size:17px;margin:0 0 5px;font-weight:620;letter-spacing:-.02em}.role-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.35}
 
-        /* ================= EMPTY STATES & LOADERS ================= */
-        .empty-state { text-align: center; padding: 48px 16px; color: var(--text-muted); }
-        .empty-state svg { width: 64px; height: 64px; margin: 0 auto 16px; stroke-width: 1; opacity: 0.5; }
-        .loader-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner { border: 4px solid var(--surface); border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* ================= SEARCH & FILTERS ================= */
-        .search-bar { display: flex; gap: 8px; margin-bottom: 16px; }
-        .search-input { flex: 1; padding: 12px 16px 12px 40px; border: 1px solid var(--border); border-radius: 30px; background: var(--surface) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%236b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') no-repeat 14px center; font-size: 1rem; }
-        .filters-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; -ms-overflow-style: none; scrollbar-width: none; }
-        .filters-row::-webkit-scrollbar { display: none; }
-        .filter-select { padding: 8px 16px; border: 1px solid var(--border); border-radius: 20px; background: var(--bg); font-size: 0.9rem; white-space: nowrap; }
+    .home-search{padding:14px 0 10px}.searchbar{height:50px;border-radius:16px;background:var(--soft);border:1px solid transparent;display:flex;align-items:center;gap:10px;padding:0 12px}.searchbar:focus-within{background:var(--surface);border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,66,.12)}.searchbar svg{width:20px;height:20px;color:var(--muted);flex:0 0 auto}.searchbar input{border:0;outline:0;background:transparent;color:var(--text);width:100%;font-size:15px;min-width:0}.filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}.filters .select{min-height:40px;border-radius:13px;padding:8px 9px;font-size:13px;background:var(--surface)}
+    .chips-row{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:none}.chips-row::-webkit-scrollbar{display:none}.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);height:36px;padding:0 13px;border-radius:999px;font-size:13px;color:var(--muted)}.chip.active{border-color:var(--text);color:var(--text);background:var(--soft)}
 
-        /* ================= LOGIN TABS ================= */
-        .auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
-        .auth-tab { flex: 1; text-align: center; padding: 12px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; }
-        .auth-tab.active { color: var(--text-main); border-bottom-color: var(--primary); }
+    .list{display:grid;gap:10px}.listing-card{position:relative;display:grid;grid-template-columns:78px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px;box-shadow:none}.listing-img{width:78px;height:78px;border-radius:14px;object-fit:cover;background:var(--soft);border:1px solid var(--line)}.listing-info{min-width:0;padding-right:32px}.listing-title{font-size:15px;line-height:1.2;margin:1px 0 4px;font-weight:600;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.listing-meta{font-size:12px;color:var(--muted);line-height:1.35;display:flex;gap:5px;align-items:center;flex-wrap:wrap}.listing-desc{font-size:13px;line-height:1.36;color:var(--muted);margin:7px 0 9px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.listing-actions{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.heart{position:absolute;top:9px;right:9px;width:34px;height:34px;border-radius:50%;background:var(--soft);display:grid;place-items:center}.heart svg{width:18px;height:18px}.heart.saved svg{fill:#e03454;stroke:#e03454}.badge{height:22px;border-radius:999px;background:var(--goldSoft);color:#806200;font-size:11px;display:inline-flex;align-items:center;padding:0 8px}.empty{border:1px dashed var(--line);background:var(--soft);border-radius:22px;padding:26px 18px;text-align:center}.empty h3{margin:0 0 6px;font-size:16px;font-weight:600}.empty p{margin:0;color:var(--muted);font-size:13px;line-height:1.4}.empty .btn{margin-top:14px}
 
-        /* ================= DESKTOP MEDIA QUERIES ================= */
-        @media (min-width: 768px) {
-            #app-container { padding-bottom: 0; }
-            .bottom-nav { display: none; }
-            .desktop-nav { display: flex; }
-            .main-content { padding: 32px 24px; }
-            .mobile-menu-btn { display: none; }
-            .ad-card-actions { opacity: 0; transition: opacity 0.2s; }
-            .ad-card:hover .ad-card-actions { opacity: 1; }
-        }
+    .profile-top{display:flex;align-items:center;gap:13px;padding:16px 0 13px}.avatar-lg{width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--soft);border:1px solid var(--line)}.profile-name{font-size:18px;font-weight:620;margin:0 0 3px;letter-spacing:-.02em}.profile-place{font-size:13px;color:var(--muted);margin:0}.role-pill{display:inline-flex;margin-top:7px;height:25px;padding:0 10px;border-radius:999px;background:var(--goldSoft);align-items:center;font-size:12px;color:#806200}.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 14px}.stat{background:var(--soft);border-radius:17px;padding:12px;text-align:center}.stat b{font-size:17px;font-weight:650}.stat span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.menu-list{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--surface)}.menu-item{width:100%;min-height:54px;display:flex;align-items:center;gap:12px;padding:0 14px;border-bottom:1px solid var(--line);text-align:left}.menu-item:last-child{border-bottom:0}.menu-ico{width:34px;height:34px;border-radius:12px;background:var(--soft);display:grid;place-items:center;flex:0 0 auto}.menu-ico svg{width:18px;height:18px}.menu-text{flex:1;min-width:0}.menu-text strong{display:block;font-size:14px;font-weight:560}.menu-text small{display:block;font-size:12px;color:var(--muted);margin-top:2px}.chev{color:var(--muted)}
 
-        /* Toast / Notifications */
-        .toast { position: fixed; top: 20px; right: 20px; background: var(--text-main); color: var(--bg); padding: 12px 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); z-index: 1000; transform: translateY(-100px); opacity: 0; transition: all 0.3s ease; }
-        .toast.show { transform: translateY(0); opacity: 1; }
-        
-        /* PWA Prompt */
-        #pwa-prompt { position: fixed; bottom: 80px; left: 16px; right: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-md); z-index: 60; display: flex; align-items: center; justify-content: space-between; gap: 16px; transform: translateY(150%); transition: transform 0.3s; }
-        #pwa-prompt.show { transform: translateY(0); }
-        @media (min-width: 768px) { #pwa-prompt { bottom: 24px; width: 400px; left: auto; right: 24px; } }
+    .form-card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:14px;margin-bottom:12px}.form-card h3{font-size:15px;font-weight:620;margin:0 0 12px;letter-spacing:-.01em}.grid2{display:grid;grid-template-columns:1fr;gap:12px}.switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:50px;border-bottom:1px solid var(--line)}.switch-row:last-child{border-bottom:0}.switch-row span{font-size:14px}.toggle{width:48px;height:28px;border-radius:99px;background:var(--soft2);padding:3px;transition:.18s}.toggle i{display:block;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:0 2px 5px rgba(0,0,0,.15);transition:.18s}.toggle.on{background:var(--gold)}.toggle.on i{transform:translateX(20px)}
+    .upload-box{border:1px dashed var(--line);border-radius:18px;padding:12px;display:flex;align-items:center;gap:12px}.upload-preview{width:58px;height:58px;border-radius:15px;object-fit:cover;background:var(--soft);border:1px solid var(--line)}.photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.photo-slot{aspect-ratio:1;background:var(--soft);border:1px dashed var(--line);border-radius:16px;display:grid;place-items:center;overflow:hidden;position:relative}.photo-slot img{width:100%;height:100%;object-fit:cover}.photo-slot small{font-size:12px;color:var(--muted)}
 
-    </style>
+    .chat-list{display:grid;gap:8px}.conversation{display:flex;gap:11px;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:10px;text-align:left}.conversation img{width:46px;height:46px;border-radius:50%;object-fit:cover;background:var(--soft)}.conversation strong{display:block;font-size:14px;font-weight:600}.conversation p{margin:3px 0 0;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 58px - var(--bottom));min-height:420px}.chat-messages{flex:1;overflow:auto;padding:10px 0;display:flex;flex-direction:column;gap:8px}.bubble{max-width:82%;padding:10px 12px;border-radius:18px;font-size:14px;line-height:1.35}.bubble.me{align-self:flex-end;background:var(--text);color:var(--bg);border-bottom-right-radius:6px}.bubble.other{align-self:flex-start;background:var(--soft);border-bottom-left-radius:6px}.chat-input{display:flex;gap:8px;padding:9px 0 12px}.chat-input input{flex:1}
+
+    .modal{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.36);display:none;align-items:flex-end}.modal.show{display:flex}.sheet{width:100%;max-height:88vh;background:var(--surface);border-radius:24px 24px 0 0;overflow:auto;padding:14px 14px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.12)}.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 0 10px}.sheet-title{font-size:18px;font-weight:640;margin:0;letter-spacing:-.03em}.close{width:38px;height:38px;border-radius:50%;background:var(--soft);display:grid;place-items:center}.details-img{width:100%;height:190px;object-fit:cover;border-radius:20px;background:var(--soft);border:1px solid var(--line);margin-bottom:12px}.details-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.info-line{font-size:13px;color:var(--muted);line-height:1.45}.info-line b{color:var(--text);font-weight:600}
+
+    .notification-item{border:1px solid var(--line);border-radius:17px;padding:12px;background:var(--surface);display:flex;gap:10px}.notification-item.unread{background:var(--goldSoft)}.notification-item h4{margin:0 0 4px;font-size:14px;font-weight:600}.notification-item p{margin:0;color:var(--muted);font-size:13px;line-height:1.35}.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);margin-top:6px;flex:0 0 auto}
+
+    .install-banner{position:fixed;left:12px;right:12px;bottom:calc(var(--bottom) + 12px);z-index:500;background:var(--text);color:var(--bg);border-radius:18px;padding:12px;display:none;align-items:center;gap:10px;box-shadow:var(--shadow)}.install-banner.show{display:flex}.install-banner p{margin:0;font-size:13px;line-height:1.25;flex:1}.install-banner .btn{background:var(--gold2);color:#111;min-height:36px}.install-banner .x{color:var(--bg);opacity:.7}
+
+    @media (min-width:720px){
+      :root{--bottom:0px}.shell{padding-bottom:36px}.bottom-nav{display:none}.topbar-inner{height:66px}.brand-mini{width:38px;height:38px}.brand-title{font-size:18px}.page-head{padding:24px 0 16px}.home-search{padding-top:22px}.filters{grid-template-columns:200px 200px 220px}.list{grid-template-columns:repeat(2,minmax(0,1fr))}.listing-card{grid-template-columns:86px 1fr;padding:12px}.listing-img{width:86px;height:86px}.role-grid{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr 1fr}.profile-layout{display:grid;grid-template-columns:320px 1fr;gap:16px;align-items:start}.sheet{width:min(620px,calc(100% - 28px));border-radius:24px;margin:0 auto 18px}.modal{align-items:center}.details-img{height:260px}.chat-wrap{height:calc(100vh - 66px - 24px);max-width:760px;margin:0 auto}.install-banner{left:50%;right:auto;width:min(460px,calc(100% - 24px));transform:translateX(-50%);bottom:18px}
+    }
+  </style>
 </head>
 <body>
-
-    <div id="loader" class="loader-overlay">
-        <svg viewBox="0 0 150 40" width="150" height="40" style="margin-bottom: 20px;">
-            <path d="M10,20 L25,5 L30,5 L20,20 L35,20 L15,35 L20,25 L10,25 Z" fill="var(--primary)" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
-            <text x="45" y="26" font-family="Inter" font-weight="700" font-size="20" fill="var(--text-main)">AutoRapid <tspan fill="var(--primary)">RO</tspan></text>
-        </svg>
-        <div class="spinner"></div>
+  <div id="splash" class="splash">
+    <div class="splash-card">
+      <div class="logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none"><path d="M10 28.5 16.5 16h15L38 28.5" stroke="#FFD700" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 29h20c2.8 0 5 2.2 5 5v3H9v-3c0-2.8 2.2-5 5-5Z" fill="#fff"/><path d="M15 37a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM33 37a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="#FFD700"/><path d="M21 13h7l-3 6h6l-10 13 3-9h-6l3-10Z" fill="#FFD700"/></svg>
+      </div>
+      <div class="brand-title">AutoRapid RO</div>
+      <div class="loader-line"><span></span></div>
     </div>
+  </div>
 
-    <div id="toast" class="toast">Mesaj</div>
+  <div id="app" class="app"></div>
+  <div id="toast" class="toast"></div>
+  <div id="modal" class="modal"></div>
+  <div id="installBanner" class="install-banner">
+    <p id="installText">Adaugă AutoRapid RO pe ecranul principal pentru acces rapid.</p>
+    <button id="installBtn" class="btn small">Adaugă</button>
+    <button id="installClose" class="x">✕</button>
+  </div>
 
-    <div id="pwa-prompt">
-        <div class="flex items-center gap-3">
-            <div class="btn-icon"><i data-lucide="download"></i></div>
-            <div>
-                <div style="font-weight:600; font-size:0.95rem;">Instalează aplicația</div>
-                <div class="text-muted" style="font-size:0.8rem;">Acces mai rapid pe ecran.</div>
-            </div>
-        </div>
-        <button id="btn-install-pwa" class="btn btn-primary" style="padding: 8px 12px; font-size:0.85rem;">Adaugă</button>
-        <button id="btn-close-pwa" class="btn btn-ghost" style="padding: 8px;"><i data-lucide="x"></i></button>
+<script>
+'use strict';
+
+const SUPABASE_URL = 'https://ncdutmwivbgmubiodkev.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Yfwqvy9Avytb0vXa4qUtnA_vBUENjlE';
+const STORAGE_BUCKET = 'autorapid-assets';
+const APP_VERSION = 'client-provider-v1';
+const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><rect width="160" height="160" rx="30" fill="#F6F6F4"/><path d="M34 92l18-34h56l18 34" fill="none" stroke="#151515" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 92h72c10 0 18 8 18 18v8H26v-8c0-10 8-18 18-18Z" fill="#151515"/><circle cx="50" cy="118" r="10" fill="#FFD700"/><circle cx="110" cy="118" r="10" fill="#FFD700"/><path d="M73 42h18l-8 16h15L68 100l8-28H60l13-30Z" fill="#FFD700"/></svg>`);
+
+const CATEGORIES = [
+  'Tractări auto','Vulcanizare','Service auto','ITP','Diagnoză auto','Schimb ulei','Piese auto','Spălătorie auto','Detailing auto','Tinichigerie','Vopsitorie','Electrician auto','Închirieri auto','Dezmembrări auto','Anvelope','Asigurări auto','Platformă auto','Mecanic la domiciliu'
+];
+
+const COUNTIES = {
+  'Alba':['Alba Iulia','Aiud','Blaj','Sebeș','Cugir','Ocna Mureș'],
+  'Arad':['Arad','Ineu','Lipova','Nădlac','Pecica','Chișineu-Criș'],
+  'Argeș':['Pitești','Mioveni','Câmpulung','Curtea de Argeș','Costești','Topoloveni'],
+  'Bacău':['Bacău','Onești','Moinești','Comănești','Buhuși','Târgu Ocna'],
+  'Bihor':['Oradea','Salonta','Marghita','Beiuș','Aleșd','Săcueni'],
+  'Bistrița-Năsăud':['Bistrița','Beclean','Năsăud','Sângeorz-Băi'],
+  'Botoșani':['Botoșani','Dorohoi','Darabani','Săveni','Flămânzi'],
+  'Brașov':['Brașov','Făgăraș','Săcele','Codlea','Zărnești','Râșnov','Rupea'],
+  'Brăila':['Brăila','Ianca','Însurăței','Făurei'],
+  'București':['Sector 1','Sector 2','Sector 3','Sector 4','Sector 5','Sector 6'],
+  'Buzău':['Buzău','Râmnicu Sărat','Nehoiu','Pogoanele','Pătârlagele'],
+  'Caraș-Severin':['Reșița','Caransebeș','Bocșa','Oravița','Moldova Nouă','Oțelu Roșu'],
+  'Călărași':['Călărași','Oltenița','Lehliu Gară','Budești'],
+  'Cluj':['Cluj-Napoca','Turda','Dej','Câmpia Turzii','Gherla','Huedin'],
+  'Constanța':['Constanța','Mangalia','Medgidia','Năvodari','Cernavodă','Eforie','Ovidiu'],
+  'Covasna':['Sfântu Gheorghe','Târgu Secuiesc','Covasna','Baraolt','Întorsura Buzăului'],
+  'Dâmbovița':['Târgoviște','Moreni','Pucioasa','Găești','Titu','Fieni'],
+  'Dolj':['Craiova','Băilești','Calafat','Filiași','Dăbuleni','Segarcea'],
+  'Galați':['Galați','Tecuci','Târgu Bujor','Berești'],
+  'Giurgiu':['Giurgiu','Bolintin-Vale','Mihăilești'],
+  'Gorj':['Târgu Jiu','Motru','Rovinari','Târgu Cărbunești','Bumbești-Jiu','Novaci'],
+  'Harghita':['Miercurea Ciuc','Odorheiu Secuiesc','Gheorgheni','Toplița','Cristuru Secuiesc'],
+  'Hunedoara':['Deva','Hunedoara','Petroșani','Vulcan','Lupeni','Orăștie','Brad','Hațeg'],
+  'Ialomița':['Slobozia','Fetești','Urziceni','Țăndărei','Amara'],
+  'Iași':['Iași','Pașcani','Târgu Frumos','Hârlău','Podu Iloaiei'],
+  'Ilfov':['Buftea','Otopeni','Voluntari','Pantelimon','Bragadiru','Măgurele','Chitila','Popești-Leordeni'],
+  'Maramureș':['Baia Mare','Sighetu Marmației','Borșa','Vișeu de Sus','Baia Sprie','Târgu Lăpuș'],
+  'Mehedinți':['Drobeta-Turnu Severin','Orșova','Strehaia','Vânju Mare','Baia de Aramă'],
+  'Mureș':['Târgu Mureș','Reghin','Sighișoara','Târnăveni','Luduș','Sovata'],
+  'Neamț':['Piatra Neamț','Roman','Târgu Neamț','Roznov','Bicaz'],
+  'Olt':['Slatina','Caracal','Balș','Corabia','Scornicești','Drăgănești-Olt'],
+  'Prahova':['Ploiești','Câmpina','Băicoi','Breaza','Mizil','Sinaia','Bușteni'],
+  'Sălaj':['Zalău','Șimleu Silvaniei','Jibou','Cehu Silvaniei'],
+  'Satu Mare':['Satu Mare','Carei','Negrești-Oaș','Tășnad','Ardud'],
+  'Sibiu':['Sibiu','Mediaș','Cisnădie','Agnita','Avrig','Dumbrăveni'],
+  'Suceava':['Suceava','Fălticeni','Rădăuți','Câmpulung Moldovenesc','Vatra Dornei','Gura Humorului'],
+  'Teleorman':['Alexandria','Roșiori de Vede','Turnu Măgurele','Zimnicea','Videle'],
+  'Timiș':['Timișoara','Lugoj','Sânnicolau Mare','Jimbolia','Recaș','Făget'],
+  'Tulcea':['Tulcea','Babadag','Măcin','Isaccea','Sulina'],
+  'Vâlcea':['Râmnicu Vâlcea','Drăgășani','Băile Olănești','Călimănești','Horezu','Brezoi'],
+  'Vaslui':['Vaslui','Bârlad','Huși','Negrești','Murgeni'],
+  'Vrancea':['Focșani','Adjud','Mărășești','Odobești','Panciu']
+};
+
+const I18N = {
+  ro:{home:'Acasă',search:'Caută',publish:'Publică',saved:'Salvate',profile:'Profil',login:'Intră în cont',register:'Creează cont',email:'Email',password:'Parolă',searchPlaceholder:'Caută servicii auto',county:'Județ',city:'Oraș',category:'Categorie',all:'Toate',call:'Sună',whatsapp:'WhatsApp',message:'Mesaj',details:'Detalii',viewProfile:'Vezi profil',emptyListings:'Nu există anunțuri încă.',emptyListingsSub:'Fii primul prestator care publică un serviciu auto.',editProfile:'Editează profil',myListings:'Anunțurile mele',inbox:'Inbox',settings:'Setări',feedback:'Feedback',logout:'Deconectare',chooseRole:'Cum vrei să folosești aplicația?',client:'Client',provider:'Prestator',clientSub:'Caut servicii auto în orașul meu.',providerSub:'Ofer servicii auto și vreau să public anunțuri.',save:'Salvează',send:'Trimite',delete:'Șterge',report:'Raportează',completeProfile:'Completează profilul înainte să publici.',noSaved:'Nu ai anunțuri salvate.',noMessages:'Nu ai mesaje încă.',notifications:'Notificări'},
+  en:{home:'Home',search:'Search',publish:'Post',saved:'Saved',profile:'Profile',login:'Log in',register:'Create account',email:'Email',password:'Password',searchPlaceholder:'Search auto services',county:'County',city:'City',category:'Category',all:'All',call:'Call',whatsapp:'WhatsApp',message:'Message',details:'Details',viewProfile:'View profile',emptyListings:'No listings yet.',emptyListingsSub:'Be the first provider to post an auto service.',editProfile:'Edit profile',myListings:'My listings',inbox:'Inbox',settings:'Settings',feedback:'Feedback',logout:'Log out',chooseRole:'How do you want to use the app?',client:'Client',provider:'Provider',clientSub:'I search for auto services in my city.',providerSub:'I offer auto services and want to post listings.',save:'Save',send:'Send',delete:'Delete',report:'Report',completeProfile:'Complete your profile before posting.',noSaved:'You have no saved listings.',noMessages:'No messages yet.',notifications:'Notifications'},
+  it:{home:'Home',search:'Cerca',publish:'Pubblica',saved:'Salvati',profile:'Profilo',login:'Accedi',register:'Crea account',email:'Email',password:'Password',searchPlaceholder:'Cerca servizi auto',county:'Provincia',city:'Città',category:'Categoria',all:'Tutte',call:'Chiama',whatsapp:'WhatsApp',message:'Messaggio',details:'Dettagli',viewProfile:'Vedi profilo',emptyListings:'Non ci sono annunci.',emptyListingsSub:'Sii il primo a pubblicare un servizio auto.',editProfile:'Modifica profilo',myListings:'I miei annunci',inbox:'Inbox',settings:'Impostazioni',feedback:'Feedback',logout:'Disconnetti',chooseRole:'Come vuoi usare l’app?',client:'Cliente',provider:'Fornitore',clientSub:'Cerco servizi auto nella mia città.',providerSub:'Offro servizi auto e voglio pubblicare annunci.',save:'Salva',send:'Invia',delete:'Elimina',report:'Segnala',completeProfile:'Completa il profilo prima di pubblicare.',noSaved:'Non hai annunci salvati.',noMessages:'Non hai messaggi.',notifications:'Notifiche'}
+};
+
+const icons = {
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h14v-9.5"/><path d="M9 20v-6h6v6"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 1 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6Z"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>',
+  car:'<svg viewBox="0 0 48 48" fill="none"><path d="M10 28.5 16.5 16h15L38 28.5" stroke="#FFD700" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 29h20c2.8 0 5 2.2 5 5v3H9v-3c0-2.8 2.2-5 5-5Z" fill="#fff"/><path d="M15 37a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM33 37a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="#FFD700"/><path d="M21 13h7l-3 6h6l-10 13 3-9h-6l3-10Z" fill="#FFD700"/></svg>',
+  chevron:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m15 18-6-6 6-6"/></svg>',
+  close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 8h4l2-3h4l2 3h4v12H4z"/><circle cx="12" cy="14" r="3"/></svg>',
+  message:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>',
+  settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.35.13.69.33 1 .6.32.27.7.4 1.1.4H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/></svg>'
+};
+
+let sb = null;
+if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}
+  });
+}
+
+const state = {
+  session:null,user:null,profile:null,settings:null,roleChosen:false,
+  view:'home',prevView:'home',authMode:'login',loading:true,
+  query:'',filterCounty:'',filterCity:'',filterCategory:'',
+  listings:[],profilesById:{},imagesByListing:{},favorites:[],notifications:[],conversations:[],messagesByConversation:{},
+  selectedListing:null,selectedProfileId:null,activeConversation:null,
+  publishFiles:[],profileFile:null,deferredInstall:null,subscriptions:[]
+};
+
+const $ = (sel, root=document) => root.querySelector(sel);
+const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+const app = $('#app');
+const modal = $('#modal');
+
+function esc(v){return String(v ?? '').replace(/[&<>'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
+function t(k){const lang = state.settings?.language || 'ro'; return I18N[lang]?.[k] || I18N.ro[k] || k;}
+function toast(msg,type=''){const el=$('#toast');el.textContent=msg;el.className='toast show '+type;clearTimeout(toast._t);toast._t=setTimeout(()=>el.className='toast',2600);}
+function setLoading(on){state.loading=on; const splash=$('#splash'); if(!splash)return; splash.classList.toggle('out',!on);}
+function countyOptions(selected=''){return `<option value="">${t('all')}</option>`+Object.keys(COUNTIES).map(c=>`<option value="${esc(c)}" ${c===selected?'selected':''}>${esc(c)}</option>`).join('');}
+function cityOptions(county, selected=''){const arr = county ? (COUNTIES[county]||[]) : Object.values(COUNTIES).flat().slice(0,140);return `<option value="">${t('all')}</option>`+arr.map(c=>`<option value="${esc(c)}" ${c===selected?'selected':''}>${esc(c)}</option>`).join('');}
+function categoryOptions(selected=''){return `<option value="">${t('all')}</option>`+CATEGORIES.map(c=>`<option value="${esc(c)}" ${c===selected?'selected':''}>${esc(c)}</option>`).join('');}
+function firstImage(listing){return state.imagesByListing[listing.id]?.[0]?.image_url || state.profilesById[listing.owner_id]?.logo_url || state.profilesById[listing.owner_id]?.avatar_url || PLACEHOLDER;}
+function profileName(p){return p?.company_name || p?.full_name || 'AutoRapid user';}
+function profileAvatar(p){return p?.logo_url || p?.avatar_url || PLACEHOLDER;}
+function isProvider(){return state.profile?.role === 'provider';}
+function isSaved(id){return state.favorites.some(f=>f.listing_id===id);}
+function formatDate(v){try{return new Intl.DateTimeFormat('ro-RO',{dateStyle:'short',timeStyle:'short'}).format(new Date(v));}catch{return '';}}
+
+function setupManifest(){
+  const manifest = {name:'AutoRapid RO',short_name:'AutoRapid',start_url:'/',display:'standalone',background_color:'#ffffff',theme_color:'#ffffff',icons:[{src:PLACEHOLDER,sizes:'192x192',type:'image/svg+xml'},{src:PLACEHOLDER,sizes:'512x512',type:'image/svg+xml'}]};
+  const link = document.createElement('link');
+  link.rel='manifest';
+  link.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(manifest));
+  document.head.appendChild(link);
+}
+
+async function init(){
+  setupManifest();
+  window.addEventListener('beforeinstallprompt', e=>{e.preventDefault();state.deferredInstall=e;showInstallBanner();});
+  $('#installBtn').addEventListener('click', async()=>{if(state.deferredInstall){state.deferredInstall.prompt();await state.deferredInstall.userChoice;state.deferredInstall=null;hideInstallBanner();}else{toast('Folosește meniul browserului: Add to Home Screen.');}});
+  $('#installClose').addEventListener('click', hideInstallBanner);
+  if(!sb){setLoading(false);renderAuth('Configurarea Supabase lipsește.');return;}
+  const {data} = await sb.auth.getSession();
+  state.session=data.session; state.user=data.session?.user || null;
+  sb.auth.onAuthStateChange(async (_event, session)=>{state.session=session; state.user=session?.user || null; if(state.user){await bootstrapUser();}else{cleanupSubs();state.profile=null;state.settings=null;state.view='home';renderAuth();}});
+  if(state.user){await bootstrapUser();}else{setLoading(false);renderAuth();}
+}
+
+async function bootstrapUser(){
+  setLoading(true);
+  await ensureProfile();
+  await loadAll();
+  setupRealtime();
+  state.roleChosen = localStorage.getItem('autorapid_role_chosen_'+state.user.id) === '1';
+  setLoading(false);
+  if(!state.roleChosen){state.view='role';}else if(!state.view || state.view==='role'){state.view='home';}
+  applyTheme();
+  render();
+}
+
+async function ensureProfile(){
+  const uid=state.user.id;
+  let {data:profile,error:pErr}=await sb.from('profiles').select('*').eq('id',uid).maybeSingle();
+  if(pErr && pErr.code !== 'PGRST116') console.warn(pErr);
+  if(!profile){
+    const email=state.user.email || '';
+    const {data:newProfile,error}=await sb.from('profiles').insert({id:uid,full_name:email.split('@')[0],email_display:email,role:'client'}).select().single();
+    if(error) console.warn(error); profile=newProfile || {id:uid,full_name:email.split('@')[0],email_display:email,role:'client'};
+  }
+  state.profile=profile;
+  let {data:settings,error:sErr}=await sb.from('user_settings').select('*').eq('user_id',uid).maybeSingle();
+  if(sErr && sErr.code !== 'PGRST116') console.warn(sErr);
+  if(!settings){
+    const {data:newSettings,error}=await sb.from('user_settings').insert({user_id:uid,language:'ro',theme:'light',notifications_enabled:true}).select().single();
+    if(error) console.warn(error); settings=newSettings || {user_id:uid,language:'ro',theme:'light',notifications_enabled:true};
+  }
+  state.settings=settings;
+}
+
+async function loadAll(){
+  await Promise.all([loadListings(),loadFavorites(),loadNotifications(),loadConversations()]);
+}
+
+async function loadListings(){
+  const {data,error}=await sb.from('listings').select('*').neq('status','deleted').order('created_at',{ascending:false});
+  if(error){toast('Nu am putut încărca anunțurile.','error');console.warn(error);return;}
+  state.listings=data||[];
+  const ownerIds=[...new Set(state.listings.map(l=>l.owner_id).filter(Boolean))];
+  state.profilesById={};
+  if(ownerIds.length){
+    const {data:profiles}=await sb.from('profiles').select('*').in('id',ownerIds);
+    (profiles||[]).forEach(p=>state.profilesById[p.id]=p);
+  }
+  const ids=state.listings.map(l=>l.id);
+  state.imagesByListing={};
+  if(ids.length){
+    const {data:imgs}=await sb.from('listing_images').select('*').in('listing_id',ids).order('position',{ascending:true});
+    (imgs||[]).forEach(img=>{if(!state.imagesByListing[img.listing_id])state.imagesByListing[img.listing_id]=[];state.imagesByListing[img.listing_id].push(img);});
+  }
+}
+
+async function loadFavorites(){
+  if(!state.user)return; const {data,error}=await sb.from('favorites').select('*').eq('user_id',state.user.id);
+  if(!error) state.favorites=data||[];
+}
+async function loadNotifications(){
+  if(!state.user)return; const {data,error}=await sb.from('notifications').select('*').eq('user_id',state.user.id).order('created_at',{ascending:false}).limit(50);
+  if(!error) state.notifications=data||[];
+}
+async function loadConversations(){
+  if(!state.user)return; const uid=state.user.id;
+  const {data,error}=await sb.from('conversations').select('*').or(`client_id.eq.${uid},provider_id.eq.${uid}`).order('updated_at',{ascending:false});
+  if(!error) state.conversations=data||[];
+}
+
+function setupRealtime(){
+  cleanupSubs();
+  if(!state.user)return;
+  const uid=state.user.id;
+  const notifCh=sb.channel('notifications_'+uid).on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`user_id=eq.${uid}`},payload=>{state.notifications=[payload.new,...state.notifications];renderHeader(); if(state.view==='notifications')render(); toast(payload.new.title || 'Notificare nouă','success');}).subscribe();
+  const msgCh=sb.channel('messages_'+uid).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`receiver_id=eq.${uid}`},payload=>{const m=payload.new;if(!state.messagesByConversation[m.conversation_id])state.messagesByConversation[m.conversation_id]=[];state.messagesByConversation[m.conversation_id].push(m);loadConversations(); if(state.view==='chat' && state.activeConversation?.id===m.conversation_id)render(); else toast('Ai primit un mesaj nou.','success');}).subscribe();
+  state.subscriptions=[notifCh,msgCh];
+}
+function cleanupSubs(){state.subscriptions.forEach(ch=>sb.removeChannel(ch));state.subscriptions=[];}
+
+function applyTheme(){
+  const theme=state.settings?.theme || 'light';
+  const dark = theme==='dark' || (theme==='system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.body.classList.toggle('dark',dark);
+}
+
+function renderAuth(message=''){
+  setLoading(false);
+  document.body.classList.remove('dark');
+  app.innerHTML = `<div class="auth-wrap"><div class="auth-card">
+    <div class="auth-logo"><div class="logo-mark">${icons.car}</div><div><h1>AutoRapid RO</h1><p>Marketplace pentru servicii auto</p></div></div>
+    ${message?`<div class="empty" style="margin-bottom:12px"><p>${esc(message)}</p></div>`:''}
+    <div class="seg"><button class="${state.authMode==='login'?'active':''}" data-action="auth-mode" data-mode="login">${t('login')}</button><button class="${state.authMode==='register'?'active':''}" data-action="auth-mode" data-mode="register">${t('register')}</button></div>
+    <form id="authForm">
+      <div class="field"><label class="label">${t('email')}</label><input class="input" name="email" type="email" autocomplete="email" required placeholder="nume@email.com"></div>
+      <div class="field"><label class="label">${t('password')}</label><input class="input" name="password" type="password" autocomplete="current-password" minlength="6" required placeholder="Minim 6 caractere"></div>
+      <button class="btn gold full" type="submit">${state.authMode==='login'?t('login'):t('register')}</button>
+    </form>
+  </div></div>`;
+}
+
+function render(){
+  if(!state.user){renderAuth();return;}
+  applyTheme();
+  app.innerHTML = `${renderHeader()}<main class="shell">${renderPage()}</main>${renderBottomNav()}`;
+  bindPageAfterRender();
+}
+function renderHeader(){
+  const unread=state.notifications.filter(n=>!n.is_read).length;
+  const p=state.profile||{};
+  const header=`<header class="topbar"><div class="topbar-inner">
+    <button class="brand-row" data-view="home" aria-label="AutoRapid RO"><span class="brand-mini">${icons.car}</span><span class="brand-title">AutoRapid RO</span></button>
+    <div class="top-actions">
+      <button class="icon-btn" data-view="notifications" aria-label="${t('notifications')}">${icons.bell}${unread?`<span class="notif-dot">${unread>9?'9+':unread}</span>`:''}</button>
+      <button class="icon-btn" data-view="profile" aria-label="${t('profile')}"><img class="avatar-sm" src="${esc(profileAvatar(p))}" alt=""></button>
+    </div></div></header>`;
+  const old=$('.topbar'); if(old) old.outerHTML=header;
+  return header;
+}
+function renderBottomNav(){
+  const items=[['home',icons.home,t('home')],['search',icons.search,t('search')],['publish',icons.plus,t('publish')],['saved',icons.heart,t('saved')],['profile',icons.user,t('profile')]];
+  return `<nav class="bottom-nav"><div class="bottom-nav-inner">${items.map(([view,icon,label])=>`<button class="nav-item ${state.view===view?'active':''}" data-view="${view}">${icon}<span>${label}</span></button>`).join('')}</div></nav>`;
+}
+function renderPage(){
+  if(state.view==='role')return renderRoleChoice();
+  if(state.view==='home' || state.view==='search')return renderHome();
+  if(state.view==='publish')return renderPublish();
+  if(state.view==='saved')return renderSaved();
+  if(state.view==='profile')return renderProfile();
+  if(state.view==='editProfile')return renderEditProfile();
+  if(state.view==='settings')return renderSettings();
+  if(state.view==='feedback')return renderFeedback();
+  if(state.view==='inbox')return renderInbox();
+  if(state.view==='chat')return renderChat();
+  if(state.view==='myListings')return renderMyListings();
+  if(state.view==='publicProfile')return renderPublicProfile();
+  if(state.view==='notifications')return renderNotifications();
+  if(state.view==='terms')return renderTerms();
+  return renderHome();
+}
+function pageHead(title,sub='',back=true){return `<div class="page-head"><div style="display:flex;align-items:center;gap:10px">${back?`<button class="back-btn" data-action="back">${icons.back}</button>`:''}<div><h2 class="page-title">${esc(title)}</h2>${sub?`<p class="page-sub">${esc(sub)}</p>`:''}</div></div></div>`;}
+
+function renderRoleChoice(){return `<section class="role-screen"><div><h2 class="page-title">${t('chooseRole')}</h2><p class="page-sub">Poți schimba oricând din Setări.</p></div><div class="role-grid"><button class="role-card" data-action="choose-role" data-role="client"><span class="role-ico">${icons.search}</span><span><h3>${t('client')}</h3><p>${t('clientSub')}</p></span></button><button class="role-card" data-action="choose-role" data-role="provider"><span class="role-ico">${icons.plus}</span><span><h3>${t('provider')}</h3><p>${t('providerSub')}</p></span></button></div></section>`;}
+
+function filteredListings(){
+  const q=state.query.trim().toLowerCase();
+  return state.listings.filter(l=>{
+    if(l.status!=='active')return false;
+    if(state.filterCounty && l.county!==state.filterCounty)return false;
+    if(state.filterCity && l.city!==state.filterCity)return false;
+    if(state.filterCategory && l.category!==state.filterCategory)return false;
+    const p=state.profilesById[l.owner_id]||{};
+    const hay=[l.title,l.category,l.description,l.city,l.county,l.address,p.company_name,p.full_name,p.company_description].join(' ').toLowerCase();
+    return !q || hay.includes(q);
+  });
+}
+function renderHome(){
+  const list=filteredListings();
+  return `<section>
+    <div class="home-search">
+      <div class="searchbar"><span>${icons.search}</span><input id="searchInput" value="${esc(state.query)}" placeholder="${t('searchPlaceholder')}" aria-label="${t('search')}"><button class="btn small" data-action="do-search">${t('search')}</button></div>
+      <div class="filters"><select id="countyFilter" class="select">${countyOptions(state.filterCounty)}</select><select id="cityFilter" class="select">${cityOptions(state.filterCounty,state.filterCity)}</select><select id="categoryFilter" class="select">${categoryOptions(state.filterCategory)}</select></div>
     </div>
-
-    <div id="app-container">
-        <header class="top-header">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="app.navigate('home')">
-                <svg viewBox="0 0 150 40" width="130" height="35">
-                    <path d="M10,20 L25,5 L30,5 L20,20 L35,20 L15,35 L20,25 L10,25 Z" fill="var(--primary)" stroke="var(--text-main)" stroke-width="1.5" stroke-linejoin="round"/>
-                    <text x="40" y="26" font-family="Inter" font-weight="700" font-size="18" fill="var(--text-main)">AutoRapid <tspan fill="var(--primary)">RO</tspan></text>
-                </svg>
-            </div>
-            
-            <nav class="desktop-nav">
-                <a onclick="app.navigate('home')" data-i18n="nav_home">Acasă</a>
-                <a onclick="app.navigate('publish')" data-i18n="nav_publish">Publică</a>
-                <a onclick="app.navigate('saved')" data-i18n="nav_saved">Salvate</a>
-                <a onclick="app.checkAuthAndNavigate('profile-private')" data-i18n="nav_profile">Profil</a>
-            </nav>
-            <div class="mobile-menu-btn btn-ghost" onclick="app.navigate('profile-private')"><i data-lucide="user"></i></div>
-        </header>
-
-        <main class="main-content">
-            <div id="screen-login" class="screen">
-                <div style="max-width: 400px; margin: 40px auto; background: var(--bg); padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border);">
-                    <div class="auth-tabs">
-                        <div class="auth-tab active" id="tab-login" onclick="app.toggleAuthTab('login')" data-i18n="login_tab">Intră în cont</div>
-                        <div class="auth-tab" id="tab-register" onclick="app.toggleAuthTab('register')" data-i18n="register_tab">Creează cont</div>
-                    </div>
-                    
-                    <form id="auth-form" onsubmit="app.handleAuth(event)">
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="email">Email</label>
-                            <input type="email" id="auth-email" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="password">Parolă</label>
-                            <input type="password" id="auth-pass" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full mt-4" id="btn-auth-submit" data-i18n="login_btn">Conectare</button>
-                    </form>
-                </div>
-            </div>
-
-            <div id="screen-home" class="screen active">
-                <div class="search-bar">
-                    <input type="text" id="search-input" class="search-input" placeholder="Caută serviciu, firmă, oraș..." data-i18n-placeholder="search_placeholder" oninput="app.filterHome()">
-                    <button class="btn btn-primary" onclick="app.filterHome()" data-i18n="search">Caută</button>
-                </div>
-                
-                <div class="filters-row">
-                    <select id="filter-county" class="filter-select" onchange="app.updateCities(); app.filterHome();">
-                        <option value="" data-i18n="all_counties">Toate județele</option>
-                    </select>
-                    <select id="filter-city" class="filter-select" onchange="app.filterHome()">
-                        <option value="" data-i18n="all_cities">Toate orașele</option>
-                    </select>
-                    <select id="filter-category" class="filter-select" onchange="app.filterHome()">
-                        <option value="" data-i18n="all_categories">Toate categoriile</option>
-                    </select>
-                </div>
-
-                <div id="home-cards-container" class="grid-cards">
-                    </div>
-            </div>
-
-            <div id="screen-publish" class="screen">
-                <div style="max-width: 600px; margin: 0 auto;">
-                    <h2 class="mb-4" data-i18n="publish_title">Publică un anunț nou</h2>
-                    <div id="publish-profile-warning" class="hidden" style="background: #fef3c7; color: #92400e; padding: 16px; border-radius: var(--radius-md); margin-bottom: 16px;">
-                        <p data-i18n="publish_warning">Te rugăm să îți completezi profilul (Nume/Firmă, Telefon, Județ, Oraș) înainte de a publica.</p>
-                        <button class="btn btn-primary mt-2" onclick="app.navigate('edit-profile')" data-i18n="go_to_profile">Mergi la profil</button>
-                    </div>
-
-                    <form id="form-publish" class="hidden" onsubmit="app.handlePublish(event)">
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="category">Categorie</label>
-                            <select id="pub-category" class="form-control" required></select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="description">Descriere serviciu</label>
-                            <textarea id="pub-desc" class="form-control" required placeholder="Detalii despre ce oferi..."></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="promo_type">Tip Promovare</label>
-                            <select id="pub-promo" class="form-control">
-                                <option value="gratuit" data-i18n="promo_free">Gratuit</option>
-                                <option value="promovat7" data-i18n="promo_7">Promovat 7 zile</option>
-                                <option value="premium" data-i18n="promo_premium">Premium (Top)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full mt-4" data-i18n="publish_btn">Publică Anunțul</button>
-                    </form>
-                </div>
-            </div>
-
-            <div id="screen-saved" class="screen">
-                <h2 class="mb-4" data-i18n="saved_title">Anunțuri Salvate</h2>
-                <div id="saved-cards-container" class="grid-cards"></div>
-            </div>
-
-            <div id="screen-profile-private" class="screen">
-                <div style="max-width: 600px; margin: 0 auto;">
-                    <div class="profile-header">
-                        <img id="priv-prof-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e5e7eb'><path d='M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z'/></svg>" class="profile-avatar-lg" alt="Avatar">
-                        <h2 id="priv-prof-name">Nume Utilizator</h2>
-                        <p id="priv-prof-email" class="text-muted">email@exemplu.ro</p>
-                        <p id="priv-prof-location" class="text-muted mt-2">Locație nesetată</p>
-                        
-                        <div class="profile-stats">
-                            <div class="stat-box">
-                                <div id="stat-ads" class="stat-num">0</div>
-                                <div class="stat-lbl" data-i18n="stat_ads">Anunțuri</div>
-                            </div>
-                            <div class="stat-box">
-                                <div id="stat-favs" class="stat-num">0</div>
-                                <div class="stat-lbl" data-i18n="stat_favs">Salvate</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="profile-menu">
-                        <div class="profile-menu-item" onclick="app.navigate('edit-profile')">
-                            <div class="profile-menu-item-left"><i data-lucide="edit-3"></i> <span data-i18n="menu_edit">Editează profil</span></div>
-                            <i data-lucide="chevron-right" class="text-muted"></i>
-                        </div>
-                        <div class="profile-menu-item" onclick="app.navigate('my-ads')">
-                            <div class="profile-menu-item-left"><i data-lucide="layout-list"></i> <span data-i18n="menu_my_ads">Anunțurile mele</span></div>
-                            <i data-lucide="chevron-right" class="text-muted"></i>
-                        </div>
-                        <div class="profile-menu-item" onclick="app.navigate('inbox')">
-                            <div class="profile-menu-item-left"><i data-lucide="inbox"></i> <span data-i18n="menu_inbox">Inbox</span></div>
-                            <i data-lucide="chevron-right" class="text-muted"></i>
-                        </div>
-                        <div class="profile-menu-item" onclick="app.navigate('settings')">
-                            <div class="profile-menu-item-left"><i data-lucide="settings"></i> <span data-i18n="menu_settings">Setări</span></div>
-                            <i data-lucide="chevron-right" class="text-muted"></i>
-                        </div>
-                        <div class="profile-menu-item" onclick="app.navigate('feedback')">
-                            <div class="profile-menu-item-left"><i data-lucide="message-square"></i> <span data-i18n="menu_feedback">Spune-ne părerea ta</span></div>
-                            <i data-lucide="chevron-right" class="text-muted"></i>
-                        </div>
-                        <div class="profile-menu-item" onclick="app.logout()" style="color: #dc2626;">
-                            <div class="profile-menu-item-left"><i data-lucide="log-out"></i> <span data-i18n="menu_logout">Deconectare</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="screen-edit-profile" class="screen">
-                <div style="max-width: 600px; margin: 0 auto;">
-                    <div class="flex items-center gap-3 mb-4 cursor-pointer" onclick="app.navigate('profile-private')">
-                        <i data-lucide="arrow-left"></i> <h2 data-i18n="edit_profile_title">Editare Profil</h2>
-                    </div>
-                    
-                    <form id="form-edit-profile" onsubmit="app.handleProfileSave(event)">
-                        <div class="form-group text-center">
-                            <img id="edit-avatar-preview" src="" class="profile-avatar-lg" style="display:none;">
-                            <label class="custom-upload">
-                                <input type="file" id="edit-avatar" accept="image/*" onchange="app.previewAvatar(event)">
-                                <div class="upload-btn-ui"><i data-lucide="camera"></i> <span data-i18n="change_photo">Schimbă poza</span></div>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="firm_name">Nume Firmă / Utilizator *</label>
-                            <input type="text" id="edit-name" class="form-control" required>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="form-group w-full">
-                                <label class="form-label" data-i18n="phone">Telefon *</label>
-                                <input type="tel" id="edit-phone" class="form-control" required>
-                            </div>
-                            <div class="form-group w-full">
-                                <label class="form-label">WhatsApp</label>
-                                <input type="tel" id="edit-wa" class="form-control">
-                            </div>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="form-group w-full">
-                                <label class="form-label" data-i18n="county">Județ *</label>
-                                <select id="edit-county" class="form-control" required onchange="app.updateEditCities()"></select>
-                            </div>
-                            <div class="form-group w-full">
-                                <label class="form-label" data-i18n="city">Oraș *</label>
-                                <select id="edit-city" class="form-control" required></select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="address">Adresă / Locație exactă</label>
-                            <input type="text" id="edit-address" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="schedule">Program de lucru</label>
-                            <input type="text" id="edit-schedule" class="form-control" placeholder="ex: L-V: 08:00 - 18:00">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="price_range">Preț orientativ</label>
-                            <input type="text" id="edit-price" class="form-control" placeholder="ex: de la 100 RON / ora">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full mt-2" data-i18n="save_btn">Salvează Profilul</button>
-                    </form>
-                </div>
-            </div>
-
-            <div id="screen-settings" class="screen">
-                <div style="max-width: 600px; margin: 0 auto;">
-                    <div class="flex items-center gap-3 mb-4 cursor-pointer" onclick="app.navigate('profile-private')">
-                        <i data-lucide="arrow-left"></i> <h2 data-i18n="menu_settings">Setări</h2>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" data-i18n="language">Limbă Aplicație</label>
-                        <select id="setting-lang" class="form-control" onchange="app.changeLanguage(this.value)">
-                            <option value="ro">Română</option>
-                            <option value="en">English</option>
-                            <option value="it">Italiano</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" data-i18n="theme">Aspect</label>
-                        <select id="setting-theme" class="form-control" onchange="app.changeTheme(this.value)">
-                            <option value="light" data-i18n="theme_light">Luminos (Light)</option>
-                            <option value="dark" data-i18n="theme_dark">Întunecat (Dark)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div id="screen-feedback" class="screen">
-                <div style="max-width: 600px; margin: 0 auto;">
-                    <div class="flex items-center gap-3 mb-4 cursor-pointer" onclick="app.navigate('profile-private')">
-                        <i data-lucide="arrow-left"></i> <h2 data-i18n="feedback_title">Dă-ne feedback</h2>
-                    </div>
-                    <form onsubmit="app.handleFeedback(event)">
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="feedback_type">Despre ce este vorba?</label>
-                            <select id="feed-type" class="form-control" required>
-                                <option value="Problemă tehnică">Problemă tehnică</option>
-                                <option value="Design aplicație">Design aplicație</option>
-                                <option value="Anunțuri">Anunțuri</option>
-                                <option value="Sugestie nouă">Sugestie nouă</option>
-                                <option value="Altceva">Altceva</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="message">Mesajul tău</label>
-                            <textarea id="feed-msg" class="form-control" maxlength="500" oninput="document.getElementById('feed-count').innerText = this.value.length" required></textarea>
-                            <div class="text-muted mt-1 text-right"><span id="feed-count">0</span>/500</div>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full" data-i18n="send_btn">Trimite feedback</button>
-                    </form>
-                </div>
-            </div>
-
-            <div id="screen-inbox" class="screen">
-                <div style="max-width: 600px; margin: 0 auto;">
-                    <div class="flex items-center gap-3 mb-4 cursor-pointer" onclick="app.navigate('profile-private')">
-                        <i data-lucide="arrow-left"></i> <h2 data-i18n="menu_inbox">Inbox</h2>
-                    </div>
-                    <div id="inbox-container"></div>
-                </div>
-            </div>
-
-            <div id="screen-my-ads" class="screen">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <div class="flex items-center gap-3 mb-4 cursor-pointer" onclick="app.navigate('profile-private')">
-                        <i data-lucide="arrow-left"></i> <h2 data-i18n="menu_my_ads">Anunțurile mele</h2>
-                    </div>
-                    <div id="my-ads-container" class="grid-cards"></div>
-                </div>
-            </div>
-
-            <div id="screen-ad-details" class="screen">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <div class="flex items-center gap-3 mb-4 cursor-pointer" onclick="app.navigate('home')">
-                        <i data-lucide="arrow-left"></i> <span data-i18n="back">Înapoi</span>
-                    </div>
-                    <div id="ad-details-content" style="background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow:hidden;">
-                        </div>
-                </div>
-            </div>
-
-            <div id="screen-profile-public" class="screen">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <div class="flex items-center gap-3 mb-4 cursor-pointer" onclick="app.navigate('home')">
-                        <i data-lucide="arrow-left"></i> <span data-i18n="back">Înapoi</span>
-                    </div>
-                    <div id="public-profile-header"></div>
-                    <h3 class="mt-4 mb-4" data-i18n="firm_ads">Anunțurile firmei</h3>
-                    <div id="public-profile-ads" class="grid-cards"></div>
-                </div>
-            </div>
-
-            <div id="screen-report-ad" class="screen">
-                 <div style="max-width: 600px; margin: 0 auto;">
-                    <div class="flex items-center gap-3 mb-4 cursor-pointer" onclick="app.navigate('ad-details')">
-                        <i data-lucide="arrow-left"></i> <h2 data-i18n="report_title">Raportează Anunț</h2>
-                    </div>
-                    <form onsubmit="app.handleReport(event)">
-                        <input type="hidden" id="report-listing-id">
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="reason">Motivul raportării</label>
-                            <select id="report-reason" class="form-control" required>
-                                <option value="Fals / Spam">Fals / Spam</option>
-                                <option value="Informații incorecte">Informații incorecte</option>
-                                <option value="Conținut inadecvat">Conținut inadecvat</option>
-                                <option value="Firma nu mai există">Firma nu mai există</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="message">Detalii suplimentare</label>
-                            <textarea id="report-msg" class="form-control" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full" style="background: #ef4444; color:white;">Trimite Raport</button>
-                    </form>
-                </div>
-            </div>
-
-        </main>
-
-        <nav class="bottom-nav">
-            <div class="nav-item active" onclick="app.navigate('home')" id="nav-home">
-                <i data-lucide="home"></i> <span data-i18n="nav_home">Acasă</span>
-            </div>
-            <div class="nav-item" onclick="app.navigate('home')" id="nav-search">
-                <i data-lucide="search"></i> <span data-i18n="nav_search">Caută</span>
-            </div>
-            <div class="nav-item" onclick="app.navigate('publish')" id="nav-publish">
-                <i data-lucide="plus-circle"></i> <span data-i18n="nav_publish">Publică</span>
-            </div>
-            <div class="nav-item" onclick="app.navigate('saved')" id="nav-saved">
-                <i data-lucide="heart"></i> <span data-i18n="nav_saved">Salvate</span>
-            </div>
-            <div class="nav-item" onclick="app.checkAuthAndNavigate('profile-private')" id="nav-profile">
-                <i data-lucide="user"></i> <span data-i18n="nav_profile">Profil</span>
-            </div>
-        </nav>
-    </div>
-
-    <script>
-        /**
-         * =========================================
-         * CONFIGURARE SUPABASE
-         * INSEREAZĂ DATELE TALE AICI
-         * =========================================
-         */
-        const SUPABASE_URL = 'https://URL_TAU_SUPABASE.supabase.co'; // <--- SCHIMBĂ AICI
-        const SUPABASE_KEY = 'CHEIA_TA_ANON_PUBLIC_SUPABASE';        // <--- SCHIMBĂ AICI
-
-        // Verificare rapidă pt URL valid (doar ca să nu dea eroare biblioteca dacă e gol)
-        const isSupaValid = SUPABASE_URL.startsWith('https://');
-        const supabase = isSupaValid ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-
-        /**
-         * =========================================
-         * DATE STATICE (Categorii, Locații, i18n)
-         * =========================================
-         */
-        const CATEGORIES = [
-            "Tractări auto", "Vulcanizare", "Service auto", "ITP", "Diagnoză auto", 
-            "Schimb ulei", "Piese auto", "Spălătorie auto", "Detailing auto", 
-            "Tinichigerie", "Vopsitorie", "Electrician auto", "Închirieri auto", 
-            "Dezmembrări auto", "Anvelope", "Asigurări auto", "Platformă auto", "Mecanic la domiciliu"
-        ];
-
-        const LOCATIONS = {
-            "Alba": ["Alba Iulia", "Sebeș", "Aiud"], "Arad": ["Arad", "Pecica"], "Argeș": ["Pitești", "Mioveni", "Câmpulung"],
-            "Bacău": ["Bacău", "Onești"], "Bihor": ["Oradea", "Salonta"], "Bistrița-Năsăud": ["Bistrița"],
-            "Botoșani": ["Botoșani"], "Brașov": ["Brașov", "Făgăraș", "Săcele", "Zărnești"], "Brăila": ["Brăila"],
-            "București": ["Sector 1", "Sector 2", "Sector 3", "Sector 4", "Sector 5", "Sector 6"],
-            "Buzău": ["Buzău", "Râmnicu Sărat"], "Caraș-Severin": ["Reșița", "Caransebeș"], "Călărași": ["Călărași"],
-            "Cluj": ["Cluj-Napoca", "Turda", "Dej", "Florești"], "Constanța": ["Constanța", "Mangalia", "Medgidia"],
-            "Covasna": ["Sfântu Gheorghe"], "Dâmbovița": ["Târgoviște"], "Dolj": ["Craiova"],
-            "Galați": ["Galați", "Tecuci"], "Giurgiu": ["Giurgiu"], "Gorj": ["Târgu Jiu"], "Harghita": ["Miercurea Ciuc", "Odorheiu Secuiesc"],
-            "Hunedoara": ["Deva", "Hunedoara", "Petroșani"], "Ialomița": ["Slobozia"], "Iași": ["Iași", "Pașcani"],
-            "Ilfov": ["Voluntari", "Otopeni", "Popești-Leordeni", "Bragadiru"], "Maramureș": ["Baia Mare", "Sighetu Marmației"],
-            "Mehedinți": ["Drobeta-Turnu Severin"], "Mureș": ["Târgu Mureș", "Sighișoara", "Reghin"],
-            "Neamț": ["Piatra Neamț", "Roman"], "Olt": ["Slatina", "Caracal"], "Prahova": ["Ploiești", "Câmpina", "Sinaia"],
-            "Satu Mare": ["Satu Mare", "Carei"], "Sălaj": ["Zalău"], "Sibiu": ["Sibiu", "Mediaș"], "Suceava": ["Suceava", "Fălticeni", "Rădăuți"],
-            "Teleorman": ["Alexandria"], "Timiș": ["Timișoara", "Lugoj", "Dumbrăvița"], "Tulcea": ["Tulcea"],
-            "Vaslui": ["Vaslui", "Bârlad"], "Vâlcea": ["Râmnicu Vâlcea"], "Vrancea": ["Focșani"]
-        };
-
-        const TRANSLATIONS = {
-            ro: {
-                nav_home: "Acasă", nav_search: "Caută", nav_publish: "Publică", nav_saved: "Salvate", nav_profile: "Profil",
-                search_placeholder: "Caută serviciu, firmă, oraș...", search: "Caută",
-                all_counties: "Toate județele", all_cities: "Toate orașele", all_categories: "Toate categoriile",
-                login_tab: "Intră în cont", register_tab: "Creează cont", email: "Email", password: "Parolă", login_btn: "Continuă",
-                publish_title: "Publică un anunț nou", publish_warning: "Te rugăm să îți completezi profilul înainte de a publica.", go_to_profile: "Mergi la profil",
-                category: "Categorie", description: "Descriere", promo_type: "Tip Promovare", promo_free: "Gratuit", promo_7: "Promovat 7 zile", promo_premium: "Premium", publish_btn: "Publică Anunțul",
-                saved_title: "Anunțuri Salvate", stat_ads: "Anunțuri", stat_favs: "Salvate",
-                menu_edit: "Editează profil", menu_my_ads: "Anunțurile mele", menu_inbox: "Inbox", menu_settings: "Setări", menu_feedback: "Feedback", menu_logout: "Deconectare",
-                edit_profile_title: "Editare Profil", change_photo: "Schimbă poza", firm_name: "Nume Firmă / Utilizator *", phone: "Telefon *", county: "Județ *", city: "Oraș *", address: "Adresă", schedule: "Program", price_range: "Preț orientativ", save_btn: "Salvează Profilul",
-                language: "Limbă", theme: "Aspect", theme_light: "Luminos", theme_dark: "Întunecat",
-                feedback_title: "Dă-ne feedback", feedback_type: "Tip", message: "Mesaj", send_btn: "Trimite",
-                firm_ads: "Anunțurile firmei", back: "Înapoi", report_title: "Raportează", reason: "Motiv",
-                empty_home: "Nu există anunțuri încă. Fii primul care publică!", empty_saved: "Nu ai salvat niciun anunț.", empty_inbox: "Nu ai mesaje noi.", empty_my_ads: "Nu ai publicat niciun anunț."
-            },
-            en: {
-                nav_home: "Home", nav_search: "Search", nav_publish: "Publish", nav_saved: "Saved", nav_profile: "Profile",
-                search_placeholder: "Search services, firms, city...", search: "Search",
-                all_counties: "All counties", all_cities: "All cities", all_categories: "All categories",
-                login_tab: "Login", register_tab: "Sign up", email: "Email", password: "Password", login_btn: "Continue",
-                publish_title: "Publish Ad", publish_warning: "Please complete your profile before publishing.", go_to_profile: "Go to profile",
-                category: "Category", description: "Description", promo_type: "Promotion Type", promo_free: "Free", promo_7: "Promoted 7 days", promo_premium: "Premium", publish_btn: "Publish Ad",
-                saved_title: "Saved Ads", stat_ads: "Ads", stat_favs: "Saved",
-                menu_edit: "Edit profile", menu_my_ads: "My ads", menu_inbox: "Inbox", menu_settings: "Settings", menu_feedback: "Feedback", menu_logout: "Logout",
-                edit_profile_title: "Edit Profile", change_photo: "Change photo", firm_name: "Firm Name / User *", phone: "Phone *", county: "County *", city: "City *", address: "Address", schedule: "Schedule", price_range: "Price range", save_btn: "Save Profile",
-                language: "Language", theme: "Theme", theme_light: "Light", theme_dark: "Dark",
-                feedback_title: "Give feedback", feedback_type: "Type", message: "Message", send_btn: "Send",
-                firm_ads: "Firm's Ads", back: "Back", report_title: "Report", reason: "Reason",
-                empty_home: "No ads found. Be the first to publish!", empty_saved: "No saved ads.", empty_inbox: "No new messages.", empty_my_ads: "You haven't published any ads."
-            },
-            it: {
-                 nav_home: "Home", nav_search: "Cerca", nav_publish: "Pubblica", nav_saved: "Salvati", nav_profile: "Profilo",
-                search_placeholder: "Cerca servizi, aziende, città...", search: "Cerca",
-                all_counties: "Tutte le province", all_cities: "Tutte le città", all_categories: "Tutte le categorie",
-                login_tab: "Accedi", register_tab: "Registrati", email: "Email", password: "Password", login_btn: "Continua",
-                publish_title: "Pubblica Annuncio", publish_warning: "Completa il tuo profilo prima di pubblicare.", go_to_profile: "Vai al profilo",
-                category: "Categoria", description: "Descrizione", promo_type: "Tipo di Promozione", promo_free: "Gratis", promo_7: "Promosso 7 giorni", promo_premium: "Premium", publish_btn: "Pubblica",
-                saved_title: "Annunci Salvati", stat_ads: "Annunci", stat_favs: "Salvati",
-                menu_edit: "Modifica profilo", menu_my_ads: "I miei annunci", menu_inbox: "Posta in arrivo", menu_settings: "Impostazioni", menu_feedback: "Feedback", menu_logout: "Esci",
-                edit_profile_title: "Modifica Profilo", change_photo: "Cambia foto", firm_name: "Nome Azienda / Utente *", phone: "Telefono *", county: "Provincia *", city: "Città *", address: "Indirizzo", schedule: "Orari", price_range: "Fascia di prezzo", save_btn: "Salva Profilo",
-                language: "Lingua", theme: "Tema", theme_light: "Chiaro", theme_dark: "Scuro",
-                feedback_title: "Invia feedback", feedback_type: "Tipo", message: "Messaggio", send_btn: "Invia",
-                firm_ads: "Annunci dell'azienda", back: "Indietro", report_title: "Segnala", reason: "Motivo",
-                empty_home: "Nessun annuncio. Sii il primo a pubblicare!", empty_saved: "Nessun annuncio salvato.", empty_inbox: "Nessun nuovo messaggio.", empty_my_ads: "Non hai pubblicato alcun annuncio."
-            }
-        };
-
-        /**
-         * =========================================
-         * STATE & CORE APP LOGIC
-         * =========================================
-         */
-        const app = {
-            user: null,
-            profile: null,
-            lang: 'ro',
-            theme: 'light',
-            currentScreen: 'home',
-            listings: [],
-            favorites: [],
-            viewingAdData: null,
-            authMode: 'login', // login or register
-
-            init() {
-                this.populateDropdowns();
-                this.setupPWA();
-                
-                // Initialize Lucide Icons
-                if(window.lucide) lucide.createIcons();
-
-                if (!supabase) {
-                    this.showToast("Atenție: Supabase nu este conectat. Setati cheile in cod.");
-                    document.getElementById('loader').style.display = 'none';
-                    this.renderMockHome();
-                    return;
-                }
-
-                // Check Session
-                supabase.auth.getSession().then(({ data: { session } }) => {
-                    if (session) {
-                        this.user = session.user;
-                        this.fetchProfile();
-                        this.fetchFavorites();
-                    }
-                    this.fetchAllAds();
-                });
-
-                // Listen for auth changes
-                supabase.auth.onAuthStateChange((event, session) => {
-                    this.user = session?.user || null;
-                    if(this.user) {
-                        this.fetchProfile();
-                        this.fetchFavorites();
-                    } else {
-                        this.profile = null;
-                        this.favorites = [];
-                    }
-                });
-            },
-
-            // --- Navigation & UI ---
-            navigate(screenId, data = null) {
-                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-                const target = document.getElementById(`screen-${screenId}`);
-                if(target) target.classList.add('active');
-                
-                // Update bottom nav active state
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                const navItem = document.getElementById(`nav-${screenId === 'profile-private' ? 'profile' : screenId}`);
-                if(navItem) navItem.classList.add('active');
-
-                this.currentScreen = screenId;
-                window.scrollTo(0,0);
-
-                // Specific screen logic
-                if(screenId === 'home') this.filterHome();
-                if(screenId === 'saved') this.renderSaved();
-                if(screenId === 'my-ads') this.renderMyAds();
-                if(screenId === 'inbox') this.renderInbox();
-                if(screenId === 'publish') this.checkPublishReady();
-                if(screenId === 'profile-private') this.renderPrivateProfile();
-                if(screenId === 'edit-profile') this.fillEditProfileForm();
-                
-                if(window.lucide) lucide.createIcons();
-            },
-
-            checkAuthAndNavigate(screenId) {
-                if (this.user) {
-                    this.navigate(screenId);
-                } else {
-                    this.navigate('login');
-                }
-            },
-
-            showLoader() { document.getElementById('loader').style.display = 'flex'; },
-            hideLoader() { document.getElementById('loader').style.display = 'none'; },
-            
-            showToast(msg) {
-                const t = document.getElementById('toast');
-                t.innerText = msg;
-                t.classList.add('show');
-                setTimeout(() => t.classList.remove('show'), 3000);
-            },
-
-            // --- i18n ---
-            changeLanguage(lang) {
-                this.lang = lang;
-                const dict = TRANSLATIONS[lang];
-                document.querySelectorAll('[data-i18n]').forEach(el => {
-                    const key = el.getAttribute('data-i18n');
-                    if(dict[key]) el.innerText = dict[key];
-                });
-                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                    const key = el.getAttribute('data-i18n-placeholder');
-                    if(dict[key]) el.placeholder = dict[key];
-                });
-                // Force re-renders
-                if(this.currentScreen === 'home') this.filterHome();
-                if(this.currentScreen === 'saved') this.renderSaved();
-            },
-
-            // --- Theme ---
-            changeTheme(theme) {
-                this.theme = theme;
-                if(theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-                else document.documentElement.removeAttribute('data-theme');
-            },
-
-            // --- Helpers: Dropdowns ---
-            populateDropdowns() {
-                const catHtml = `<option value="">${TRANSLATIONS[this.lang].all_categories}</option>` + CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
-                document.getElementById('filter-category').innerHTML = catHtml;
-                document.getElementById('pub-category').innerHTML = CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
-
-                const counties = Object.keys(LOCATIONS).sort();
-                const countyHtml = `<option value="">${TRANSLATIONS[this.lang].all_counties}</option>` + counties.map(c => `<option value="${c}">${c}</option>`).join('');
-                document.getElementById('filter-county').innerHTML = countyHtml;
-                
-                const editCountyHtml = `<option value="">Alege Județ</option>` + counties.map(c => `<option value="${c}">${c}</option>`).join('');
-                document.getElementById('edit-county').innerHTML = editCountyHtml;
-            },
-
-            updateCities() {
-                const cty = document.getElementById('filter-county').value;
-                const citySelect = document.getElementById('filter-city');
-                if(!cty) {
-                    citySelect.innerHTML = `<option value="">${TRANSLATIONS[this.lang].all_cities}</option>`;
-                    return;
-                }
-                const cities = LOCATIONS[cty].sort();
-                citySelect.innerHTML = `<option value="">${TRANSLATIONS[this.lang].all_cities}</option>` + cities.map(c => `<option value="${c}">${c}</option>`).join('');
-            },
-
-            updateEditCities() {
-                const cty = document.getElementById('edit-county').value;
-                const citySelect = document.getElementById('edit-city');
-                if(!cty) { citySelect.innerHTML = ''; return; }
-                const cities = LOCATIONS[cty].sort();
-                citySelect.innerHTML = cities.map(c => `<option value="${c}">${c}</option>`).join('');
-            },
-
-            // --- Auth ---
-            toggleAuthTab(mode) {
-                this.authMode = mode;
-                document.getElementById('tab-login').classList.toggle('active', mode === 'login');
-                document.getElementById('tab-register').classList.toggle('active', mode === 'register');
-                document.getElementById('btn-auth-submit').innerText = mode === 'login' ? 'Conectare' : 'Creare cont';
-            },
-
-            async handleAuth(e) {
-                e.preventDefault();
-                if(!supabase) return this.showToast("Bază de date neconectată.");
-                this.showLoader();
-                const email = document.getElementById('auth-email').value;
-                const password = document.getElementById('auth-pass').value;
-
-                let authRes;
-                if(this.authMode === 'login') {
-                    authRes = await supabase.auth.signInWithPassword({ email, password });
-                } else {
-                    authRes = await supabase.auth.signUp({ email, password });
-                }
-
-                this.hideLoader();
-                if(authRes.error) {
-                    this.showToast(authRes.error.message);
-                } else {
-                    this.user = authRes.data.user;
-                    this.showToast("Conectat cu succes!");
-                    this.navigate('home');
-                }
-            },
-
-            async logout() {
-                if(supabase) await supabase.auth.signOut();
-                this.user = null;
-                this.profile = null;
-                this.navigate('home');
-                this.showToast("Deconectat.");
-            },
-
-            // --- DB Fetches ---
-            async fetchProfile() {
-                if(!supabase || !this.user) return;
-                const { data, error } = await supabase.from('profiles').select('*').eq('id', this.user.id).single();
-                if(data) this.profile = data;
-                else {
-                    // Auto-create empty profile
-                    const {data: newProf} = await supabase.from('profiles').insert([{ id: this.user.id, email: this.user.email }]).select().single();
-                    this.profile = newProf;
-                }
-                if(this.currentScreen === 'profile-private') this.renderPrivateProfile();
-            },
-
-            async fetchAllAds() {
-                if(!supabase) return;
-                // Fetch listings joined with profile data (Assuming relation exists in Supabase)
-                // For simplicity in single file without knowing exact schema, we assume a denormalized view or 2 queries.
-                const { data: ads, error: adsErr } = await supabase.from('listings').select('*, profiles(name, phone, whatsapp, county, city, avatar_url, schedule, price_range)').order('created_at', { ascending: false });
-                
-                if(!adsErr && ads) {
-                    this.listings = ads;
-                }
-                this.hideLoader();
-                this.filterHome();
-            },
-
-            async fetchFavorites() {
-                if(!supabase || !this.user) return;
-                const { data } = await supabase.from('favorites').select('listing_id').eq('user_id', this.user.id);
-                if(data) this.favorites = data.map(f => f.listing_id);
-            },
-
-            // --- Rendering Actions ---
-            getEmptyStateHtml(icon, text) {
-                return `<div class="empty-state"><i data-lucide="${icon}" style="width:48px;height:48px;color:var(--text-muted);"></i><p class="mt-4">${text}</p></div>`;
-            },
-
-            createCardHtml(ad) {
-                const p = ad.profiles || ad; // fallback if join fails
-                const isFav = this.favorites.includes(ad.id);
-                const favClass = isFav ? 'active' : '';
-                const avatar = p.avatar_url || `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e5e7eb'><path d='M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z'/></svg>`;
-
-                return `
-                    <div class="ad-card" onclick="app.viewAdDetails('${ad.id}')">
-                        <button class="btn-fav ${favClass}" onclick="event.stopPropagation(); app.toggleFavorite('${ad.id}')">
-                            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </button>
-                        <div class="ad-card-header">
-                            <img src="${avatar}" class="ad-card-avatar" alt="Logo">
-                            <div>
-                                <div class="ad-card-title">${p.name || 'Firma Necunoscută'}</div>
-                                <div class="ad-card-cat">${ad.category}</div>
-                            </div>
-                        </div>
-                        <div class="ad-card-body">
-                            <div class="ad-card-info"><i data-lucide="map-pin" style="width:14px;"></i> ${p.city}, ${p.county}</div>
-                            <div class="ad-card-info"><i data-lucide="clock" style="width:14px;"></i> ${p.schedule || 'Fără program afișat'}</div>
-                            <div class="ad-card-price">${p.price_range || ''}</div>
-                        </div>
-                        <div class="ad-card-actions">
-                            <button class="btn btn-outline" onclick="event.stopPropagation(); window.location.href='tel:${p.phone}'"><i data-lucide="phone" style="width:16px;"></i> Sună</button>
-                            ${p.whatsapp ? `<button class="btn" style="background:#25D366; color:white;" onclick="event.stopPropagation(); window.open('https://wa.me/${p.whatsapp.replace(/[^0-9]/g, '')}', '_blank')"><i data-lucide="message-circle" style="width:16px;"></i> WA</button>` : ''}
-                        </div>
-                    </div>
-                `;
-            },
-
-            filterHome() {
-                const search = document.getElementById('search-input').value.toLowerCase();
-                const county = document.getElementById('filter-county').value;
-                const city = document.getElementById('filter-city').value;
-                const cat = document.getElementById('filter-category').value;
-
-                let filtered = this.listings.filter(ad => {
-                    const p = ad.profiles || ad;
-                    const matchSearch = (p.name || '').toLowerCase().includes(search) || (ad.category || '').toLowerCase().includes(search) || (ad.description || '').toLowerCase().includes(search);
-                    const matchCounty = county ? p.county === county : true;
-                    const matchCity = city ? p.city === city : true;
-                    const matchCat = cat ? ad.category === cat : true;
-                    return matchSearch && matchCounty && matchCity && matchCat;
-                });
-
-                const container = document.getElementById('home-cards-container');
-                if(filtered.length === 0) {
-                    container.innerHTML = this.getEmptyStateHtml('search-x', TRANSLATIONS[this.lang].empty_home);
-                } else {
-                    container.innerHTML = filtered.map(ad => this.createCardHtml(ad)).join('');
-                }
-                if(window.lucide) lucide.createIcons();
-            },
-
-            renderSaved() {
-                const container = document.getElementById('saved-cards-container');
-                if(!this.user) {
-                    container.innerHTML = this.getEmptyStateHtml('lock', "Trebuie să fii conectat pentru a vedea anunțurile salvate.");
-                    return;
-                }
-                const savedAds = this.listings.filter(ad => this.favorites.includes(ad.id));
-                if(savedAds.length === 0) {
-                    container.innerHTML = this.getEmptyStateHtml('heart', TRANSLATIONS[this.lang].empty_saved);
-                } else {
-                    container.innerHTML = savedAds.map(ad => this.createCardHtml(ad)).join('');
-                }
-                if(window.lucide) lucide.createIcons();
-            },
-
-            renderMyAds() {
-                const container = document.getElementById('my-ads-container');
-                const myAds = this.listings.filter(ad => ad.user_id === this.user?.id);
-                if(myAds.length === 0) {
-                    container.innerHTML = this.getEmptyStateHtml('layout-list', TRANSLATIONS[this.lang].empty_my_ads);
-                } else {
-                    container.innerHTML = myAds.map(ad => this.createCardHtml(ad)).join('');
-                }
-                if(window.lucide) lucide.createIcons();
-            },
-
-            renderInbox() {
-                const container = document.getElementById('inbox-container');
-                // Mock inbox since we don't have real messages built out yet
-                container.innerHTML = this.getEmptyStateHtml('inbox', TRANSLATIONS[this.lang].empty_inbox);
-                if(window.lucide) lucide.createIcons();
-            },
-
-            renderPrivateProfile() {
-                if(!this.profile) return;
-                document.getElementById('priv-prof-name').innerText = this.profile.name || 'Setează nume';
-                document.getElementById('priv-prof-email').innerText = this.profile.email || this.user.email;
-                document.getElementById('priv-prof-location').innerText = this.profile.city ? `${this.profile.city}, ${this.profile.county}` : 'Locație nesetată';
-                if(this.profile.avatar_url) document.getElementById('priv-prof-avatar').src = this.profile.avatar_url;
-                
-                document.getElementById('stat-ads').innerText = this.listings.filter(ad => ad.user_id === this.user.id).length;
-                document.getElementById('stat-favs').innerText = this.favorites.length;
-            },
-
-            // --- Publish ---
-            checkPublishReady() {
-                if(!this.user) { this.navigate('login'); return; }
-                const isComplete = this.profile && this.profile.name && this.profile.phone && this.profile.county;
-                if(isComplete) {
-                    document.getElementById('publish-profile-warning').classList.add('hidden');
-                    document.getElementById('form-publish').classList.remove('hidden');
-                } else {
-                    document.getElementById('publish-profile-warning').classList.remove('hidden');
-                    document.getElementById('form-publish').classList.add('hidden');
-                }
-            },
-
-            async handlePublish(e) {
-                e.preventDefault();
-                if(!supabase) return this.showToast("Eroare Bază de Date.");
-                this.showLoader();
-                const cat = document.getElementById('pub-category').value;
-                const desc = document.getElementById('pub-desc').value;
-                const promo = document.getElementById('pub-promo').value;
-
-                const { data, error } = await supabase.from('listings').insert([{
-                    user_id: this.user.id,
-                    category: cat,
-                    description: desc,
-                    promo_type: promo
-                }]);
-
-                this.hideLoader();
-                if(error) { this.showToast("Eroare la publicare."); console.error(error); }
-                else {
-                    this.showToast("Anunț publicat cu succes!");
-                    document.getElementById('form-publish').reset();
-                    await this.fetchAllAds();
-                    this.navigate('my-ads');
-                }
-            },
-
-            // --- Profile Edit ---
-            fillEditProfileForm() {
-                if(!this.profile) return;
-                document.getElementById('edit-name').value = this.profile.name || '';
-                document.getElementById('edit-phone').value = this.profile.phone || '';
-                document.getElementById('edit-wa').value = this.profile.whatsapp || '';
-                document.getElementById('edit-county').value = this.profile.county || '';
-                this.updateEditCities();
-                document.getElementById('edit-city').value = this.profile.city || '';
-                document.getElementById('edit-address').value = this.profile.address || '';
-                document.getElementById('edit-schedule').value = this.profile.schedule || '';
-                document.getElementById('edit-price').value = this.profile.price_range || '';
-                if(this.profile.avatar_url) {
-                    const img = document.getElementById('edit-avatar-preview');
-                    img.src = this.profile.avatar_url;
-                    img.style.display = 'block';
-                }
-            },
-
-            previewAvatar(e) {
-                const file = e.target.files[0];
-                if(file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = document.getElementById('edit-avatar-preview');
-                        img.src = e.target.result;
-                        img.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
-                }
-            },
-
-            async handleProfileSave(e) {
-                e.preventDefault();
-                if(!supabase) return;
-                this.showLoader();
-                
-                // In a real scenario, you'd upload the image to Supabase Storage first.
-                // For this single-file setup, we'll store a Base64 string if it's small, or just mock it.
-                let avatarUrl = this.profile.avatar_url;
-                const fileInput = document.getElementById('edit-avatar');
-                if(fileInput.files.length > 0) {
-                     avatarUrl = document.getElementById('edit-avatar-preview').src; // base64
-                }
-
-                const updates = {
-                    id: this.user.id,
-                    name: document.getElementById('edit-name').value,
-                    phone: document.getElementById('edit-phone').value,
-                    whatsapp: document.getElementById('edit-wa').value,
-                    county: document.getElementById('edit-county').value,
-                    city: document.getElementById('edit-city').value,
-                    address: document.getElementById('edit-address').value,
-                    schedule: document.getElementById('edit-schedule').value,
-                    price_range: document.getElementById('edit-price').value,
-                    avatar_url: avatarUrl,
-                    updated_at: new Date()
-                };
-
-                const { error } = await supabase.from('profiles').upsert(updates);
-                this.hideLoader();
-                if(error) this.showToast("Eroare salvare profil.");
-                else {
-                    this.showToast("Profil salvat!");
-                    await this.fetchProfile();
-                    this.navigate('profile-private');
-                }
-            },
-
-            // --- Interactions ---
-            async toggleFavorite(listingId) {
-                if(!this.user) { this.showToast("Conectează-te pentru a salva anunțuri."); return; }
-                const isFav = this.favorites.includes(listingId);
-                
-                if(isFav) {
-                    this.favorites = this.favorites.filter(id => id !== listingId);
-                    if(supabase) supabase.from('favorites').delete().match({ user_id: this.user.id, listing_id: listingId }).then();
-                } else {
-                    this.favorites.push(listingId);
-                    if(supabase) supabase.from('favorites').insert([{ user_id: this.user.id, listing_id: listingId }]).then();
-                }
-                
-                // Refresh UI silently
-                if(this.currentScreen === 'home') this.filterHome();
-                if(this.currentScreen === 'saved') this.renderSaved();
-            },
-
-            viewAdDetails(listingId) {
-                const ad = this.listings.find(a => a.id === listingId);
-                if(!ad) return;
-                this.viewingAdData = ad;
-                const p = ad.profiles || ad;
-                const isFav = this.favorites.includes(ad.id);
-                const avatar = p.avatar_url || `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e5e7eb'><path d='M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z'/></svg>`;
-
-                const html = `
-                    <div style="padding: 24px; text-align: center; border-bottom: 1px solid var(--border);">
-                        <img src="${avatar}" style="width:80px; height:80px; border-radius:50%; margin: 0 auto 16px; object-fit:cover; border:1px solid var(--border);">
-                        <h2 style="margin-bottom:4px;">${p.name || 'Firma'}</h2>
-                        <div class="text-muted" style="cursor:pointer;" onclick="app.viewPublicProfile('${ad.user_id}')">Vezi profilul public <i data-lucide="chevron-right" style="width:14px; vertical-align:middle;"></i></div>
-                    </div>
-                    <div style="padding: 24px;">
-                        <h3 style="color:var(--primary); margin-bottom:16px;">${ad.category}</h3>
-                        <p style="white-space: pre-wrap; margin-bottom: 24px; color: var(--text-muted);">${ad.description}</p>
-                        
-                        <div class="grid-cards" style="grid-template-columns: 1fr 1fr; margin-bottom:24px;">
-                            <div style="background:var(--surface); padding:12px; border-radius:var(--radius-md);">
-                                <div class="text-muted" style="font-size:0.8rem;">Locație</div>
-                                <div style="font-weight:500;">${p.city}, ${p.county}</div>
-                                <div class="text-muted" style="font-size:0.8rem;">${p.address || ''}</div>
-                            </div>
-                            <div style="background:var(--surface); padding:12px; border-radius:var(--radius-md);">
-                                <div class="text-muted" style="font-size:0.8rem;">Program</div>
-                                <div style="font-weight:500;">${p.schedule || 'Necompletat'}</div>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-2 mb-4">
-                            <button class="btn btn-primary w-full" onclick="window.location.href='tel:${p.phone}'"><i data-lucide="phone"></i> Sună</button>
-                            ${p.whatsapp ? `<button class="btn w-full" style="background:#25D366; color:white;" onclick="window.open('https://wa.me/${p.whatsapp.replace(/[^0-9]/g, '')}', '_blank')"><i data-lucide="message-circle"></i> WhatsApp</button>` : ''}
-                        </div>
-                        
-                        <div class="flex gap-2">
-                            <button class="btn btn-outline w-full" onclick="app.toggleFavorite('${ad.id}'); this.querySelector('svg').style.fill = app.favorites.includes('${ad.id}') ? 'red' : 'none';"><i data-lucide="heart"></i> Salvează</button>
-                            <button class="btn btn-ghost w-full" style="color: #ef4444;" onclick="app.navigate('report-ad')"><i data-lucide="flag"></i> Raportează</button>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('ad-details-content').innerHTML = html;
-                document.getElementById('report-listing-id').value = ad.id;
-                this.navigate('ad-details');
-                if(window.lucide) lucide.createIcons();
-            },
-
-            viewPublicProfile(userId) {
-                const ads = this.listings.filter(a => a.user_id === userId);
-                if(ads.length === 0) return;
-                const p = ads[0].profiles || ads[0];
-                const avatar = p.avatar_url || `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e5e7eb'><path d='M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z'/></svg>`;
-
-                const headerHtml = `
-                    <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; text-align:center;">
-                        <img src="${avatar}" style="width:96px; height:96px; border-radius:50%; margin: 0 auto 16px; object-fit:cover; border:3px solid var(--surface);">
-                        <h2>${p.name}</h2>
-                        <div class="text-muted"><i data-lucide="map-pin" style="width:14px;"></i> ${p.city}, ${p.county}</div>
-                        <div class="flex justify-center gap-2 mt-4">
-                            <button class="btn btn-primary" onclick="window.location.href='tel:${p.phone}'"><i data-lucide="phone"></i> Contact</button>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('public-profile-header').innerHTML = headerHtml;
-                document.getElementById('public-profile-ads').innerHTML = ads.map(ad => this.createCardHtml(ad)).join('');
-                this.navigate('profile-public');
-                if(window.lucide) lucide.createIcons();
-            },
-
-            // --- Forms (Feedback / Report) ---
-            async handleFeedback(e) {
-                e.preventDefault();
-                if(!supabase) return;
-                const type = document.getElementById('feed-type').value;
-                const msg = document.getElementById('feed-msg').value;
-                this.showLoader();
-                await supabase.from('feedback').insert([{ user_id: this.user?.id || null, category: type, message: msg }]);
-                this.hideLoader();
-                this.showToast("Feedback trimis. Mulțumim!");
-                document.getElementById('feed-msg').value = '';
-                this.navigate('profile-private');
-            },
-
-            async handleReport(e) {
-                e.preventDefault();
-                if(!supabase) return;
-                const listId = document.getElementById('report-listing-id').value;
-                const reason = document.getElementById('report-reason').value;
-                const msg = document.getElementById('report-msg').value;
-                this.showLoader();
-                await supabase.from('reports').insert([{ listing_id: listId, user_id: this.user?.id || null, reason: reason, message: msg }]);
-                this.hideLoader();
-                this.showToast("Raport trimis cu succes.");
-                this.navigate('home');
-            },
-
-            // --- PWA Logic ---
-            setupPWA() {
-                let deferredPrompt;
-                window.addEventListener('beforeinstallprompt', (e) => {
-                    e.preventDefault();
-                    deferredPrompt = e;
-                    setTimeout(() => {
-                        document.getElementById('pwa-prompt').classList.add('show');
-                    }, 3000); // Show after 3s
-                });
-
-                document.getElementById('btn-install-pwa').addEventListener('click', async () => {
-                    document.getElementById('pwa-prompt').classList.remove('show');
-                    if (deferredPrompt) {
-                        deferredPrompt.prompt();
-                        const { outcome } = await deferredPrompt.userChoice;
-                        deferredPrompt = null;
-                    }
-                });
-
-                document.getElementById('btn-close-pwa').addEventListener('click', () => {
-                    document.getElementById('pwa-prompt').classList.remove('show');
-                });
-            },
-
-            // --- Mock logic (if no supabase) ---
-            renderMockHome() {
-                this.listings = [
-                    { id: '1', category: 'Tractări auto', description: 'Tractari auto non-stop', profiles: { name: 'Auto Tract SRL', city: 'București', county: 'București', phone: '0700000000', schedule: 'Non Stop', price_range: 'de la 150 RON' } },
-                    { id: '2', category: 'Service auto', description: 'Revizii complete', profiles: { name: 'Mecanic Pro', city: 'Brașov', county: 'Brașov', phone: '0700000001', schedule: 'L-V 08-17', price_range: 'Manoperă 100 RON/h' } }
-                ];
-                this.filterHome();
-            }
-        };
-
-        // Initialize App on load
-        window.addEventListener('DOMContentLoaded', () => {
-            app.init();
-        });
-
-    </script>
+    <div class="chips-row">${CATEGORIES.slice(0,8).map(c=>`<button class="chip ${state.filterCategory===c?'active':''}" data-action="quick-category" data-category="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+    <div class="list" id="listingsList">${list.length?list.map(renderListingCard).join(''):renderEmpty('emptyListings','emptyListingsSub', isProvider()?t('publish'):'')}</div>
+  </section>`;
+}
+function renderEmpty(titleKey, subKey, btnText=''){return `<div class="empty"><h3>${esc(t(titleKey))}</h3><p>${esc(t(subKey))}</p>${btnText?`<button class="btn gold" data-view="publish">${esc(btnText)}</button>`:''}</div>`;}
+function renderListingCard(l){
+  const p=state.profilesById[l.owner_id]||{}; const saved=isSaved(l.id); const promoted=l.promotion_type && l.promotion_type!=='free';
+  return `<article class="listing-card" data-listing-id="${esc(l.id)}">
+    <img class="listing-img" src="${esc(firstImage(l))}" alt="">
+    <div class="listing-info"><h3 class="listing-title">${esc(profileName(p))}</h3><div class="listing-meta"><span>${esc(l.category)}</span><span>•</span><span>${esc(l.city||'')}</span>${l.county?`<span>${esc(l.county)}</span>`:''}${promoted?`<span class="badge">Promovat</span>`:''}</div><p class="listing-desc">${esc(l.description)}</p><div class="listing-meta"><span>${esc(l.schedule||'Program nespecificat')}</span>${l.price_hint?`<span>•</span><span>${esc(l.price_hint)}</span>`:''}</div></div>
+    <button class="heart ${saved?'saved':''}" data-action="toggle-favorite" data-id="${esc(l.id)}" aria-label="Salvează">${icons.heart}</button>
+    <div class="listing-actions"><button class="btn soft small" data-action="call" data-id="${esc(l.id)}">${t('call')}</button><button class="btn soft small" data-action="wa" data-id="${esc(l.id)}">${t('whatsapp')}</button><button class="btn gold small" data-action="listing-details" data-id="${esc(l.id)}">${t('details')}</button></div>
+  </article>`;
+}
+
+function renderPublish(){
+  if(!isProvider())return `${pageHead(t('publish'),'Doar conturile de prestator pot publica anunțuri.',true)}<div class="empty"><h3>Cont de client</h3><p>Schimbă contul în Prestator ca să poți publica servicii auto.</p><button class="btn gold" data-action="choose-role" data-role="provider">Schimbă în Prestator</button></div>`;
+  const complete = providerProfileComplete();
+  return `${pageHead(t('publish'),'Publică un serviciu auto cu maxim 3 poze.',true)}${!complete?`<div class="empty" style="margin-bottom:12px"><h3>Profil incomplet</h3><p>${t('completeProfile')}</p><button class="btn gold" data-view="editProfile">Completează profilul</button></div>`:''}
+  <form id="publishForm">
+    <div class="form-card"><h3>Serviciu</h3><div class="field"><label class="label">${t('category')}</label><select name="category" class="select" required>${categoryOptions('')}</select></div><div class="field"><label class="label">Descriere</label><textarea name="description" class="textarea" maxlength="900" required placeholder="Descrie serviciul, zona, disponibilitatea și detaliile importante."></textarea></div><div class="field"><label class="label">Tip promovare</label><select name="promotion_type" class="select"><option value="free">Gratuit</option><option value="promoted_7">Promovat 7 zile</option><option value="promoted_30">Promovat 30 zile</option><option value="premium">Premium</option></select></div></div>
+    <div class="form-card"><h3>Poze anunț</h3><p class="hint">Poți adăuga maxim 3 poze. Prima poză apare în listă.</p><input id="listingPhotos" type="file" accept="image/*" multiple class="hidden"><div class="photos-grid" id="photosPreview">${[1,2,3].map(i=>`<button type="button" class="photo-slot" data-action="select-listing-photos"><small>Poza ${i}</small></button>`).join('')}</div><div style="margin-top:10px"><button type="button" class="btn soft" data-action="select-listing-photos">Adaugă poze</button></div></div>
+    <button class="btn gold full" type="submit" ${!complete?'disabled':''}>Publică anunț</button>
+  </form>`;
+}
+function providerProfileComplete(){const p=state.profile||{};return !!((p.company_name||p.full_name)&&p.phone&&p.county&&p.city);}
+
+function renderSaved(){const ids=new Set(state.favorites.map(f=>f.listing_id)); const list=state.listings.filter(l=>ids.has(l.id));return `${pageHead(t('saved'),'',false)}<div class="list">${list.length?list.map(renderListingCard).join(''):`<div class="empty"><h3>${t('noSaved')}</h3><p>Apasă pe inimă la anunțurile pe care vrei să le păstrezi.</p></div>`}</div>`;}
+
+function renderProfile(){
+  const p=state.profile||{}; const own=state.listings.filter(l=>l.owner_id===state.user.id && l.status!=='deleted').length;
+  return `<section class="profile-layout"><div><div class="profile-top"><img class="avatar-lg" src="${esc(profileAvatar(p))}" alt=""><div><h2 class="profile-name">${esc(profileName(p))}</h2><p class="profile-place">${esc([p.city,p.county].filter(Boolean).join(', ') || 'Locație nespecificată')}</p><span class="role-pill">${p.role==='provider'?t('provider'):t('client')}</span></div></div><div class="stats-row"><div class="stat"><b>${own}</b><span>Anunțuri</span></div><div class="stat"><b>${state.favorites.length}</b><span>Salvate</span></div><div class="stat"><b>${state.notifications.filter(n=>!n.is_read).length}</b><span>Noi</span></div></div></div>
+  <div class="menu-list">
+    ${menuItem('editProfile',icons.user,t('editProfile'),'Profil, poză, contact')}
+    ${isProvider()?menuItem('myListings',icons.car,t('myListings'),'Editează sau șterge anunțuri'):''}
+    ${isProvider()?menuItem('publish',icons.plus,t('publish'),'Adaugă serviciu auto'):''}
+    ${menuItem('saved',icons.heart,t('saved'),'Anunțurile tale salvate')}
+    ${menuItem('inbox',icons.message,t('inbox'),'Mesaje între utilizatori')}
+    ${menuItem('settings',icons.settings,t('settings'),'Limbă, temă, notificări')}
+    ${menuItem('feedback',icons.message,t('feedback'),'Spune-ne părerea ta')}
+    ${menuItem('terms',icons.settings,'Termeni și condiții','Reguli aplicație')}
+    <button class="menu-item" data-action="logout"><span class="menu-ico">${icons.close}</span><span class="menu-text"><strong>${t('logout')}</strong><small>Ieși din cont</small></span><span class="chev">${icons.chevron}</span></button>
+  </div></section>`;
+}
+function menuItem(view,icon,title,sub){return `<button class="menu-item" data-view="${view}"><span class="menu-ico">${icon}</span><span class="menu-text"><strong>${esc(title)}</strong><small>${esc(sub)}</small></span><span class="chev">${icons.chevron}</span></button>`;}
+
+function renderEditProfile(){
+  const p=state.profile||{}; const cities=cityOptions(p.county||'',p.city||'');
+  return `${pageHead(t('editProfile'),'Datele de aici se folosesc pentru profil și anunțuri.',true)}<form id="profileForm">
+    <div class="form-card"><h3>Poză / logo</h3><div class="upload-box"><img class="upload-preview" id="profilePreview" src="${esc(profileAvatar(p))}" alt=""><div><input id="profilePhoto" type="file" accept="image/*" class="hidden"><button type="button" class="btn soft small" data-action="select-profile-photo">Schimbă poza</button><p class="hint" style="margin:7px 0 0">Apare în profil și pe cardurile anunțurilor.</p></div></div></div>
+    <div class="form-card"><h3>Cont</h3><div class="field"><label class="label">Tip cont</label><select name="role" class="select"><option value="client" ${p.role==='client'?'selected':''}>Client</option><option value="provider" ${p.role==='provider'?'selected':''}>Prestator</option></select></div><div class="grid2"><div class="field"><label class="label">Nume</label><input class="input" name="full_name" value="${esc(p.full_name||'')}"></div><div class="field"><label class="label">Nume firmă</label><input class="input" name="company_name" value="${esc(p.company_name||'')}"></div></div><div class="field"><label class="label">Descriere firmă</label><textarea class="textarea" name="company_description" maxlength="600">${esc(p.company_description||'')}</textarea></div></div>
+    <div class="form-card"><h3>Contact și locație</h3><div class="grid2"><div class="field"><label class="label">Telefon</label><input class="input" name="phone" value="${esc(p.phone||'')}"></div><div class="field"><label class="label">WhatsApp</label><input class="input" name="whatsapp" value="${esc(p.whatsapp||'')}"></div><div class="field"><label class="label">Email afișat</label><input class="input" name="email_display" value="${esc(p.email_display||state.user.email||'')}"></div><div class="field"><label class="label">Program</label><input class="input" name="schedule" value="${esc(p.schedule||'')}"></div><div class="field"><label class="label">Județ</label><select name="county" id="profileCounty" class="select">${countyOptions(p.county||'')}</select></div><div class="field"><label class="label">Oraș</label><select name="city" id="profileCity" class="select">${cities}</select></div></div><div class="field"><label class="label">Adresă</label><input class="input" name="address" value="${esc(p.address||'')}"></div><div class="field"><label class="label">Preț orientativ</label><input class="input" name="price_hint" value="${esc(p.price_hint||'')}" placeholder="ex: de la 150 lei"></div></div>
+    <button class="btn gold full" type="submit">${t('save')}</button>
+  </form>`;
+}
+
+function renderSettings(){
+  const s=state.settings||{}; const p=state.profile||{};
+  return `${pageHead(t('settings'),'Setările se salvează în Supabase.',true)}<form id="settingsForm">
+    <div class="form-card"><h3>Preferințe</h3><div class="grid2"><div class="field"><label class="label">Limba aplicației</label><select name="language" class="select"><option value="ro" ${s.language==='ro'?'selected':''}>Română</option><option value="en" ${s.language==='en'?'selected':''}>English</option><option value="it" ${s.language==='it'?'selected':''}>Italiano</option></select></div><div class="field"><label class="label">Mod aplicație</label><select name="theme" class="select"><option value="light" ${s.theme==='light'?'selected':''}>Luminos</option><option value="dark" ${s.theme==='dark'?'selected':''}>Întunecat</option><option value="system" ${s.theme==='system'?'selected':''}>Sistem</option></select></div></div></div>
+    <div class="form-card"><h3>Notificări și confidențialitate</h3>${toggleRow('notifications_enabled','Notificări',s.notifications_enabled)}${toggleRow('sound_enabled','Sunete aplicație',s.sound_enabled)}${toggleRow('vibration_enabled','Vibrații',s.vibration_enabled)}${toggleRow('show_phone','Arată telefonul meu',s.show_phone)}${toggleRow('show_city','Arată orașul meu',s.show_city)}${toggleRow('allow_messages','Permite mesaje',s.allow_messages)}</div>
+    <div class="form-card"><h3>Prestator</h3>${toggleRow('is_24_7','Non-stop',p.is_24_7)}${toggleRow('works_at_client_location','Mă deplasez la client',p.works_at_client_location)}<div class="field"><label class="label">Vizibilitate profil</label><select name="profile_visibility" class="select"><option value="public" ${p.profile_visibility==='public'?'selected':''}>Profil public</option><option value="hidden" ${p.profile_visibility==='hidden'?'selected':''}>Profil ascuns temporar</option></select></div></div>
+    <button class="btn gold full" type="submit">${t('save')}</button>
+  </form>`;
+}
+function toggleRow(name,label,on){return `<div class="switch-row"><span>${esc(label)}</span><button type="button" class="toggle ${on?'on':''}" data-action="toggle-setting" data-name="${esc(name)}" aria-label="${esc(label)}"><i></i></button><input type="hidden" name="${esc(name)}" value="${on?'1':'0'}"></div>`;}
+
+function renderFeedback(){return `${pageHead(t('feedback'),'Maximum 500 caractere.',true)}<form id="feedbackForm"><div class="form-card"><div class="field"><label class="label">Despre ce vrei să ne dai feedback?</label><select name="category" class="select" required><option>Problemă tehnică</option><option>Design aplicație</option><option>Anunțuri</option><option>Profil</option><option>Mesaje</option><option>Sugestie nouă</option><option>Altceva</option></select></div><div class="field"><label class="label">Descriere feedback</label><textarea id="feedbackText" name="message" class="textarea" maxlength="500" required></textarea><div class="char-row"><span>Scrie clar problema sau sugestia.</span><span id="feedbackCount">0/500</span></div></div></div><button class="btn gold full" type="submit">Trimite feedback</button></form>`;}
+
+function renderInbox(){return `${pageHead(t('inbox'),'Conversații și mesaje.',true)}<div class="chat-list">${state.conversations.length?state.conversations.map(renderConversation).join(''):`<div class="empty"><h3>${t('noMessages')}</h3><p>Când trimiți sau primești mesaje, conversațiile apar aici.</p></div>`}</div>`;}
+function renderConversation(c){const otherId=c.client_id===state.user.id?c.provider_id:c.client_id; const p=state.profilesById[otherId]||{};return `<button class="conversation" data-action="open-chat" data-id="${esc(c.id)}"><img src="${esc(profileAvatar(p))}" alt=""><span style="min-width:0;flex:1"><strong>${esc(profileName(p))}</strong><p>${esc(c.last_message||'Conversație nouă')}</p></span><small class="hint">${c.last_message_at?formatDate(c.last_message_at):''}</small></button>`;}
+
+function renderChat(){const c=state.activeConversation;if(!c)return renderInbox(); const otherId=c.client_id===state.user.id?c.provider_id:c.client_id; const p=state.profilesById[otherId]||{}; const msgs=state.messagesByConversation[c.id]||[];return `${pageHead(profileName(p),'',true)}<div class="chat-wrap"><div class="chat-messages" id="chatMessages">${msgs.map(m=>`<div class="bubble ${m.sender_id===state.user.id?'me':'other'}">${esc(m.message)}</div>`).join('')}</div><form class="chat-input" id="chatForm"><input class="input" name="message" placeholder="Scrie un mesaj..." autocomplete="off" required><button class="btn gold" type="submit">${t('send')}</button></form></div>`;}
+
+function renderMyListings(){const list=state.listings.filter(l=>l.owner_id===state.user.id && l.status!=='deleted');return `${pageHead(t('myListings'),'Anunțurile publicate de tine.',true)}<div class="list">${list.length?list.map(l=>renderListingCard(l).replace('</article>',`<div class="listing-actions"><button class="btn soft small" data-action="edit-listing" data-id="${esc(l.id)}">Editează</button><button class="btn danger small" data-action="delete-listing" data-id="${esc(l.id)}">Șterge</button><button class="btn gold small" data-action="listing-details" data-id="${esc(l.id)}">Detalii</button></div></article>`)):`<div class="empty"><h3>Nu ai anunțuri.</h3><p>Publică primul serviciu auto.</p><button class="btn gold" data-view="publish">Publică</button></div>`}</div>`;}
+
+function renderPublicProfile(){const p=state.profilesById[state.selectedProfileId]||state.profile; const list=state.listings.filter(l=>l.owner_id===p?.id && l.status==='active');return `${pageHead(profileName(p),'Profil public prestator',true)}<div class="profile-top"><img class="avatar-lg" src="${esc(profileAvatar(p))}" alt=""><div><h2 class="profile-name">${esc(profileName(p))}</h2><p class="profile-place">${esc([p?.city,p?.county].filter(Boolean).join(', ')||'Locație nespecificată')}</p><span class="role-pill">${p?.is_24_7?'Non-stop':'Prestator'}</span></div></div><div class="form-card"><p class="info-line">${esc(p?.company_description||'Prestator AutoRapid RO.')}</p><div class="details-row"><button class="btn soft" data-action="call-profile" data-id="${esc(p?.id||'')}">${t('call')}</button><button class="btn gold" data-action="wa-profile" data-id="${esc(p?.id||'')}">${t('whatsapp')}</button></div></div><div class="page-head"><h2 class="page-title">Anunțuri</h2></div><div class="list">${list.length?list.map(renderListingCard).join(''):`<div class="empty"><h3>Nu are anunțuri active.</h3><p>Revino mai târziu.</p></div>`}</div>`;}
+
+function renderNotifications(){return `${pageHead(t('notifications'),'',true)}<div class="list">${state.notifications.length?state.notifications.map(n=>`<div class="notification-item ${n.is_read?'':'unread'}" data-action="mark-notification" data-id="${esc(n.id)}"><span class="dot"></span><div><h4>${esc(n.title)}</h4><p>${esc(n.message)}</p><small class="hint">${formatDate(n.created_at)}</small></div></div>`).join(''):`<div class="empty"><h3>Nu ai notificări.</h3><p>Aici apar mesajele noi și actualizările.</p></div>`}</div>`;}
+function renderTerms(){return `${pageHead('Termeni și condiții','Reguli simple pentru utilizare.',true)}<div class="form-card"><p class="info-line">AutoRapid RO este un marketplace pentru servicii auto. Utilizatorii sunt responsabili pentru informațiile publicate, conversații și serviciile oferite. Raportează orice anunț suspect.</p></div>`;}
+
+function bindPageAfterRender(){
+  const searchInput=$('#searchInput'); if(searchInput) searchInput.addEventListener('input',e=>{state.query=e.target.value;renderHomeOnly();});
+  const countyFilter=$('#countyFilter'); if(countyFilter) countyFilter.addEventListener('change',e=>{state.filterCounty=e.target.value;state.filterCity='';render();});
+  const cityFilter=$('#cityFilter'); if(cityFilter) cityFilter.addEventListener('change',e=>{state.filterCity=e.target.value;render();});
+  const categoryFilter=$('#categoryFilter'); if(categoryFilter) categoryFilter.addEventListener('change',e=>{state.filterCategory=e.target.value;render();});
+  const profileCounty=$('#profileCounty'); if(profileCounty) profileCounty.addEventListener('change',e=>{$('#profileCity').innerHTML=cityOptions(e.target.value,'');});
+  const feedbackText=$('#feedbackText'); if(feedbackText) feedbackText.addEventListener('input',()=>{$('#feedbackCount').textContent=feedbackText.value.length+'/500';});
+  const chatMessages=$('#chatMessages'); if(chatMessages) chatMessages.scrollTop=chatMessages.scrollHeight;
+}
+function renderHomeOnly(){const list=$('#listingsList'); if(list) list.innerHTML = filteredListings().length?filteredListings().map(renderListingCard).join(''):renderEmpty('emptyListings','emptyListingsSub', isProvider()?t('publish'):'');}
+
+app.addEventListener('click', async e=>{
+  const btn=e.target.closest('button,[data-view],[data-action]'); if(!btn)return;
+  const view=btn.dataset.view; const action=btn.dataset.action;
+  if(view){state.prevView=state.view;state.view=view;render();return;}
+  if(action==='back'){state.view=state.prevView && state.prevView!==state.view ? state.prevView : 'home';render();return;}
+  if(action==='auth-mode'){state.authMode=btn.dataset.mode;renderAuth();return;}
+  if(action==='choose-role')return chooseRole(btn.dataset.role);
+  if(action==='do-search'){state.query=$('#searchInput')?.value||'';render();return;}
+  if(action==='quick-category'){state.filterCategory=state.filterCategory===btn.dataset.category?'':btn.dataset.category;render();return;}
+  if(action==='toggle-favorite')return toggleFavorite(btn.dataset.id);
+  if(action==='listing-details')return openListingDetails(btn.dataset.id);
+  if(action==='call')return callListing(btn.dataset.id);
+  if(action==='wa')return whatsappListing(btn.dataset.id);
+  if(action==='select-profile-photo'){$('#profilePhoto')?.click();return;}
+  if(action==='select-listing-photos'){$('#listingPhotos')?.click();return;}
+  if(action==='toggle-setting')return toggleSetting(btn.dataset.name,btn);
+  if(action==='logout')return logout();
+  if(action==='open-chat')return openChat(btn.dataset.id);
+  if(action==='delete-listing')return deleteListing(btn.dataset.id);
+  if(action==='edit-listing')return editListing(btn.dataset.id);
+  if(action==='mark-notification')return markNotification(btn.dataset.id);
+  if(action==='call-profile')return callProfile(btn.dataset.id);
+  if(action==='wa-profile')return waProfile(btn.dataset.id);
+});
+
+app.addEventListener('change', e=>{
+  if(e.target.id==='profilePhoto') handleProfileFile(e.target.files[0]);
+  if(e.target.id==='listingPhotos') handleListingFiles(e.target.files);
+});
+
+app.addEventListener('submit', async e=>{
+  e.preventDefault();
+  if(e.target.id==='authForm') return submitAuth(e.target);
+  if(e.target.id==='profileForm') return saveProfile(e.target);
+  if(e.target.id==='settingsForm') return saveSettings(e.target);
+  if(e.target.id==='feedbackForm') return saveFeedback(e.target);
+  if(e.target.id==='publishForm') return publishListing(e.target);
+  if(e.target.id==='chatForm') return sendMessage(e.target);
+});
+
+async function submitAuth(form){
+  const fd=new FormData(form); const email=fd.get('email'); const password=fd.get('password');
+  form.querySelector('button[type="submit"]').disabled=true;
+  let res;
+  if(state.authMode==='register') res=await sb.auth.signUp({email,password,options:{data:{full_name:email.split('@')[0]}}});
+  else res=await sb.auth.signInWithPassword({email,password});
+  form.querySelector('button[type="submit"]').disabled=false;
+  if(res.error){toast(res.error.message,'error');return;}
+  if(state.authMode==='register' && !res.data.session){await sb.auth.signInWithPassword({email,password});}
+  toast(state.authMode==='register'?'Cont creat.':'Bine ai revenit.','success');
+}
+async function chooseRole(role){
+  const {data,error}=await sb.from('profiles').update({role}).eq('id',state.user.id).select().single();
+  if(error){toast('Nu am putut salva rolul.','error');return;}
+  state.profile=data; localStorage.setItem('autorapid_role_chosen_'+state.user.id,'1'); state.roleChosen=true; state.view='home'; render();
+}
+async function logout(){await sb.auth.signOut();localStorage.removeItem('autorapid_role_chosen_'+state.user?.id);}
+
+async function uploadFile(file,path){
+  const {error}=await sb.storage.from(STORAGE_BUCKET).upload(path,file,{cacheControl:'3600',upsert:true});
+  if(error) throw error;
+  const {data}=sb.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+function handleProfileFile(file){if(!file)return; state.profileFile=file; const url=URL.createObjectURL(file); $('#profilePreview').src=url;}
+function handleListingFiles(files){state.publishFiles=Array.from(files||[]).slice(0,3); const wrap=$('#photosPreview'); if(!wrap)return; wrap.innerHTML=[0,1,2].map(i=>state.publishFiles[i]?`<button type="button" class="photo-slot" data-action="select-listing-photos"><img src="${esc(URL.createObjectURL(state.publishFiles[i]))}" alt=""></button>`:`<button type="button" class="photo-slot" data-action="select-listing-photos"><small>Poza ${i+1}</small></button>`).join('');}
+
+async function saveProfile(form){
+  const fd=new FormData(form); const payload={
+    role:fd.get('role'), full_name:fd.get('full_name')||null, company_name:fd.get('company_name')||null, company_description:fd.get('company_description')||null,
+    phone:fd.get('phone')||null, whatsapp:fd.get('whatsapp')||null, email_display:fd.get('email_display')||null, schedule:fd.get('schedule')||null,
+    county:fd.get('county')||null, city:fd.get('city')||null, address:fd.get('address')||null, price_hint:fd.get('price_hint')||null
+  };
+  try{
+    if(state.profileFile){const ext=(state.profileFile.name.split('.').pop()||'jpg').toLowerCase(); const url=await uploadFile(state.profileFile,`${state.user.id}/profile/avatar.${ext}`); payload.avatar_url=url; payload.logo_url=url;}
+    const {data,error}=await sb.from('profiles').update(payload).eq('id',state.user.id).select().single();
+    if(error)throw error; state.profile=data; state.profileFile=null; localStorage.setItem('autorapid_role_chosen_'+state.user.id,'1'); await loadListings(); toast('Profil salvat.','success'); state.view='profile'; render();
+  }catch(err){console.warn(err);toast('Nu am putut salva profilul.','error');}
+}
+async function saveSettings(form){
+  const fd=new FormData(form); const settings={language:fd.get('language'),theme:fd.get('theme'),notifications_enabled:fd.get('notifications_enabled')==='1',sound_enabled:fd.get('sound_enabled')==='1',vibration_enabled:fd.get('vibration_enabled')==='1',show_phone:fd.get('show_phone')==='1',show_city:fd.get('show_city')==='1',allow_messages:fd.get('allow_messages')==='1'};
+  const profile={profile_visibility:fd.get('profile_visibility'),is_24_7:fd.get('is_24_7')==='1',works_at_client_location:fd.get('works_at_client_location')==='1'};
+  const [sRes,pRes]=await Promise.all([sb.from('user_settings').update(settings).eq('user_id',state.user.id).select().single(),sb.from('profiles').update(profile).eq('id',state.user.id).select().single()]);
+  if(sRes.error||pRes.error){toast('Nu am putut salva setările.','error');return;}
+  state.settings=sRes.data; state.profile=pRes.data; toast('Setări salvate.','success'); render();
+}
+function toggleSetting(name,btn){const input=document.querySelector(`input[name="${CSS.escape(name)}"]`); const on=input.value!=='1'; input.value=on?'1':'0'; btn.classList.toggle('on',on);}
+async function saveFeedback(form){const fd=new FormData(form); const {error}=await sb.from('feedback').insert({user_id:state.user.id,category:fd.get('category'),message:fd.get('message')}); if(error){toast('Nu am putut trimite feedback.','error');return;} form.reset(); toast('Feedback trimis.','success'); state.view='profile'; render();}
+
+async function publishListing(form){
+  if(!providerProfileComplete()){toast(t('completeProfile'),'error');return;}
+  const fd=new FormData(form); const p=state.profile;
+  const payload={owner_id:state.user.id,title:`${fd.get('category')} - ${profileName(p)}`,category:fd.get('category'),description:fd.get('description'),county:p.county,city:p.city,address:p.address,phone:p.phone,whatsapp:p.whatsapp||p.phone,schedule:p.schedule,price_hint:p.price_hint,promotion_type:fd.get('promotion_type'),status:'active'};
+  try{
+    const {data,error}=await sb.from('listings').insert(payload).select().single(); if(error)throw error;
+    for(let i=0;i<state.publishFiles.length;i++){const file=state.publishFiles[i]; const ext=(file.name.split('.').pop()||'jpg').toLowerCase(); const path=`${state.user.id}/listings/${data.id}-${i+1}.${ext}`; const url=await uploadFile(file,path); await sb.from('listing_images').insert({listing_id:data.id,user_id:state.user.id,image_url:url,storage_path:path,position:i+1});}
+    state.publishFiles=[]; await loadListings(); toast('Anunț publicat.','success'); state.view='myListings'; render();
+  }catch(err){console.warn(err);toast(err.message || 'Nu am putut publica anunțul.','error');}
+}
+async function deleteListing(id){if(!confirm('Ștergi anunțul?'))return; const {error}=await sb.from('listings').update({status:'deleted'}).eq('id',id).eq('owner_id',state.user.id); if(error){toast('Nu am putut șterge.','error');return;} await loadListings(); toast('Anunț șters.','success'); render();}
+function editListing(id){const l=state.listings.find(x=>x.id===id); if(!l)return; showEditListing(l);}
+
+async function toggleFavorite(id){
+  if(isSaved(id)){const {error}=await sb.from('favorites').delete().eq('user_id',state.user.id).eq('listing_id',id); if(error){toast('Eroare la salvare.','error');return;}}
+  else{const {error}=await sb.from('favorites').insert({user_id:state.user.id,listing_id:id}); if(error){toast('Eroare la salvare.','error');return;}}
+  await loadFavorites(); render();
+}
+function callListing(id){const l=state.listings.find(x=>x.id===id); if(l?.phone){sb.from('listings').update({phone_clicks_count:(l.phone_clicks_count||0)+1}).eq('id',id).then(()=>{}); location.href=`tel:${l.phone.replace(/\s/g,'')}`;}else toast('Telefon indisponibil.');}
+function whatsappListing(id){const l=state.listings.find(x=>x.id===id); const nr=(l?.whatsapp||l?.phone||'').replace(/\D/g,''); if(nr){sb.from('listings').update({whatsapp_clicks_count:(l.whatsapp_clicks_count||0)+1}).eq('id',id).then(()=>{}); window.open(`https://wa.me/${nr.startsWith('40')?nr:'40'+nr}?text=${encodeURIComponent('Salut! Am găsit anunțul tău pe AutoRapid RO.')}`,'_blank');}else toast('WhatsApp indisponibil.');}
+function callProfile(id){const p=state.profilesById[id]||state.profile;if(p?.phone)location.href=`tel:${p.phone.replace(/\s/g,'')}`;}
+function waProfile(id){const p=state.profilesById[id]||state.profile;const nr=(p?.whatsapp||p?.phone||'').replace(/\D/g,'');if(nr)window.open(`https://wa.me/${nr.startsWith('40')?nr:'40'+nr}`,'_blank');}
+
+function openListingDetails(id){const l=state.listings.find(x=>x.id===id); if(!l)return; state.selectedListing=l; const p=state.profilesById[l.owner_id]||{}; sb.from('listings').update({views_count:(l.views_count||0)+1}).eq('id',id).then(()=>{});
+  modal.innerHTML=`<div class="sheet"><div class="sheet-head"><h3 class="sheet-title">${esc(l.category)}</h3><button class="close" data-modal-close>${icons.close}</button></div><img class="details-img" src="${esc(firstImage(l))}" alt=""><h2 class="profile-name">${esc(profileName(p))}</h2><p class="info-line">${esc(l.description)}</p><div class="details-row"><div class="info-line"><b>Locație</b><br>${esc([l.city,l.county].filter(Boolean).join(', ')||'-')}</div><div class="info-line"><b>Program</b><br>${esc(l.schedule||'-')}</div><div class="info-line"><b>Preț</b><br>${esc(l.price_hint||'-')}</div><div class="info-line"><b>Adresă</b><br>${esc(l.address||'-')}</div></div><div class="details-row"><button class="btn soft" data-action="modal-call" data-id="${esc(l.id)}">${t('call')}</button><button class="btn gold" data-action="modal-wa" data-id="${esc(l.id)}">${t('whatsapp')}</button><button class="btn soft" data-action="modal-message" data-id="${esc(l.id)}">${t('message')}</button><button class="btn soft" data-action="modal-profile" data-id="${esc(l.owner_id)}">${t('viewProfile')}</button></div><button class="btn ghost full" data-action="modal-report" data-id="${esc(l.id)}">${t('report')}</button></div>`;
+  modal.classList.add('show');
+}
+modal.addEventListener('click', async e=>{
+  if(e.target===modal || e.target.closest('[data-modal-close]')){modal.classList.remove('show');return;}
+  const btn=e.target.closest('button[data-action]'); if(!btn)return;
+  const id=btn.dataset.id; const action=btn.dataset.action;
+  if(action==='modal-call')callListing(id);
+  if(action==='modal-wa')whatsappListing(id);
+  if(action==='modal-profile'){modal.classList.remove('show');state.selectedProfileId=id;state.prevView=state.view;state.view='publicProfile';render();}
+  if(action==='modal-message'){modal.classList.remove('show');await startConversation(id);}
+  if(action==='modal-report')showReport(id);
+});
+function showReport(id){modal.innerHTML=`<div class="sheet"><div class="sheet-head"><h3 class="sheet-title">Raportează anunț</h3><button class="close" data-modal-close>${icons.close}</button></div><form id="reportForm"><input type="hidden" name="listing_id" value="${esc(id)}"><div class="field"><label class="label">Motiv</label><select name="reason" class="select"><option>Informații false</option><option>Spam</option><option>Conținut nepotrivit</option><option>Altceva</option></select></div><div class="field"><label class="label">Detalii</label><textarea class="textarea" name="message"></textarea></div><button class="btn gold full" type="submit">Trimite raport</button></form></div>`;}
+modal.addEventListener('submit', async e=>{if(e.target.id==='reportForm'){e.preventDefault();const fd=new FormData(e.target);const {error}=await sb.from('reports').insert({listing_id:fd.get('listing_id'),user_id:state.user.id,reason:fd.get('reason'),message:fd.get('message')});if(error){toast('Nu am putut trimite raportul.','error');return;}modal.classList.remove('show');toast('Raport trimis.','success');}});
+function showEditListing(l){modal.innerHTML=`<div class="sheet"><div class="sheet-head"><h3 class="sheet-title">Editează anunț</h3><button class="close" data-modal-close>${icons.close}</button></div><form id="editListingForm"><input type="hidden" name="id" value="${esc(l.id)}"><div class="field"><label class="label">Categorie</label><select name="category" class="select">${categoryOptions(l.category)}</select></div><div class="field"><label class="label">Descriere</label><textarea name="description" class="textarea" required>${esc(l.description)}</textarea></div><div class="field"><label class="label">Status</label><select name="status" class="select"><option value="active" ${l.status==='active'?'selected':''}>Activ</option><option value="inactive" ${l.status==='inactive'?'selected':''}>Inactiv</option></select></div><button class="btn gold full" type="submit">Salvează modificările</button></form></div>`;modal.classList.add('show');}
+modal.addEventListener('submit',async e=>{if(e.target.id==='editListingForm'){e.preventDefault();const fd=new FormData(e.target);const {error}=await sb.from('listings').update({category:fd.get('category'),description:fd.get('description'),status:fd.get('status')}).eq('id',fd.get('id')).eq('owner_id',state.user.id);if(error){toast('Nu am putut salva anunțul.','error');return;}modal.classList.remove('show');await loadListings();toast('Anunț actualizat.','success');render();}});
+
+async function startConversation(listingId){
+  const l=state.listings.find(x=>x.id===listingId); if(!l)return; if(l.owner_id===state.user.id){toast('Acesta este anunțul tău.');return;}
+  const client_id=state.user.id, provider_id=l.owner_id;
+  let {data,error}=await sb.from('conversations').select('*').eq('listing_id',listingId).eq('client_id',client_id).eq('provider_id',provider_id).maybeSingle();
+  if(error && error.code!=='PGRST116'){toast('Nu am putut deschide conversația.','error');return;}
+  if(!data){const res=await sb.from('conversations').insert({listing_id:listingId,client_id,provider_id,last_message:'',last_message_at:new Date().toISOString()}).select().single(); if(res.error){toast('Nu am putut crea conversația.','error');return;} data=res.data;}
+  state.activeConversation=data; await loadConversations(); await loadMessages(data.id); state.prevView=state.view; state.view='chat'; render();
+}
+async function openChat(id){const c=state.conversations.find(x=>x.id===id); if(!c)return; state.activeConversation=c; await loadMessages(id); state.prevView=state.view; state.view='chat'; render();}
+async function loadMessages(conversationId){const {data,error}=await sb.from('messages').select('*').eq('conversation_id',conversationId).order('created_at',{ascending:true}); if(!error)state.messagesByConversation[conversationId]=data||[]; await sb.from('messages').update({is_read:true}).eq('conversation_id',conversationId).eq('receiver_id',state.user.id);}
+async function sendMessage(form){const msg=new FormData(form).get('message').trim(); if(!msg||!state.activeConversation)return; const c=state.activeConversation; const receiver=c.client_id===state.user.id?c.provider_id:c.client_id; const payload={conversation_id:c.id,sender_id:state.user.id,receiver_id:receiver,message:msg}; const {data,error}=await sb.from('messages').insert(payload).select().single(); if(error){toast('Mesajul nu a fost trimis.','error');return;} if(!state.messagesByConversation[c.id])state.messagesByConversation[c.id]=[]; state.messagesByConversation[c.id].push(data); await sb.from('conversations').update({last_message:msg,last_message_at:new Date().toISOString()}).eq('id',c.id); await sb.from('notifications').insert({user_id:receiver,type:'message',title:'Mesaj nou',message:msg,related_conversation_id:c.id,related_listing_id:c.listing_id}); form.reset(); await loadConversations(); render();}
+async function markNotification(id){await sb.from('notifications').update({is_read:true}).eq('id',id).eq('user_id',state.user.id); await loadNotifications(); render();}
+
+function showInstallBanner(){const b=$('#installBanner'); if(b)b.classList.add('show');}
+function hideInstallBanner(){const b=$('#installBanner'); if(b)b.classList.remove('show');}
+
+init().catch(err=>{console.error(err);setLoading(false);toast('Aplicația nu a pornit corect.','error');});
+</script>
 </body>
 </html>
