@@ -1,822 +1,450 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="AutoRapid RO" />
   <title>AutoRapid RO</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
       --bg:#ffffff;
       --surface:#ffffff;
-      --soft:#f6f6f4;
-      --soft2:#efefec;
-      --text:#151515;
-      --muted:#6b6b66;
-      --line:#ecece8;
+      --soft:#f6f6f3;
+      --soft2:#faf9f5;
+      --line:#e9e7df;
+      --text:#171717;
+      --muted:#74746f;
+      --muted2:#9b9b94;
       --gold:#f5c542;
-      --gold2:#ffd700;
-      --goldSoft:#fff7db;
-      --danger:#d0342c;
-      --success:#147a3d;
-      --blue:#1769ff;
+      --gold2:#ffd84d;
+      --danger:#d33b3b;
+      --ok:#1f8a5b;
+      --shadow:0 8px 24px rgba(0,0,0,.06);
       --radius:18px;
-      --shadow:0 10px 30px rgba(20,20,20,.06);
-      --bottom:74px;
-      font-synthesis-weight:none;
+      --nav:74px;
     }
-
+    [data-theme="dark"]{
+      --bg:#10100f;
+      --surface:#171716;
+      --soft:#1f1f1d;
+      --soft2:#151514;
+      --line:#2a2a27;
+      --text:#f5f2e8;
+      --muted:#b6b2a8;
+      --muted2:#88847b;
+      --shadow:none;
+    }
     *{box-sizing:border-box}
-    html,body{width:100%;min-height:100%;margin:0;overflow-x:hidden;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-    body.dark{--bg:#11110f;--surface:#181816;--soft:#20201d;--soft2:#2a2a26;--text:#f5f3ed;--muted:#aaa69c;--line:#2f2f2b;--goldSoft:#2d2712;--shadow:0 10px 35px rgba(0,0,0,.28)}
-    button,input,select,textarea{font:inherit}
-    button{border:0;background:none;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.45;overflow-x:hidden}
+    button,input,select,textarea{font:inherit;color:inherit}
+    button{border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
     a{color:inherit;text-decoration:none}
-    img{max-width:100%;display:block}
-    .hidden{display:none!important}
-
     .app{min-height:100vh;background:var(--bg)}
-    .shell{width:min(1040px,100%);margin:0 auto;padding:0 14px calc(var(--bottom) + 22px)}
-
-    .splash{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:.25s ease}
-    .splash.out{opacity:0;pointer-events:none}
-    .splash-card{display:flex;flex-direction:column;align-items:center;gap:14px}
-    .logo-mark{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#141414,#2a2615 55%,#f5c542);display:grid;place-items:center;box-shadow:0 14px 35px rgba(245,197,66,.20)}
-    .logo-mark svg{width:34px;height:34px}
-    .brand-row{display:flex;align-items:center;gap:9px;min-width:0}
-    .brand-mini{width:34px;height:34px;border-radius:10px;background:#151515;display:grid;place-items:center;flex:0 0 auto}
-    .brand-mini svg{width:22px;height:22px}
-    .brand-title{font-size:16px;letter-spacing:-.02em;font-weight:650;white-space:nowrap}
-    .loader-line{width:72px;height:3px;background:var(--line);border-radius:99px;overflow:hidden}.loader-line span{display:block;width:38%;height:100%;border-radius:99px;background:var(--gold);animation:load 1s infinite ease-in-out}@keyframes load{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
-
-    .toast{position:fixed;left:50%;bottom:calc(var(--bottom) + 12px);z-index:900;transform:translateX(-50%) translateY(12px);background:#151515;color:#fff;padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.3;max-width:calc(100% - 28px);opacity:0;pointer-events:none;transition:.2s ease;box-shadow:var(--shadow)}
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    .toast.success{background:#13703b}.toast.error{background:#b52b26}
-
-    .topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    body.dark .topbar{background:rgba(17,17,15,.92)}
-    .topbar-inner{height:58px;width:min(1040px,100%);margin:0 auto;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .top-actions{display:flex;align-items:center;gap:8px}
-    .icon-btn{width:40px;height:40px;border-radius:50%;background:var(--soft);display:grid;place-items:center;position:relative;border:1px solid transparent}
-    .icon-btn:active{transform:scale(.98)}
-    .icon-btn svg{width:20px;height:20px;stroke-width:1.9}
-    .notif-dot{position:absolute;right:7px;top:7px;min-width:16px;height:16px;border-radius:99px;background:var(--gold2);color:#151515;font-size:10px;line-height:16px;text-align:center;padding:0 4px;font-weight:700;border:2px solid var(--surface)}
-    .avatar-sm{width:34px;height:34px;border-radius:50%;background:var(--goldSoft);object-fit:cover;border:1px solid var(--line)}
-
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:7px 7px calc(7px + env(safe-area-inset-bottom));display:flex;justify-content:center}
-    body.dark .bottom-nav{background:rgba(17,17,15,.96)}
-    .bottom-nav-inner{width:min(520px,100%);display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
-    .nav-item{height:52px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--muted);font-size:11px}
-    .nav-item svg{width:21px;height:21px;stroke-width:1.8}.nav-item.active{color:var(--text);background:var(--soft)}.nav-item.active svg{stroke:var(--gold)}
-
-    .page{display:none;animation:fade .16s ease}.page.active{display:block}@keyframes fade{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:none}}
-    .page-head{padding:17px 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}.page-title{font-size:22px;line-height:1.1;letter-spacing:-.04em;font-weight:650;margin:0}.page-sub{font-size:13px;color:var(--muted);margin:5px 0 0;line-height:1.35}.back-btn{width:38px;height:38px;border-radius:50%;background:var(--soft);display:grid;place-items:center}.back-btn svg{width:20px;height:20px}
-
-    .auth-wrap{min-height:100vh;padding:28px 18px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#fff 0%,#fffdf5 50%,#fff 100%)}
-    body.dark .auth-wrap{background:var(--bg)}
-    .auth-card{width:min(420px,100%);background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:22px;box-shadow:var(--shadow)}
-    .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}.auth-logo .logo-mark{width:42px;height:42px;border-radius:14px}.auth-logo h1{font-size:20px;margin:0;font-weight:650;letter-spacing:-.03em}.auth-logo p{font-size:13px;color:var(--muted);margin:3px 0 0}
-    .seg{height:44px;padding:4px;border-radius:999px;background:var(--soft);display:grid;grid-template-columns:1fr 1fr;margin:10px 0 16px}.seg button{border-radius:999px;font-size:13px;color:var(--muted)}.seg button.active{background:var(--surface);color:var(--text);box-shadow:0 3px 10px rgba(0,0,0,.05)}
-    .field{margin-bottom:12px}.label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}.input,.select,.textarea{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:15px;min-height:46px;padding:12px 13px;outline:0;font-size:14px}.input:focus,.select:focus,.textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,66,.14)}.textarea{min-height:112px;resize:vertical;line-height:1.45}.hint{font-size:12px;color:var(--muted);line-height:1.35}.char-row{display:flex;justify-content:space-between;align-items:center;margin-top:5px;color:var(--muted);font-size:12px}
-    .btn{min-height:44px;padding:0 15px;border-radius:999px;background:var(--text);color:var(--bg);font-size:14px;font-weight:520;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}.btn svg{width:18px;height:18px}.btn:disabled{opacity:.55;cursor:not-allowed}.btn.gold{background:var(--gold2);color:#151515}.btn.soft{background:var(--soft);color:var(--text)}.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}.btn.danger{background:#d0342c;color:#fff}.btn.full{width:100%}.btn.small{min-height:36px;font-size:13px;padding:0 12px}
-
-    .role-screen{min-height:calc(100vh - 58px);display:grid;align-content:center;gap:14px;padding:20px 0}.role-grid{display:grid;grid-template-columns:1fr;gap:12px}.role-card{border:1px solid var(--line);background:var(--surface);border-radius:22px;padding:18px;display:flex;gap:14px;text-align:left;box-shadow:var(--shadow)}.role-ico{width:48px;height:48px;border-radius:16px;background:var(--goldSoft);display:grid;place-items:center;flex:0 0 auto}.role-ico svg{width:25px;height:25px}.role-card h3{font-size:17px;margin:0 0 5px;font-weight:620;letter-spacing:-.02em}.role-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.35}
-
-    .home-search{padding:14px 0 10px}.searchbar{height:50px;border-radius:16px;background:var(--soft);border:1px solid transparent;display:flex;align-items:center;gap:10px;padding:0 12px}.searchbar:focus-within{background:var(--surface);border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,66,.12)}.searchbar svg{width:20px;height:20px;color:var(--muted);flex:0 0 auto}.searchbar input{border:0;outline:0;background:transparent;color:var(--text);width:100%;font-size:15px;min-width:0}.filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}.filters .select{min-height:40px;border-radius:13px;padding:8px 9px;font-size:13px;background:var(--surface)}
-    .chips-row{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:none}.chips-row::-webkit-scrollbar{display:none}.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);height:36px;padding:0 13px;border-radius:999px;font-size:13px;color:var(--muted)}.chip.active{border-color:var(--text);color:var(--text);background:var(--soft)}
-
-    .list{display:grid;gap:10px}.listing-card{position:relative;display:grid;grid-template-columns:78px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px;box-shadow:none}.listing-img{width:78px;height:78px;border-radius:14px;object-fit:cover;background:var(--soft);border:1px solid var(--line)}.listing-info{min-width:0;padding-right:32px}.listing-title{font-size:15px;line-height:1.2;margin:1px 0 4px;font-weight:600;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.listing-meta{font-size:12px;color:var(--muted);line-height:1.35;display:flex;gap:5px;align-items:center;flex-wrap:wrap}.listing-desc{font-size:13px;line-height:1.36;color:var(--muted);margin:7px 0 9px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.listing-actions{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.heart{position:absolute;top:9px;right:9px;width:34px;height:34px;border-radius:50%;background:var(--soft);display:grid;place-items:center}.heart svg{width:18px;height:18px}.heart.saved svg{fill:#e03454;stroke:#e03454}.badge{height:22px;border-radius:999px;background:var(--goldSoft);color:#806200;font-size:11px;display:inline-flex;align-items:center;padding:0 8px}.empty{border:1px dashed var(--line);background:var(--soft);border-radius:22px;padding:26px 18px;text-align:center}.empty h3{margin:0 0 6px;font-size:16px;font-weight:600}.empty p{margin:0;color:var(--muted);font-size:13px;line-height:1.4}.empty .btn{margin-top:14px}
-
-    .profile-top{display:flex;align-items:center;gap:13px;padding:16px 0 13px}.avatar-lg{width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--soft);border:1px solid var(--line)}.profile-name{font-size:18px;font-weight:620;margin:0 0 3px;letter-spacing:-.02em}.profile-place{font-size:13px;color:var(--muted);margin:0}.role-pill{display:inline-flex;margin-top:7px;height:25px;padding:0 10px;border-radius:999px;background:var(--goldSoft);align-items:center;font-size:12px;color:#806200}.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 14px}.stat{background:var(--soft);border-radius:17px;padding:12px;text-align:center}.stat b{font-size:17px;font-weight:650}.stat span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.menu-list{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--surface)}.menu-item{width:100%;min-height:54px;display:flex;align-items:center;gap:12px;padding:0 14px;border-bottom:1px solid var(--line);text-align:left}.menu-item:last-child{border-bottom:0}.menu-ico{width:34px;height:34px;border-radius:12px;background:var(--soft);display:grid;place-items:center;flex:0 0 auto}.menu-ico svg{width:18px;height:18px}.menu-text{flex:1;min-width:0}.menu-text strong{display:block;font-size:14px;font-weight:560}.menu-text small{display:block;font-size:12px;color:var(--muted);margin-top:2px}.chev{color:var(--muted)}
-
-    .form-card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:14px;margin-bottom:12px}.form-card h3{font-size:15px;font-weight:620;margin:0 0 12px;letter-spacing:-.01em}.grid2{display:grid;grid-template-columns:1fr;gap:12px}.switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:50px;border-bottom:1px solid var(--line)}.switch-row:last-child{border-bottom:0}.switch-row span{font-size:14px}.toggle{width:48px;height:28px;border-radius:99px;background:var(--soft2);padding:3px;transition:.18s}.toggle i{display:block;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:0 2px 5px rgba(0,0,0,.15);transition:.18s}.toggle.on{background:var(--gold)}.toggle.on i{transform:translateX(20px)}
-    .upload-box{border:1px dashed var(--line);border-radius:18px;padding:12px;display:flex;align-items:center;gap:12px}.upload-preview{width:58px;height:58px;border-radius:15px;object-fit:cover;background:var(--soft);border:1px solid var(--line)}.photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.photo-slot{aspect-ratio:1;background:var(--soft);border:1px dashed var(--line);border-radius:16px;display:grid;place-items:center;overflow:hidden;position:relative}.photo-slot img{width:100%;height:100%;object-fit:cover}.photo-slot small{font-size:12px;color:var(--muted)}
-
-    .chat-list{display:grid;gap:8px}.conversation{display:flex;gap:11px;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:10px;text-align:left}.conversation img{width:46px;height:46px;border-radius:50%;object-fit:cover;background:var(--soft)}.conversation strong{display:block;font-size:14px;font-weight:600}.conversation p{margin:3px 0 0;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 58px - var(--bottom));min-height:420px}.chat-messages{flex:1;overflow:auto;padding:10px 0;display:flex;flex-direction:column;gap:8px}.bubble{max-width:82%;padding:10px 12px;border-radius:18px;font-size:14px;line-height:1.35}.bubble.me{align-self:flex-end;background:var(--text);color:var(--bg);border-bottom-right-radius:6px}.bubble.other{align-self:flex-start;background:var(--soft);border-bottom-left-radius:6px}.chat-input{display:flex;gap:8px;padding:9px 0 12px}.chat-input input{flex:1}
-
-    .modal{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.36);display:none;align-items:flex-end}.modal.show{display:flex}.sheet{width:100%;max-height:88vh;background:var(--surface);border-radius:24px 24px 0 0;overflow:auto;padding:14px 14px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.12)}.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 0 10px}.sheet-title{font-size:18px;font-weight:640;margin:0;letter-spacing:-.03em}.close{width:38px;height:38px;border-radius:50%;background:var(--soft);display:grid;place-items:center}.details-img{width:100%;height:190px;object-fit:cover;border-radius:20px;background:var(--soft);border:1px solid var(--line);margin-bottom:12px}.details-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.info-line{font-size:13px;color:var(--muted);line-height:1.45}.info-line b{color:var(--text);font-weight:600}
-
-    .notification-item{border:1px solid var(--line);border-radius:17px;padding:12px;background:var(--surface);display:flex;gap:10px}.notification-item.unread{background:var(--goldSoft)}.notification-item h4{margin:0 0 4px;font-size:14px;font-weight:600}.notification-item p{margin:0;color:var(--muted);font-size:13px;line-height:1.35}.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);margin-top:6px;flex:0 0 auto}
-
-    .install-banner{position:fixed;left:12px;right:12px;bottom:calc(var(--bottom) + 12px);z-index:500;background:var(--text);color:var(--bg);border-radius:18px;padding:12px;display:none;align-items:center;gap:10px;box-shadow:var(--shadow)}.install-banner.show{display:flex}.install-banner p{margin:0;font-size:13px;line-height:1.25;flex:1}.install-banner .btn{background:var(--gold2);color:#111;min-height:36px}.install-banner .x{color:var(--bg);opacity:.7}
-
-    @media (min-width:720px){
-      :root{--bottom:0px}.shell{padding-bottom:36px}.bottom-nav{display:none}.topbar-inner{height:66px}.brand-mini{width:38px;height:38px}.brand-title{font-size:18px}.page-head{padding:24px 0 16px}.home-search{padding-top:22px}.filters{grid-template-columns:200px 200px 220px}.list{grid-template-columns:repeat(2,minmax(0,1fr))}.listing-card{grid-template-columns:86px 1fr;padding:12px}.listing-img{width:86px;height:86px}.role-grid{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr 1fr}.profile-layout{display:grid;grid-template-columns:320px 1fr;gap:16px;align-items:start}.sheet{width:min(620px,calc(100% - 28px));border-radius:24px;margin:0 auto 18px}.modal{align-items:center}.details-img{height:260px}.chat-wrap{height:calc(100vh - 66px - 24px);max-width:760px;margin:0 auto}.install-banner{left:50%;right:auto;width:min(460px,calc(100% - 24px));transform:translateX(-50%);bottom:18px}
-    }
+    .loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;transition:.25s ease}
+    .loading.hidden{opacity:0;pointer-events:none}
+    .load-card{display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--text)}
+    .spinner{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .logo-row{display:flex;align-items:center;gap:9px}.logo-row svg{width:31px;height:31px;display:block}.logo-text{font-weight:680;letter-spacing:-.03em;font-size:18px}.logo-dot{color:var(--gold)}
+    .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(180deg,#fff 0%,#fffaf0 100%)}
+    [data-theme="dark"] .auth-wrap{background:var(--bg)}
+    .auth-card{width:min(440px,100%);background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:22px;box-shadow:var(--shadow)}
+    .auth-logo{display:flex;align-items:center;justify-content:center;margin:8px 0 22px}.auth-title{text-align:center;margin:0 0 4px;font-size:22px;letter-spacing:-.04em;font-weight:700}.auth-sub{text-align:center;margin:0 0 20px;color:var(--muted);font-size:14px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--soft);border-radius:999px;padding:4px;margin-bottom:14px}.auth-tab{height:38px;border-radius:999px;color:var(--muted);font-size:14px}.auth-tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}.field label{font-size:13px;color:var(--muted)}.input,.select,.textarea{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:14px;min-height:44px;padding:0 13px;outline:none}.textarea{min-height:105px;padding:12px 13px;resize:vertical}.input:focus,.select:focus,.textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,66,.18)}
+    .btn{height:44px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 16px;font-weight:600;transition:.15s ease;white-space:nowrap}.btn:active{transform:scale(.98)}.btn-primary{background:var(--text);color:var(--bg)}.btn-gold{background:var(--gold);color:#181407}.btn-soft{background:var(--soft);color:var(--text);border:1px solid var(--line)}.btn-ghost{color:var(--muted)}.btn-danger{background:#fff2f2;color:var(--danger);border:1px solid #ffd5d5}.btn-small{height:34px;padding:0 12px;border-radius:11px;font-size:13px}.btn-full{width:100%}
+    .topbar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);padding:11px 14px;padding-top:calc(11px + env(safe-area-inset-top))}[data-theme="dark"] .topbar{background:rgba(16,16,15,.9)}
+    .top-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px}.top-actions{display:flex;align-items:center;gap:8px}.icon-btn{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--line);position:relative}.icon-btn svg{width:20px;height:20px}.badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:999px;background:var(--gold);color:#111;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid var(--surface)}.avatar-mini{width:34px;height:34px;border-radius:50%;object-fit:cover;background:var(--soft);border:1px solid var(--line)}
+    .main{max-width:980px;margin:0 auto;padding:14px 14px calc(var(--nav) + 18px)}.page-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 12px}.page-title{font-size:20px;font-weight:650;letter-spacing:-.035em;margin:0}.page-sub{margin:2px 0 0;color:var(--muted);font-size:13px}.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:14px;margin-bottom:10px}
+    .search-zone{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:12px;box-shadow:var(--shadow);margin-bottom:12px}.search-row{display:flex;gap:8px}.search-input{flex:1;border:1px solid var(--line);border-radius:15px;height:44px;padding:0 14px;outline:none;background:var(--soft2)}.search-input:focus{border-color:var(--gold)}.filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:9px}.filter{height:40px;border:1px solid var(--line);border-radius:13px;background:var(--surface);padding:0 10px;color:var(--text);font-size:13px;min-width:0}
+    .empty{border:1px dashed var(--line);border-radius:22px;background:var(--soft2);padding:28px 18px;text-align:center;color:var(--muted);margin-top:12px}.empty h3{margin:0 0 6px;font-size:16px;color:var(--text);font-weight:650}.empty p{margin:0;font-size:14px}
+    .list{display:flex;flex-direction:column;gap:10px}.listing-card{position:relative;display:grid;grid-template-columns:74px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.03);min-height:104px}.listing-card:active{transform:scale(.995)}.thumb{width:74px;height:74px;border-radius:15px;background:linear-gradient(145deg,var(--soft),#fff4c6);object-fit:cover;border:1px solid var(--line)}.card-info{min-width:0;padding-right:32px}.card-title{margin:0 0 2px;font-size:15px;font-weight:640;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;color:var(--muted);font-size:12.5px}.meta .dot{width:3px;height:3px;background:var(--muted2);border-radius:50%}.desc{margin:7px 0 9px;color:var(--muted);font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.card-actions{display:flex;gap:7px;flex-wrap:wrap}.heart{position:absolute;top:9px;right:9px;width:34px;height:34px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}.heart.saved{background:#fff7d9;border-color:#ffe38a}.heart svg{width:18px;height:18px}.tag{display:inline-flex;align-items:center;height:24px;border-radius:999px;background:var(--soft);border:1px solid var(--line);padding:0 8px;font-size:12px;color:var(--muted)}.tag.gold{background:#fff8db;color:#7a5a00;border-color:#ffe48a}.tag.green{background:#eaf8f0;color:#146c45;border-color:#ccebd9}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:35;background:rgba(255,255,255,.96);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom))}[data-theme="dark"] .bottom-nav{background:rgba(16,16,15,.95)}.nav-inner{max-width:540px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}.nav-btn{height:56px;border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--muted);font-size:11px}.nav-btn svg{width:20px;height:20px}.nav-btn.active{color:var(--text);background:var(--soft)}
+    .profile-top{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:14px;margin-bottom:12px}.avatar{width:68px;height:68px;border-radius:50%;background:var(--soft);border:1px solid var(--line);object-fit:cover;flex:none}.profile-name{font-size:18px;font-weight:650;letter-spacing:-.03em;margin:0}.profile-role{font-size:13px;color:var(--muted);margin-top:2px}.menu-list{background:var(--surface);border:1px solid var(--line);border-radius:22px;overflow:hidden}.menu-item{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 14px;border-bottom:1px solid var(--line);text-align:left}.menu-item:last-child{border-bottom:0}.menu-left{display:flex;align-items:center;gap:11px}.menu-ico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--soft);color:var(--text)}.menu-ico svg{width:18px;height:18px}.menu-title{font-weight:550}.menu-sub{font-size:12.5px;color:var(--muted);margin-top:1px}.chev{color:var(--muted2)}
+    .sheet{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:14px;margin-bottom:12px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.role-card{border:1px solid var(--line);border-radius:20px;padding:18px;background:var(--surface);text-align:left}.role-card.active{border-color:var(--gold);background:#fff9df}.role-card h3{margin:8px 0 5px;font-size:17px;letter-spacing:-.03em}.role-card p{margin:0;color:var(--muted);font-size:13px}.role-card svg{width:26px;height:26px;color:#7a5a00}
+    .photo-upload{display:flex;align-items:center;gap:12px}.photo-preview{width:62px;height:62px;border-radius:50%;object-fit:cover;background:var(--soft);border:1px solid var(--line)}.hidden-file{display:none}.upload-box{border:1px dashed var(--line);border-radius:18px;padding:14px;text-align:center;background:var(--soft2)}.preview-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.preview-img{width:78px;height:78px;border-radius:14px;object-fit:cover;border:1px solid var(--line)}
+    .publish-steps{display:flex;gap:6px;margin-bottom:12px}.step-pill{height:30px;padding:0 10px;border-radius:999px;background:var(--soft);color:var(--muted);font-size:12px;display:flex;align-items:center}.step-pill.active{background:#fff3bf;color:#6a4b00}.pay-box{background:#fff9e8;border:1px solid #ffe09b;border-radius:18px;padding:12px;margin:12px 0;color:#4d3900}.pay-box h3{margin:0 0 4px;font-size:15px}.pay-box p{margin:0;font-size:13px;color:#6e5a22}
+    .chat-layout{display:grid;grid-template-columns:330px 1fr;gap:12px;min-height:calc(100vh - 170px)}.conv-list{background:var(--surface);border:1px solid var(--line);border-radius:22px;overflow:hidden;height:calc(100vh - 190px);overflow-y:auto}.conv-item{padding:12px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;text-align:left;width:100%}.conv-item.active{background:var(--soft2)}.conv-avatar{width:42px;height:42px;border-radius:50%;background:var(--soft);object-fit:cover}.conv-title{font-weight:600;font-size:14px}.conv-last{font-size:12.5px;color:var(--muted);white-space:nowrap;text-overflow:ellipsis;overflow:hidden;max-width:210px}.chat-panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;display:flex;flex-direction:column;min-height:0;overflow:hidden}.chat-head{height:58px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 12px;gap:10px}.chat-body{flex:1;min-height:340px;max-height:calc(100vh - 290px);overflow-y:auto;padding:14px;background:var(--soft2);display:flex;flex-direction:column;gap:8px}.bubble-row{display:flex}.bubble-row.me{justify-content:flex-end}.bubble{max-width:min(76%,480px);padding:9px 11px;border-radius:17px;font-size:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}.bubble-row.me .bubble{background:#fff0b5;border-bottom-right-radius:5px}.bubble-row.them .bubble{background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px}.bubble-time{font-size:10px;color:var(--muted);margin-top:3px;text-align:right}.chat-form{border-top:1px solid var(--line);padding:9px;display:flex;gap:8px}.chat-input{flex:1;border:1px solid var(--line);background:var(--soft2);border-radius:999px;height:42px;padding:0 14px;outline:none}.chat-send{width:42px;height:42px;border-radius:50%;background:var(--text);color:var(--bg);display:flex;align-items:center;justify-content:center}.chat-send svg{width:18px;height:18px}
+    .modal{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.38);display:none;align-items:flex-end;justify-content:center;padding:10px}.modal.open{display:flex}.modal-card{width:min(680px,100%);max-height:88vh;overflow:auto;background:var(--surface);border-radius:26px;padding:15px;border:1px solid var(--line);box-shadow:0 20px 70px rgba(0,0,0,.25)}.modal-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}.close{width:38px;height:38px;border-radius:50%;background:var(--soft);display:flex;align-items:center;justify-content:center}
+    .toast{position:fixed;left:14px;right:14px;bottom:calc(var(--nav) + 14px);z-index:120;background:var(--text);color:var(--bg);border-radius:16px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,.18);display:none;max-width:520px;margin:auto}.toast.show{display:block}.toast.error{background:var(--danger);color:#fff}.toast.ok{background:#145c3d;color:#fff}
+    .small-note{font-size:12px;color:var(--muted);margin:6px 0 0}.divider{height:1px;background:var(--line);margin:12px 0}.hide{display:none!important}
+    @media (min-width:800px){.bottom-nav{display:none}.main{padding-bottom:30px}.desktop-tabs{display:flex}.modal{align-items:center}.topbar{padding-left:22px;padding-right:22px}.nav-desktop{display:flex;gap:6px}.nav-desktop .nav-btn{height:38px;flex-direction:row;font-size:13px;padding:0 12px;border-radius:999px}.listing-card{grid-template-columns:86px 1fr}.thumb{width:86px;height:86px}.list{display:grid;grid-template-columns:1fr 1fr;gap:12px}.profile-grid{display:grid;grid-template-columns:330px 1fr;gap:12px;align-items:start}}
+    @media (max-width:799px){.nav-desktop{display:none}.search-row{display:grid;grid-template-columns:1fr auto}.filters{grid-template-columns:1fr 1fr}.filters .filter:last-child{grid-column:1/-1}.chat-layout{display:block}.conv-list{height:auto;max-height:38vh;margin-bottom:10px}.chat-body{min-height:360px;max-height:52vh}.chat-panel{min-height:520px}.grid2,.grid3,.role-grid{grid-template-columns:1fr}.btn{min-height:44px}.modal{padding:0;align-items:flex-end}.modal-card{border-radius:24px 24px 0 0;max-height:92vh}.main{padding-left:10px;padding-right:10px}.topbar{padding-left:10px;padding-right:10px}.listing-card{border-radius:16px}}
   </style>
 </head>
 <body>
-  <div id="splash" class="splash">
-    <div class="splash-card">
-      <div class="logo-mark" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none"><path d="M10 28.5 16.5 16h15L38 28.5" stroke="#FFD700" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 29h20c2.8 0 5 2.2 5 5v3H9v-3c0-2.8 2.2-5 5-5Z" fill="#fff"/><path d="M15 37a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM33 37a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="#FFD700"/><path d="M21 13h7l-3 6h6l-10 13 3-9h-6l3-10Z" fill="#FFD700"/></svg>
-      </div>
-      <div class="brand-title">AutoRapid RO</div>
-      <div class="loader-line"><span></span></div>
-    </div>
-  </div>
-
+  <div id="loading" class="loading"><div class="load-card"><div id="loadLogo"></div><div class="spinner"></div></div></div>
   <div id="app" class="app"></div>
-  <div id="toast" class="toast"></div>
   <div id="modal" class="modal"></div>
-  <div id="installBanner" class="install-banner">
-    <p id="installText">Adaugă AutoRapid RO pe ecranul principal pentru acces rapid.</p>
-    <button id="installBtn" class="btn small">Adaugă</button>
-    <button id="installClose" class="x">✕</button>
-  </div>
-
+  <div id="toast" class="toast"></div>
 <script>
 'use strict';
 
 const SUPABASE_URL = 'https://ncdutmwivbgmubiodkev.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Yfwqvy9Avytb0vXa4qUtnA_vBUENjlE';
-const STORAGE_BUCKET = 'autorapid-assets';
-const APP_VERSION = 'client-provider-v1';
-const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><rect width="160" height="160" rx="30" fill="#F6F6F4"/><path d="M34 92l18-34h56l18 34" fill="none" stroke="#151515" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 92h72c10 0 18 8 18 18v8H26v-8c0-10 8-18 18-18Z" fill="#151515"/><circle cx="50" cy="118" r="10" fill="#FFD700"/><circle cx="110" cy="118" r="10" fill="#FFD700"/><path d="M73 42h18l-8 16h15L68 100l8-28H60l13-30Z" fill="#FFD700"/></svg>`);
+const BUCKET = 'autorapid-assets';
 
-const CATEGORIES = [
-  'Tractări auto','Vulcanizare','Service auto','ITP','Diagnoză auto','Schimb ulei','Piese auto','Spălătorie auto','Detailing auto','Tinichigerie','Vopsitorie','Electrician auto','Închirieri auto','Dezmembrări auto','Anvelope','Asigurări auto','Platformă auto','Mecanic la domiciliu'
-];
-
-const COUNTIES = {
-  'Alba':['Alba Iulia','Aiud','Blaj','Sebeș','Cugir','Ocna Mureș'],
-  'Arad':['Arad','Ineu','Lipova','Nădlac','Pecica','Chișineu-Criș'],
-  'Argeș':['Pitești','Mioveni','Câmpulung','Curtea de Argeș','Costești','Topoloveni'],
-  'Bacău':['Bacău','Onești','Moinești','Comănești','Buhuși','Târgu Ocna'],
-  'Bihor':['Oradea','Salonta','Marghita','Beiuș','Aleșd','Săcueni'],
-  'Bistrița-Năsăud':['Bistrița','Beclean','Năsăud','Sângeorz-Băi'],
-  'Botoșani':['Botoșani','Dorohoi','Darabani','Săveni','Flămânzi'],
-  'Brașov':['Brașov','Făgăraș','Săcele','Codlea','Zărnești','Râșnov','Rupea'],
-  'Brăila':['Brăila','Ianca','Însurăței','Făurei'],
-  'București':['Sector 1','Sector 2','Sector 3','Sector 4','Sector 5','Sector 6'],
-  'Buzău':['Buzău','Râmnicu Sărat','Nehoiu','Pogoanele','Pătârlagele'],
-  'Caraș-Severin':['Reșița','Caransebeș','Bocșa','Oravița','Moldova Nouă','Oțelu Roșu'],
-  'Călărași':['Călărași','Oltenița','Lehliu Gară','Budești'],
-  'Cluj':['Cluj-Napoca','Turda','Dej','Câmpia Turzii','Gherla','Huedin'],
-  'Constanța':['Constanța','Mangalia','Medgidia','Năvodari','Cernavodă','Eforie','Ovidiu'],
-  'Covasna':['Sfântu Gheorghe','Târgu Secuiesc','Covasna','Baraolt','Întorsura Buzăului'],
-  'Dâmbovița':['Târgoviște','Moreni','Pucioasa','Găești','Titu','Fieni'],
-  'Dolj':['Craiova','Băilești','Calafat','Filiași','Dăbuleni','Segarcea'],
-  'Galați':['Galați','Tecuci','Târgu Bujor','Berești'],
-  'Giurgiu':['Giurgiu','Bolintin-Vale','Mihăilești'],
-  'Gorj':['Târgu Jiu','Motru','Rovinari','Târgu Cărbunești','Bumbești-Jiu','Novaci'],
-  'Harghita':['Miercurea Ciuc','Odorheiu Secuiesc','Gheorgheni','Toplița','Cristuru Secuiesc'],
-  'Hunedoara':['Deva','Hunedoara','Petroșani','Vulcan','Lupeni','Orăștie','Brad','Hațeg'],
-  'Ialomița':['Slobozia','Fetești','Urziceni','Țăndărei','Amara'],
-  'Iași':['Iași','Pașcani','Târgu Frumos','Hârlău','Podu Iloaiei'],
-  'Ilfov':['Buftea','Otopeni','Voluntari','Pantelimon','Bragadiru','Măgurele','Chitila','Popești-Leordeni'],
-  'Maramureș':['Baia Mare','Sighetu Marmației','Borșa','Vișeu de Sus','Baia Sprie','Târgu Lăpuș'],
-  'Mehedinți':['Drobeta-Turnu Severin','Orșova','Strehaia','Vânju Mare','Baia de Aramă'],
-  'Mureș':['Târgu Mureș','Reghin','Sighișoara','Târnăveni','Luduș','Sovata'],
-  'Neamț':['Piatra Neamț','Roman','Târgu Neamț','Roznov','Bicaz'],
-  'Olt':['Slatina','Caracal','Balș','Corabia','Scornicești','Drăgănești-Olt'],
-  'Prahova':['Ploiești','Câmpina','Băicoi','Breaza','Mizil','Sinaia','Bușteni'],
-  'Sălaj':['Zalău','Șimleu Silvaniei','Jibou','Cehu Silvaniei'],
-  'Satu Mare':['Satu Mare','Carei','Negrești-Oaș','Tășnad','Ardud'],
-  'Sibiu':['Sibiu','Mediaș','Cisnădie','Agnita','Avrig','Dumbrăveni'],
-  'Suceava':['Suceava','Fălticeni','Rădăuți','Câmpulung Moldovenesc','Vatra Dornei','Gura Humorului'],
-  'Teleorman':['Alexandria','Roșiori de Vede','Turnu Măgurele','Zimnicea','Videle'],
-  'Timiș':['Timișoara','Lugoj','Sânnicolau Mare','Jimbolia','Recaș','Făget'],
-  'Tulcea':['Tulcea','Babadag','Măcin','Isaccea','Sulina'],
-  'Vâlcea':['Râmnicu Vâlcea','Drăgășani','Băile Olănești','Călimănești','Horezu','Brezoi'],
-  'Vaslui':['Vaslui','Bârlad','Huși','Negrești','Murgeni'],
-  'Vrancea':['Focșani','Adjud','Mărășești','Odobești','Panciu']
+const CATEGORIES = ['Tractări auto','Vulcanizare','Service auto','ITP','Diagnoză auto','Schimb ulei','Piese auto','Spălătorie auto','Detailing auto','Tinichigerie','Vopsitorie','Electrician auto','Închirieri auto','Dezmembrări auto','Anvelope','Asigurări auto','Platformă auto','Mecanic la domiciliu'];
+const LOCATIONS = {
+  'Alba':['Alba Iulia','Aiud','Blaj','Sebeș','Cugir'], 'Arad':['Arad','Ineu','Lipova','Nădlac','Pecica'], 'Argeș':['Pitești','Mioveni','Curtea de Argeș','Câmpulung','Costești'],
+  'Bacău':['Bacău','Onești','Moinești','Comănești','Buhuși'], 'Bihor':['Oradea','Salonta','Marghita','Beiuș','Aleșd'], 'Bistrița-Năsăud':['Bistrița','Năsăud','Beclean','Sângeorz-Băi'],
+  'Botoșani':['Botoșani','Dorohoi','Darabani','Săveni'], 'Brașov':['Brașov','Făgăraș','Săcele','Codlea','Râșnov','Zărnești'], 'Brăila':['Brăila','Ianca','Făurei','Însurăței'],
+  'București':['Sector 1','Sector 2','Sector 3','Sector 4','Sector 5','Sector 6'], 'Buzău':['Buzău','Râmnicu Sărat','Nehoiu','Pogoanele'], 'Caraș-Severin':['Reșița','Caransebeș','Bocșa','Oravița','Oțelu Roșu'],
+  'Călărași':['Călărași','Oltenița','Lehliu Gară','Budești'], 'Cluj':['Cluj-Napoca','Turda','Dej','Câmpia Turzii','Gherla','Huedin'], 'Constanța':['Constanța','Mangalia','Medgidia','Năvodari','Cernavodă'],
+  'Covasna':['Sfântu Gheorghe','Târgu Secuiesc','Covasna','Baraolt'], 'Dâmbovița':['Târgoviște','Moreni','Pucioasa','Găești','Titu'], 'Dolj':['Craiova','Băilești','Calafat','Filiași','Dăbuleni'],
+  'Galați':['Galați','Tecuci','Târgu Bujor','Berești'], 'Giurgiu':['Giurgiu','Bolintin-Vale','Mihăilești'], 'Gorj':['Târgu Jiu','Motru','Rovinari','Târgu Cărbunești'],
+  'Harghita':['Miercurea Ciuc','Odorheiu Secuiesc','Gheorgheni','Toplița','Cristuru Secuiesc'], 'Hunedoara':['Deva','Hunedoara','Petroșani','Lupeni','Orăștie'], 'Ialomița':['Slobozia','Fetești','Urziceni','Țăndărei'],
+  'Iași':['Iași','Pașcani','Hârlău','Târgu Frumos'], 'Ilfov':['Otopeni','Voluntari','Buftea','Pantelimon','Popești-Leordeni','Chitila'], 'Maramureș':['Baia Mare','Sighetu Marmației','Borșa','Vișeu de Sus','Târgu Lăpuș'],
+  'Mehedinți':['Drobeta-Turnu Severin','Orșova','Strehaia','Vânju Mare'], 'Mureș':['Târgu Mureș','Reghin','Sighișoara','Târnăveni','Luduș'], 'Neamț':['Piatra Neamț','Roman','Târgu Neamț','Bicaz'],
+  'Olt':['Slatina','Caracal','Balș','Corabia','Scornicești'], 'Prahova':['Ploiești','Câmpina','Sinaia','Bușteni','Mizil'], 'Sălaj':['Zalău','Șimleu Silvaniei','Jibou','Cehu Silvaniei'],
+  'Satu Mare':['Satu Mare','Carei','Negrești-Oaș','Tășnad'], 'Sibiu':['Sibiu','Mediaș','Cisnădie','Avrig','Agnita'], 'Suceava':['Suceava','Fălticeni','Rădăuți','Câmpulung Moldovenesc','Vatra Dornei'],
+  'Teleorman':['Alexandria','Roșiori de Vede','Turnu Măgurele','Zimnicea','Videle'], 'Timiș':['Timișoara','Lugoj','Sânnicolau Mare','Jimbolia','Făget'], 'Tulcea':['Tulcea','Măcin','Babadag','Isaccea'],
+  'Vaslui':['Vaslui','Bârlad','Huși','Negrești'], 'Vâlcea':['Râmnicu Vâlcea','Drăgășani','Călimănești','Băbeni','Horezu'], 'Vrancea':['Focșani','Adjud','Mărășești','Odobești','Panciu']
 };
+const COUNTY_LIST = Object.keys(LOCATIONS);
 
 const I18N = {
-  ro:{home:'Acasă',search:'Caută',publish:'Publică',saved:'Salvate',profile:'Profil',login:'Intră în cont',register:'Creează cont',email:'Email',password:'Parolă',searchPlaceholder:'Caută servicii auto',county:'Județ',city:'Oraș',category:'Categorie',all:'Toate',call:'Sună',whatsapp:'WhatsApp',message:'Mesaj',details:'Detalii',viewProfile:'Vezi profil',emptyListings:'Nu există anunțuri încă.',emptyListingsSub:'Fii primul prestator care publică un serviciu auto.',editProfile:'Editează profil',myListings:'Anunțurile mele',inbox:'Inbox',settings:'Setări',feedback:'Feedback',logout:'Deconectare',chooseRole:'Cum vrei să folosești aplicația?',client:'Client',provider:'Prestator',clientSub:'Caut servicii auto în orașul meu.',providerSub:'Ofer servicii auto și vreau să public anunțuri.',save:'Salvează',send:'Trimite',delete:'Șterge',report:'Raportează',completeProfile:'Completează profilul înainte să publici.',noSaved:'Nu ai anunțuri salvate.',noMessages:'Nu ai mesaje încă.',notifications:'Notificări'},
-  en:{home:'Home',search:'Search',publish:'Post',saved:'Saved',profile:'Profile',login:'Log in',register:'Create account',email:'Email',password:'Password',searchPlaceholder:'Search auto services',county:'County',city:'City',category:'Category',all:'All',call:'Call',whatsapp:'WhatsApp',message:'Message',details:'Details',viewProfile:'View profile',emptyListings:'No listings yet.',emptyListingsSub:'Be the first provider to post an auto service.',editProfile:'Edit profile',myListings:'My listings',inbox:'Inbox',settings:'Settings',feedback:'Feedback',logout:'Log out',chooseRole:'How do you want to use the app?',client:'Client',provider:'Provider',clientSub:'I search for auto services in my city.',providerSub:'I offer auto services and want to post listings.',save:'Save',send:'Send',delete:'Delete',report:'Report',completeProfile:'Complete your profile before posting.',noSaved:'You have no saved listings.',noMessages:'No messages yet.',notifications:'Notifications'},
-  it:{home:'Home',search:'Cerca',publish:'Pubblica',saved:'Salvati',profile:'Profilo',login:'Accedi',register:'Crea account',email:'Email',password:'Password',searchPlaceholder:'Cerca servizi auto',county:'Provincia',city:'Città',category:'Categoria',all:'Tutte',call:'Chiama',whatsapp:'WhatsApp',message:'Messaggio',details:'Dettagli',viewProfile:'Vedi profilo',emptyListings:'Non ci sono annunci.',emptyListingsSub:'Sii il primo a pubblicare un servizio auto.',editProfile:'Modifica profilo',myListings:'I miei annunci',inbox:'Inbox',settings:'Impostazioni',feedback:'Feedback',logout:'Disconnetti',chooseRole:'Come vuoi usare l’app?',client:'Cliente',provider:'Fornitore',clientSub:'Cerco servizi auto nella mia città.',providerSub:'Offro servizi auto e voglio pubblicare annunci.',save:'Salva',send:'Invia',delete:'Elimina',report:'Segnala',completeProfile:'Completa il profilo prima di pubblicare.',noSaved:'Non hai annunci salvati.',noMessages:'Non hai messaggi.',notifications:'Notifiche'}
-};
-
-const icons = {
-  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h14v-9.5"/><path d="M9 20v-6h6v6"/></svg>',
-  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
-  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>',
-  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 1 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6Z"/></svg>',
-  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
-  bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>',
-  car:'<svg viewBox="0 0 48 48" fill="none"><path d="M10 28.5 16.5 16h15L38 28.5" stroke="#FFD700" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 29h20c2.8 0 5 2.2 5 5v3H9v-3c0-2.8 2.2-5 5-5Z" fill="#fff"/><path d="M15 37a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM33 37a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="#FFD700"/><path d="M21 13h7l-3 6h6l-10 13 3-9h-6l3-10Z" fill="#FFD700"/></svg>',
-  chevron:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>',
-  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m15 18-6-6 6-6"/></svg>',
-  close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>',
-  camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 8h4l2-3h4l2 3h4v12H4z"/><circle cx="12" cy="14" r="3"/></svg>',
-  message:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>',
-  settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.35.13.69.33 1 .6.32.27.7.4 1.1.4H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"/></svg>',
-  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/></svg>'
+  ro:{home:'Acasă',search:'Caută',publish:'Publică',saved:'Salvate',profile:'Profil',inbox:'Inbox',settings:'Setări',notifications:'Notificări',login:'Intră în cont',register:'Creează cont',email:'Email',password:'Parolă',roleTitle:'Cum folosești aplicația?',client:'Client',provider:'Prestator',clientSub:'Caut servicii auto',providerSub:'Ofer servicii auto',whatSearch:'Ce serviciu cauți?',county:'Județ',city:'Oraș',category:'Categorie',all:'Toate',call:'Sună',whatsapp:'WhatsApp',details:'Detalii',viewProfile:'Vezi profil',emptyTitle:'Nu există anunțuri încă',emptyText:'Fii primul prestator care publică un serviciu auto.',editProfile:'Editează profil',myListings:'Anunțurile mele',feedback:'Feedback',logout:'Deconectare',completeProfile:'Completează profilul',sendMessage:'Trimite mesaj',report:'Raportează',save:'Salvează',unsave:'Salvat',firstFree:'Primul anunț este gratuit',paidNext:'Următorul anunț costă 5 lei și este activ 10 zile.',notRealPay:'Plata reală nu este activată încă. Butonul marchează publicarea ca test plătit.',noMessages:'Nu ai conversații încă.',typeMessage:'Scrie mesajul...',publishNow:'Publică anunț',delete:'Șterge',changePhoto:'Schimbă poza'},
+  en:{home:'Home',search:'Search',publish:'Post',saved:'Saved',profile:'Profile',inbox:'Inbox',settings:'Settings',notifications:'Notifications',login:'Log in',register:'Create account',email:'Email',password:'Password',roleTitle:'How will you use the app?',client:'Client',provider:'Provider',clientSub:'I need auto services',providerSub:'I offer auto services',whatSearch:'What service do you need?',county:'County',city:'City',category:'Category',all:'All',call:'Call',whatsapp:'WhatsApp',details:'Details',viewProfile:'View profile',emptyTitle:'No listings yet',emptyText:'Be the first provider to post an auto service.',editProfile:'Edit profile',myListings:'My listings',feedback:'Feedback',logout:'Log out',completeProfile:'Complete profile',sendMessage:'Send message',report:'Report',save:'Save',unsave:'Saved',firstFree:'First listing is free',paidNext:'Next listing costs 5 RON and stays active 10 days.',notRealPay:'Real payment is not enabled yet. This marks the listing as test paid.',noMessages:'No conversations yet.',typeMessage:'Write a message...',publishNow:'Post listing',delete:'Delete',changePhoto:'Change photo'},
+  it:{home:'Home',search:'Cerca',publish:'Pubblica',saved:'Salvati',profile:'Profilo',inbox:'Messaggi',settings:'Impostazioni',notifications:'Notifiche',login:'Accedi',register:'Crea account',email:'Email',password:'Password',roleTitle:'Come vuoi usare l’app?',client:'Cliente',provider:'Fornitore',clientSub:'Cerco servizi auto',providerSub:'Offro servizi auto',whatSearch:'Che servizio cerchi?',county:'Provincia',city:'Città',category:'Categoria',all:'Tutte',call:'Chiama',whatsapp:'WhatsApp',details:'Dettagli',viewProfile:'Vedi profilo',emptyTitle:'Non ci sono annunci',emptyText:'Sii il primo a pubblicare un servizio auto.',editProfile:'Modifica profilo',myListings:'I miei annunci',feedback:'Feedback',logout:'Esci',completeProfile:'Completa profilo',sendMessage:'Invia messaggio',report:'Segnala',save:'Salva',unsave:'Salvato',firstFree:'Il primo annuncio è gratuito',paidNext:'Il prossimo costa 5 RON ed è attivo 10 giorni.',notRealPay:'Il pagamento reale non è attivo. Questo segna il test come pagato.',noMessages:'Nessuna conversazione.',typeMessage:'Scrivi un messaggio...',publishNow:'Pubblica annuncio',delete:'Elimina',changePhoto:'Cambia foto'}
 };
 
 let sb = null;
-if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
-  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}
-  });
+let appReady = false;
+let authMode = 'login';
+let currentUser = null;
+let profile = null;
+let settings = null;
+let view = 'home';
+let searchText = '';
+let filters = {county:'',city:'',category:''};
+let listings = [];
+let listingImages = [];
+let favorites = new Set();
+let conversations = [];
+let messages = [];
+let notifications = [];
+let selectedConversationId = null;
+let selectedListing = null;
+let deferredPrompt = null;
+let publishFiles = [];
+let subscriptions = [];
+
+const app = document.getElementById('app');
+const modal = document.getElementById('modal');
+const loading = document.getElementById('loading');
+const toastBox = document.getElementById('toast');
+const logoMarkup = `<span class="logo-row"><svg viewBox="0 0 42 42" fill="none" aria-hidden="true"><rect x="3" y="3" width="36" height="36" rx="13" fill="#111"/><path d="M10 25.5h3.1l2.8-6.3c.6-1.4 1.9-2.2 3.4-2.2h7.2c1.5 0 2.8.9 3.4 2.2l2.8 6.3H36" stroke="#F5C542" stroke-width="2.4" stroke-linecap="round"/><path d="M15.5 25.5h13" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="15.8" cy="29" r="2.1" fill="#fff"/><circle cx="29.2" cy="29" r="2.1" fill="#fff"/><path d="M23.5 9.5l-4.2 7h4.6l-3.4 6.2 8-8.2h-4.8l3.1-5z" fill="#F5C542"/></svg><span class="logo-text">AutoRapid<span class="logo-dot">.</span>RO</span></span>`;
+document.getElementById('loadLogo').innerHTML = logoMarkup;
+
+function t(key){ const lang = settings?.language || localStorage.getItem('autorapid_lang') || 'ro'; return I18N[lang]?.[key] || I18N.ro[key] || key; }
+function esc(v){ return String(v ?? '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+function byId(id){ return document.getElementById(id); }
+function formatDate(v){ if(!v) return ''; const d = new Date(v); return d.toLocaleDateString('ro-RO',{day:'2-digit',month:'short'}); }
+function nowIsoPlusDays(days){ const d = new Date(); d.setDate(d.getDate()+days); return d.toISOString(); }
+function toast(msg,type='ok'){ toastBox.textContent = msg; toastBox.className = 'toast show ' + type; setTimeout(()=>toastBox.className='toast',3200); }
+function safeImg(url){ return url || ''; }
+function defaultAvatar(name='A'){ const letter = encodeURIComponent((name||'A').trim().slice(0,1).toUpperCase()||'A'); return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Crect width='160' height='160' rx='80' fill='%23f5c542'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-family='Arial' font-size='62' font-weight='700' fill='%23111111'%3E${letter}%3C/text%3E%3C/svg%3E`; }
+function icon(name){
+  const icons = {
+    home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>',
+    search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+    plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
+    heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>',
+    user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>',
+    bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>',
+    msg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>',
+    car:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17h14l-1.5-5.5A3 3 0 0 0 14.6 9H9.4a3 3 0 0 0-2.9 2.5z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>',
+    settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1A2 2 0 0 1 4.2 17l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.6-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.3 7A2 2 0 1 1 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1A2 2 0 0 1 19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1a2 2 0 0 1 0 4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>',
+    send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4z"/></svg>',
+    arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>',
+    x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>'
+  };
+  return icons[name] || '';
 }
 
-const state = {
-  session:null,user:null,profile:null,settings:null,roleChosen:false,
-  view:'home',prevView:'home',authMode:'login',loading:true,
-  query:'',filterCounty:'',filterCity:'',filterCategory:'',
-  listings:[],profilesById:{},imagesByListing:{},favorites:[],notifications:[],conversations:[],messagesByConversation:{},
-  selectedListing:null,selectedProfileId:null,activeConversation:null,
-  publishFiles:[],profileFile:null,deferredInstall:null,subscriptions:[]
-};
-
-const $ = (sel, root=document) => root.querySelector(sel);
-const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
-const app = $('#app');
-const modal = $('#modal');
-
-function esc(v){return String(v ?? '').replace(/[&<>'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
-function t(k){const lang = state.settings?.language || 'ro'; return I18N[lang]?.[k] || I18N.ro[k] || k;}
-function toast(msg,type=''){const el=$('#toast');el.textContent=msg;el.className='toast show '+type;clearTimeout(toast._t);toast._t=setTimeout(()=>el.className='toast',2600);}
-function setLoading(on){state.loading=on; const splash=$('#splash'); if(!splash)return; splash.classList.toggle('out',!on);}
-function countyOptions(selected=''){return `<option value="">${t('all')}</option>`+Object.keys(COUNTIES).map(c=>`<option value="${esc(c)}" ${c===selected?'selected':''}>${esc(c)}</option>`).join('');}
-function cityOptions(county, selected=''){const arr = county ? (COUNTIES[county]||[]) : Object.values(COUNTIES).flat().slice(0,140);return `<option value="">${t('all')}</option>`+arr.map(c=>`<option value="${esc(c)}" ${c===selected?'selected':''}>${esc(c)}</option>`).join('');}
-function categoryOptions(selected=''){return `<option value="">${t('all')}</option>`+CATEGORIES.map(c=>`<option value="${esc(c)}" ${c===selected?'selected':''}>${esc(c)}</option>`).join('');}
-function firstImage(listing){return state.imagesByListing[listing.id]?.[0]?.image_url || state.profilesById[listing.owner_id]?.logo_url || state.profilesById[listing.owner_id]?.avatar_url || PLACEHOLDER;}
-function profileName(p){return p?.company_name || p?.full_name || 'AutoRapid user';}
-function profileAvatar(p){return p?.logo_url || p?.avatar_url || PLACEHOLDER;}
-function isProvider(){return state.profile?.role === 'provider';}
-function isSaved(id){return state.favorites.some(f=>f.listing_id===id);}
-function formatDate(v){try{return new Intl.DateTimeFormat('ro-RO',{dateStyle:'short',timeStyle:'short'}).format(new Date(v));}catch{return '';}}
-
-function setupManifest(){
-  const manifest = {name:'AutoRapid RO',short_name:'AutoRapid',start_url:'/',display:'standalone',background_color:'#ffffff',theme_color:'#ffffff',icons:[{src:PLACEHOLDER,sizes:'192x192',type:'image/svg+xml'},{src:PLACEHOLDER,sizes:'512x512',type:'image/svg+xml'}]};
-  const link = document.createElement('link');
-  link.rel='manifest';
-  link.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(manifest));
-  document.head.appendChild(link);
+function initSupabase(){
+  if(window.supabase){
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true } });
+  }
 }
 
-async function init(){
-  setupManifest();
-  window.addEventListener('beforeinstallprompt', e=>{e.preventDefault();state.deferredInstall=e;showInstallBanner();});
-  $('#installBtn').addEventListener('click', async()=>{if(state.deferredInstall){state.deferredInstall.prompt();await state.deferredInstall.userChoice;state.deferredInstall=null;hideInstallBanner();}else{toast('Folosește meniul browserului: Add to Home Screen.');}});
-  $('#installClose').addEventListener('click', hideInstallBanner);
-  if(!sb){setLoading(false);renderAuth('Configurarea Supabase lipsește.');return;}
+async function start(){
+  initSupabase();
+  window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt = e; render(); });
+  if(!sb){ showAuth(); hideLoading(); return; }
   const {data} = await sb.auth.getSession();
-  state.session=data.session; state.user=data.session?.user || null;
-  sb.auth.onAuthStateChange(async (_event, session)=>{state.session=session; state.user=session?.user || null; if(state.user){await bootstrapUser();}else{cleanupSubs();state.profile=null;state.settings=null;state.view='home';renderAuth();}});
-  if(state.user){await bootstrapUser();}else{setLoading(false);renderAuth();}
-}
-
-async function bootstrapUser(){
-  setLoading(true);
-  await ensureProfile();
+  currentUser = data?.session?.user || null;
+  sb.auth.onAuthStateChange(async (_event, session)=>{ currentUser = session?.user || null; await loadAll(); render(); });
   await loadAll();
-  setupRealtime();
-  state.roleChosen = localStorage.getItem('autorapid_role_chosen_'+state.user.id) === '1';
-  setLoading(false);
-  if(!state.roleChosen){state.view='role';}else if(!state.view || state.view==='role'){state.view='home';}
-  applyTheme();
+  hideLoading();
   render();
 }
-
-async function ensureProfile(){
-  const uid=state.user.id;
-  let {data:profile,error:pErr}=await sb.from('profiles').select('*').eq('id',uid).maybeSingle();
-  if(pErr && pErr.code !== 'PGRST116') console.warn(pErr);
-  if(!profile){
-    const email=state.user.email || '';
-    const {data:newProfile,error}=await sb.from('profiles').insert({id:uid,full_name:email.split('@')[0],email_display:email,role:'client'}).select().single();
-    if(error) console.warn(error); profile=newProfile || {id:uid,full_name:email.split('@')[0],email_display:email,role:'client'};
-  }
-  state.profile=profile;
-  let {data:settings,error:sErr}=await sb.from('user_settings').select('*').eq('user_id',uid).maybeSingle();
-  if(sErr && sErr.code !== 'PGRST116') console.warn(sErr);
-  if(!settings){
-    const {data:newSettings,error}=await sb.from('user_settings').insert({user_id:uid,language:'ro',theme:'light',notifications_enabled:true}).select().single();
-    if(error) console.warn(error); settings=newSettings || {user_id:uid,language:'ro',theme:'light',notifications_enabled:true};
-  }
-  state.settings=settings;
-}
+function hideLoading(){ setTimeout(()=>loading.classList.add('hidden'),350); }
 
 async function loadAll(){
-  await Promise.all([loadListings(),loadFavorites(),loadNotifications(),loadConversations()]);
+  if(!currentUser){ profile=null; settings=null; listings=[]; favorites=new Set(); conversations=[]; messages=[]; notifications=[]; clearSubscriptions(); return; }
+  await Promise.all([ensureProfile(), loadSettings()]);
+  await Promise.all([loadListings(), loadFavorites(), loadConversations(), loadNotifications()]);
+  setupRealtime();
 }
-
+async function ensureProfile(){
+  const {data, error} = await sb.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+  if(error){ console.warn(error); }
+  if(data){ profile = data; return; }
+  const initial = {id:currentUser.id, full_name:(currentUser.email||'').split('@')[0], email_display:currentUser.email, role:'client'};
+  const res = await sb.from('profiles').upsert(initial).select('*').single();
+  profile = res.data || initial;
+}
+async function loadSettings(){
+  const {data} = await sb.from('user_settings').select('*').eq('user_id', currentUser.id).maybeSingle();
+  if(data){ settings = data; } else {
+    const initial = {user_id:currentUser.id, language:'ro', theme:'light', notifications_enabled:true, show_phone:true, show_city:true, allow_messages:true};
+    const res = await sb.from('user_settings').upsert(initial).select('*').single(); settings = res.data || initial;
+  }
+  localStorage.setItem('autorapid_lang', settings.language || 'ro');
+  document.documentElement.dataset.theme = settings.theme === 'dark' ? 'dark' : 'light';
+}
 async function loadListings(){
-  const {data,error}=await sb.from('listings').select('*').neq('status','deleted').order('created_at',{ascending:false});
-  if(error){toast('Nu am putut încărca anunțurile.','error');console.warn(error);return;}
-  state.listings=data||[];
-  const ownerIds=[...new Set(state.listings.map(l=>l.owner_id).filter(Boolean))];
-  state.profilesById={};
-  if(ownerIds.length){
-    const {data:profiles}=await sb.from('profiles').select('*').in('id',ownerIds);
-    (profiles||[]).forEach(p=>state.profilesById[p.id]=p);
-  }
-  const ids=state.listings.map(l=>l.id);
-  state.imagesByListing={};
-  if(ids.length){
-    const {data:imgs}=await sb.from('listing_images').select('*').in('listing_id',ids).order('position',{ascending:true});
-    (imgs||[]).forEach(img=>{if(!state.imagesByListing[img.listing_id])state.imagesByListing[img.listing_id]=[];state.imagesByListing[img.listing_id].push(img);});
-  }
+  const {data, error} = await sb.from('listings').select('*').eq('status','active').order('created_at',{ascending:false});
+  if(error){ console.warn(error); listings=[]; } else listings = data || [];
+  if(listings.length){
+    const ids = listings.map(x=>x.id);
+    const {data:imgs} = await sb.from('listing_images').select('*').in('listing_id',ids).order('position');
+    listingImages = imgs || [];
+  } else listingImages = [];
 }
-
 async function loadFavorites(){
-  if(!state.user)return; const {data,error}=await sb.from('favorites').select('*').eq('user_id',state.user.id);
-  if(!error) state.favorites=data||[];
-}
-async function loadNotifications(){
-  if(!state.user)return; const {data,error}=await sb.from('notifications').select('*').eq('user_id',state.user.id).order('created_at',{ascending:false}).limit(50);
-  if(!error) state.notifications=data||[];
+  const {data} = await sb.from('favorites').select('listing_id').eq('user_id', currentUser.id);
+  favorites = new Set((data||[]).map(x=>x.listing_id));
 }
 async function loadConversations(){
-  if(!state.user)return; const uid=state.user.id;
-  const {data,error}=await sb.from('conversations').select('*').or(`client_id.eq.${uid},provider_id.eq.${uid}`).order('updated_at',{ascending:false});
-  if(!error) state.conversations=data||[];
+  const {data,error} = await sb.from('conversations').select('*').or(`client_id.eq.${currentUser.id},provider_id.eq.${currentUser.id}`).order('updated_at',{ascending:false});
+  if(error){ console.warn(error); conversations=[]; } else conversations = data || [];
 }
-
+async function loadNotifications(){
+  const {data} = await sb.from('notifications').select('*').eq('user_id', currentUser.id).order('created_at',{ascending:false}).limit(50);
+  notifications = data || [];
+}
+async function loadMessages(convId){
+  if(!convId) return;
+  const {data,error} = await sb.from('messages').select('*').eq('conversation_id',convId).order('created_at',{ascending:true}).limit(200);
+  if(error){ console.warn(error); messages=[]; } else messages = data || [];
+  await sb.from('messages').update({is_read:true}).eq('conversation_id',convId).eq('receiver_id',currentUser.id);
+}
+function clearSubscriptions(){ subscriptions.forEach(ch=>{ try{ sb.removeChannel(ch); }catch(e){} }); subscriptions=[]; }
 function setupRealtime(){
-  cleanupSubs();
-  if(!state.user)return;
-  const uid=state.user.id;
-  const notifCh=sb.channel('notifications_'+uid).on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`user_id=eq.${uid}`},payload=>{state.notifications=[payload.new,...state.notifications];renderHeader(); if(state.view==='notifications')render(); toast(payload.new.title || 'Notificare nouă','success');}).subscribe();
-  const msgCh=sb.channel('messages_'+uid).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`receiver_id=eq.${uid}`},payload=>{const m=payload.new;if(!state.messagesByConversation[m.conversation_id])state.messagesByConversation[m.conversation_id]=[];state.messagesByConversation[m.conversation_id].push(m);loadConversations(); if(state.view==='chat' && state.activeConversation?.id===m.conversation_id)render(); else toast('Ai primit un mesaj nou.','success');}).subscribe();
-  state.subscriptions=[notifCh,msgCh];
-}
-function cleanupSubs(){state.subscriptions.forEach(ch=>sb.removeChannel(ch));state.subscriptions=[];}
-
-function applyTheme(){
-  const theme=state.settings?.theme || 'light';
-  const dark = theme==='dark' || (theme==='system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  document.body.classList.toggle('dark',dark);
-}
-
-function renderAuth(message=''){
-  setLoading(false);
-  document.body.classList.remove('dark');
-  app.innerHTML = `<div class="auth-wrap"><div class="auth-card">
-    <div class="auth-logo"><div class="logo-mark">${icons.car}</div><div><h1>AutoRapid RO</h1><p>Marketplace pentru servicii auto</p></div></div>
-    ${message?`<div class="empty" style="margin-bottom:12px"><p>${esc(message)}</p></div>`:''}
-    <div class="seg"><button class="${state.authMode==='login'?'active':''}" data-action="auth-mode" data-mode="login">${t('login')}</button><button class="${state.authMode==='register'?'active':''}" data-action="auth-mode" data-mode="register">${t('register')}</button></div>
-    <form id="authForm">
-      <div class="field"><label class="label">${t('email')}</label><input class="input" name="email" type="email" autocomplete="email" required placeholder="nume@email.com"></div>
-      <div class="field"><label class="label">${t('password')}</label><input class="input" name="password" type="password" autocomplete="current-password" minlength="6" required placeholder="Minim 6 caractere"></div>
-      <button class="btn gold full" type="submit">${state.authMode==='login'?t('login'):t('register')}</button>
-    </form>
-  </div></div>`;
+  if(!sb || !currentUser || subscriptions.length) return;
+  const msgCh = sb.channel('autorapid_messages_'+currentUser.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`receiver_id=eq.${currentUser.id}`}, async payload=>{
+      await loadConversations();
+      if(payload.new.conversation_id === selectedConversationId){ messages.push(payload.new); setTimeout(scrollChat,50); }
+      await loadNotifications();
+      notifyBrowser('AutoRapid RO', 'Ai primit un mesaj nou.');
+      render();
+    }).subscribe();
+  const notifCh = sb.channel('autorapid_notifications_'+currentUser.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`user_id=eq.${currentUser.id}`}, payload=>{ notifications.unshift(payload.new); render(); })
+    .subscribe();
+  subscriptions.push(msgCh, notifCh);
 }
 
 function render(){
-  if(!state.user){renderAuth();return;}
-  applyTheme();
-  app.innerHTML = `${renderHeader()}<main class="shell">${renderPage()}</main>${renderBottomNav()}`;
-  bindPageAfterRender();
+  if(!currentUser){ showAuth(); return; }
+  const unread = notifications.filter(n=>!n.is_read).length;
+  app.innerHTML = `
+    <header class="topbar">
+      <div class="top-inner">
+        <button class="logo-row" onclick="go('home')">${logoMarkup}</button>
+        <nav class="nav-desktop">${navButtons()}</nav>
+        <div class="top-actions">
+          ${deferredPrompt ? `<button class="btn btn-small btn-soft" onclick="installApp()">Add Home</button>` : ''}
+          <button class="icon-btn" onclick="go('notifications')" aria-label="${t('notifications')}">${icon('bell')}${unread?`<span class="badge">${unread}</span>`:''}</button>
+          <button class="icon-btn" onclick="go('profile')" aria-label="${t('profile')}"><img class="avatar-mini" src="${esc(profileImage())}" alt=""></button>
+        </div>
+      </div>
+    </header>
+    <main class="main">${renderView()}</main>
+    <nav class="bottom-nav"><div class="nav-inner">${navButtons()}</div></nav>`;
+  attachViewEvents();
 }
-function renderHeader(){
-  const unread=state.notifications.filter(n=>!n.is_read).length;
-  const p=state.profile||{};
-  const header=`<header class="topbar"><div class="topbar-inner">
-    <button class="brand-row" data-view="home" aria-label="AutoRapid RO"><span class="brand-mini">${icons.car}</span><span class="brand-title">AutoRapid RO</span></button>
-    <div class="top-actions">
-      <button class="icon-btn" data-view="notifications" aria-label="${t('notifications')}">${icons.bell}${unread?`<span class="notif-dot">${unread>9?'9+':unread}</span>`:''}</button>
-      <button class="icon-btn" data-view="profile" aria-label="${t('profile')}"><img class="avatar-sm" src="${esc(profileAvatar(p))}" alt=""></button>
-    </div></div></header>`;
-  const old=$('.topbar'); if(old) old.outerHTML=header;
-  return header;
+function navButtons(){
+  return [['home','home'],['search','search'],['publish','plus'],['saved','heart'],['profile','user']].map(([v,i])=>`<button class="nav-btn ${view===v?'active':''}" onclick="go('${v}')">${icon(i)}<span>${t(v)}</span></button>`).join('');
 }
-function renderBottomNav(){
-  const items=[['home',icons.home,t('home')],['search',icons.search,t('search')],['publish',icons.plus,t('publish')],['saved',icons.heart,t('saved')],['profile',icons.user,t('profile')]];
-  return `<nav class="bottom-nav"><div class="bottom-nav-inner">${items.map(([view,icon,label])=>`<button class="nav-item ${state.view===view?'active':''}" data-view="${view}">${icon}<span>${label}</span></button>`).join('')}</div></nav>`;
+function showAuth(){
+  app.innerHTML = `<section class="auth-wrap"><div class="auth-card"><div class="auth-logo">${logoMarkup}</div><h1 class="auth-title">AutoRapid RO</h1><p class="auth-sub">Marketplace auto simplu pentru România.</p><div class="auth-tabs"><button class="auth-tab ${authMode==='login'?'active':''}" onclick="authMode='login';showAuth()">${t('login')}</button><button class="auth-tab ${authMode==='register'?'active':''}" onclick="authMode='register';showAuth()">${t('register')}</button></div><form id="authForm"><div class="field"><label>${t('email')}</label><input class="input" name="email" type="email" autocomplete="email" required></div><div class="field"><label>${t('password')}</label><input class="input" name="password" type="password" autocomplete="current-password" minlength="6" required></div><button class="btn btn-primary btn-full" type="submit">${authMode==='login'?t('login'):t('register')}</button></form><p class="small-note" style="text-align:center">Email + parolă. Fără cod pe email.</p></div></section>`;
+  byId('authForm').addEventListener('submit', handleAuth);
 }
-function renderPage(){
-  if(state.view==='role')return renderRoleChoice();
-  if(state.view==='home' || state.view==='search')return renderHome();
-  if(state.view==='publish')return renderPublish();
-  if(state.view==='saved')return renderSaved();
-  if(state.view==='profile')return renderProfile();
-  if(state.view==='editProfile')return renderEditProfile();
-  if(state.view==='settings')return renderSettings();
-  if(state.view==='feedback')return renderFeedback();
-  if(state.view==='inbox')return renderInbox();
-  if(state.view==='chat')return renderChat();
-  if(state.view==='myListings')return renderMyListings();
-  if(state.view==='publicProfile')return renderPublicProfile();
-  if(state.view==='notifications')return renderNotifications();
-  if(state.view==='terms')return renderTerms();
-  return renderHome();
+async function handleAuth(e){
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const email = fd.get('email').trim(); const password = fd.get('password');
+  try{
+    const res = authMode==='login' ? await sb.auth.signInWithPassword({email,password}) : await sb.auth.signUp({email,password, options:{data:{full_name:email.split('@')[0]}}});
+    if(res.error) throw res.error;
+    toast(authMode==='login'?'Ai intrat în cont.':'Cont creat.');
+  }catch(err){ toast(err.message || 'Autentificarea nu a mers.','error'); }
 }
-function pageHead(title,sub='',back=true){return `<div class="page-head"><div style="display:flex;align-items:center;gap:10px">${back?`<button class="back-btn" data-action="back">${icons.back}</button>`:''}<div><h2 class="page-title">${esc(title)}</h2>${sub?`<p class="page-sub">${esc(sub)}</p>`:''}</div></div></div>`;}
-
-function renderRoleChoice(){return `<section class="role-screen"><div><h2 class="page-title">${t('chooseRole')}</h2><p class="page-sub">Poți schimba oricând din Setări.</p></div><div class="role-grid"><button class="role-card" data-action="choose-role" data-role="client"><span class="role-ico">${icons.search}</span><span><h3>${t('client')}</h3><p>${t('clientSub')}</p></span></button><button class="role-card" data-action="choose-role" data-role="provider"><span class="role-ico">${icons.plus}</span><span><h3>${t('provider')}</h3><p>${t('providerSub')}</p></span></button></div></section>`;}
-
+function go(v){ view=v; selectedListing=null; selectedConversationId=null; messages=[]; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+function profileImage(){ return profile?.avatar_url || profile?.logo_url || defaultAvatar(displayName()); }
+function displayName(p=profile){ return p?.company_name || p?.full_name || p?.email_display || 'Utilizator'; }
+function locationName(p=profile){ return [p?.city,p?.county].filter(Boolean).join(', ') || 'Locație necompletată'; }
+function firstListingImage(listing){ return listingImages.find(x=>x.listing_id===listing.id)?.image_url || null; }
+function ownerProfile(ownerId){ return window.__profiles?.find(p=>p.id===ownerId) || null; }
+async function loadOwnerProfiles(){
+  const ids = [...new Set(listings.map(l=>l.owner_id).filter(Boolean))];
+  if(!ids.length){ window.__profiles=[]; return; }
+  const {data} = await sb.from('profiles').select('*').in('id',ids);
+  window.__profiles = data || [];
+}
 function filteredListings(){
-  const q=state.query.trim().toLowerCase();
-  return state.listings.filter(l=>{
-    if(l.status!=='active')return false;
-    if(state.filterCounty && l.county!==state.filterCounty)return false;
-    if(state.filterCity && l.city!==state.filterCity)return false;
-    if(state.filterCategory && l.category!==state.filterCategory)return false;
-    const p=state.profilesById[l.owner_id]||{};
-    const hay=[l.title,l.category,l.description,l.city,l.county,l.address,p.company_name,p.full_name,p.company_description].join(' ').toLowerCase();
-    return !q || hay.includes(q);
+  const q = searchText.trim().toLowerCase();
+  return listings.filter(l=>{
+    const p = ownerProfile(l.owner_id) || {};
+    const hay = [l.title,l.category,l.description,l.city,l.county,p.company_name,p.full_name].join(' ').toLowerCase();
+    if(q && !hay.includes(q)) return false;
+    if(filters.county && l.county !== filters.county) return false;
+    if(filters.city && l.city !== filters.city) return false;
+    if(filters.category && l.category !== filters.category) return false;
+    return true;
   });
 }
+function renderView(){
+  if(!profile?.role) return renderRoleSelect();
+  const map = {home:renderHome, search:renderHome, saved:renderSaved, publish:renderPublish, profile:renderProfile, editProfile:renderEditProfile, settings:renderSettings, feedback:renderFeedback, inbox:renderInbox, myListings:renderMyListings, notifications:renderNotifications};
+  return (map[view]||renderHome)();
+}
+function renderRoleSelect(){
+  return `<div class="page-head"><div><h1 class="page-title">${t('roleTitle')}</h1><p class="page-sub">Poți schimba rolul mai târziu din profil.</p></div></div><div class="role-grid"><button class="role-card" onclick="setRole('client')">${icon('user')}<h3>${t('client')}</h3><p>${t('clientSub')}</p></button><button class="role-card" onclick="setRole('provider')">${icon('car')}<h3>${t('provider')}</h3><p>${t('providerSub')}</p></button></div>`;
+}
+async function setRole(role){
+  const {data,error}=await sb.from('profiles').upsert({id:currentUser.id, role, email_display:currentUser.email},{onConflict:'id'}).select('*').single();
+  if(error){toast(error.message,'error');return;} profile=data; toast('Rol salvat.'); view= role==='provider'?'editProfile':'home'; render();
+}
 function renderHome(){
-  const list=filteredListings();
-  return `<section>
-    <div class="home-search">
-      <div class="searchbar"><span>${icons.search}</span><input id="searchInput" value="${esc(state.query)}" placeholder="${t('searchPlaceholder')}" aria-label="${t('search')}"><button class="btn small" data-action="do-search">${t('search')}</button></div>
-      <div class="filters"><select id="countyFilter" class="select">${countyOptions(state.filterCounty)}</select><select id="cityFilter" class="select">${cityOptions(state.filterCounty,state.filterCity)}</select><select id="categoryFilter" class="select">${categoryOptions(state.filterCategory)}</select></div>
-    </div>
-    <div class="chips-row">${CATEGORIES.slice(0,8).map(c=>`<button class="chip ${state.filterCategory===c?'active':''}" data-action="quick-category" data-category="${esc(c)}">${esc(c)}</button>`).join('')}</div>
-    <div class="list" id="listingsList">${list.length?list.map(renderListingCard).join(''):renderEmpty('emptyListings','emptyListingsSub', isProvider()?t('publish'):'')}</div>
-  </section>`;
+  const cities = filters.county ? LOCATIONS[filters.county] || [] : [];
+  const items = filteredListings();
+  return `<section class="search-zone"><div class="search-row"><input id="searchBox" class="search-input" placeholder="${t('whatSearch')}" value="${esc(searchText)}"><button class="btn btn-gold" id="searchBtn">${t('search')}</button></div><div class="filters"><select id="countyFilter" class="filter"><option value="">${t('county')}: ${t('all')}</option>${COUNTY_LIST.map(c=>`<option ${filters.county===c?'selected':''}>${esc(c)}</option>`).join('')}</select><select id="cityFilter" class="filter"><option value="">${t('city')}: ${t('all')}</option>${cities.map(c=>`<option ${filters.city===c?'selected':''}>${esc(c)}</option>`).join('')}</select><select id="catFilter" class="filter"><option value="">${t('category')}: ${t('all')}</option>${CATEGORIES.map(c=>`<option ${filters.category===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div></section>${items.length?`<div class="list">${items.map(renderListingCard).join('')}</div>`:`<div class="empty"><h3>${t('emptyTitle')}</h3><p>${t('emptyText')}</p></div>`}`;
 }
-function renderEmpty(titleKey, subKey, btnText=''){return `<div class="empty"><h3>${esc(t(titleKey))}</h3><p>${esc(t(subKey))}</p>${btnText?`<button class="btn gold" data-view="publish">${esc(btnText)}</button>`:''}</div>`;}
 function renderListingCard(l){
-  const p=state.profilesById[l.owner_id]||{}; const saved=isSaved(l.id); const promoted=l.promotion_type && l.promotion_type!=='free';
-  return `<article class="listing-card" data-listing-id="${esc(l.id)}">
-    <img class="listing-img" src="${esc(firstImage(l))}" alt="">
-    <div class="listing-info"><h3 class="listing-title">${esc(profileName(p))}</h3><div class="listing-meta"><span>${esc(l.category)}</span><span>•</span><span>${esc(l.city||'')}</span>${l.county?`<span>${esc(l.county)}</span>`:''}${promoted?`<span class="badge">Promovat</span>`:''}</div><p class="listing-desc">${esc(l.description)}</p><div class="listing-meta"><span>${esc(l.schedule||'Program nespecificat')}</span>${l.price_hint?`<span>•</span><span>${esc(l.price_hint)}</span>`:''}</div></div>
-    <button class="heart ${saved?'saved':''}" data-action="toggle-favorite" data-id="${esc(l.id)}" aria-label="Salvează">${icons.heart}</button>
-    <div class="listing-actions"><button class="btn soft small" data-action="call" data-id="${esc(l.id)}">${t('call')}</button><button class="btn soft small" data-action="wa" data-id="${esc(l.id)}">${t('whatsapp')}</button><button class="btn gold small" data-action="listing-details" data-id="${esc(l.id)}">${t('details')}</button></div>
-  </article>`;
+  const p = ownerProfile(l.owner_id) || {};
+  const title = l.title || p.company_name || p.full_name || l.category;
+  const img = firstListingImage(l) || p.logo_url || p.avatar_url || defaultAvatar(title);
+  const isSaved = favorites.has(l.id);
+  return `<article class="listing-card" onclick="openListing('${l.id}')"><img class="thumb" src="${esc(img)}" alt=""><button class="heart ${isSaved?'saved':''}" onclick="event.stopPropagation();toggleFavorite('${l.id}')" aria-label="${t('save')}">${icon('heart')}</button><div class="card-info"><h3 class="card-title">${esc(title)}</h3><div class="meta"><span>${esc(l.category)}</span><span class="dot"></span><span>${esc([l.city,l.county].filter(Boolean).join(', '))}</span></div><p class="desc">${esc(l.description)}</p><div class="meta"><span>${esc(l.schedule||'Program necompletat')}</span><span class="dot"></span><span>${esc(l.price_hint||'Preț la cerere')}</span>${l.is_paid_listing?'<span class="tag gold">10 zile</span>':''}</div><div class="card-actions" onclick="event.stopPropagation()"><button class="btn btn-small btn-soft" onclick="callListing('${l.id}')">${t('call')}</button><button class="btn btn-small btn-soft" onclick="whatsappListing('${l.id}')">${t('whatsapp')}</button><button class="btn btn-small btn-primary" onclick="openConversationForListing('${l.id}')">${t('sendMessage')}</button></div></div></article>`;
 }
-
-function renderPublish(){
-  if(!isProvider())return `${pageHead(t('publish'),'Doar conturile de prestator pot publica anunțuri.',true)}<div class="empty"><h3>Cont de client</h3><p>Schimbă contul în Prestator ca să poți publica servicii auto.</p><button class="btn gold" data-action="choose-role" data-role="provider">Schimbă în Prestator</button></div>`;
-  const complete = providerProfileComplete();
-  return `${pageHead(t('publish'),'Publică un serviciu auto cu maxim 3 poze.',true)}${!complete?`<div class="empty" style="margin-bottom:12px"><h3>Profil incomplet</h3><p>${t('completeProfile')}</p><button class="btn gold" data-view="editProfile">Completează profilul</button></div>`:''}
-  <form id="publishForm">
-    <div class="form-card"><h3>Serviciu</h3><div class="field"><label class="label">${t('category')}</label><select name="category" class="select" required>${categoryOptions('')}</select></div><div class="field"><label class="label">Descriere</label><textarea name="description" class="textarea" maxlength="900" required placeholder="Descrie serviciul, zona, disponibilitatea și detaliile importante."></textarea></div><div class="field"><label class="label">Tip promovare</label><select name="promotion_type" class="select"><option value="free">Gratuit</option><option value="promoted_7">Promovat 7 zile</option><option value="promoted_30">Promovat 30 zile</option><option value="premium">Premium</option></select></div></div>
-    <div class="form-card"><h3>Poze anunț</h3><p class="hint">Poți adăuga maxim 3 poze. Prima poză apare în listă.</p><input id="listingPhotos" type="file" accept="image/*" multiple class="hidden"><div class="photos-grid" id="photosPreview">${[1,2,3].map(i=>`<button type="button" class="photo-slot" data-action="select-listing-photos"><small>Poza ${i}</small></button>`).join('')}</div><div style="margin-top:10px"><button type="button" class="btn soft" data-action="select-listing-photos">Adaugă poze</button></div></div>
-    <button class="btn gold full" type="submit">Publică anunț</button>
-  </form>`;
+function attachViewEvents(){
+  const s=byId('searchBox'); if(s){ s.addEventListener('input',e=>{ searchText=e.target.value; render(); }); }
+  const sbt=byId('searchBtn'); if(sbt){ sbt.addEventListener('click',()=>{ searchText=byId('searchBox').value; render(); }); }
+  const cf=byId('countyFilter'); if(cf){ cf.addEventListener('change',e=>{ filters.county=e.target.value; filters.city=''; render(); }); }
+  const city=byId('cityFilter'); if(city){ city.addEventListener('change',e=>{ filters.city=e.target.value; render(); }); }
+  const cat=byId('catFilter'); if(cat){ cat.addEventListener('change',e=>{ filters.category=e.target.value; render(); }); }
+  const pub=byId('publishForm'); if(pub){ pub.addEventListener('submit',submitListing); }
+  const edit=byId('editProfileForm'); if(edit){ edit.addEventListener('submit',saveProfile); }
+  const set=byId('settingsForm'); if(set){ set.addEventListener('submit',saveSettings); }
+  const feed=byId('feedbackForm'); if(feed){ feed.addEventListener('submit',submitFeedback); }
+  const msg=byId('messageForm'); if(msg){ msg.addEventListener('submit',sendMessage); }
+  const files=byId('listingFiles'); if(files){ files.addEventListener('change',handleListingFiles); }
+  const av=byId('avatarFile'); if(av){ av.addEventListener('change',handleAvatarFile); }
 }
-function providerProfileComplete(){const p=state.profile||{};return !!((p.company_name||p.full_name)&&p.phone&&p.county&&p.city);}
-
-function renderSaved(){const ids=new Set(state.favorites.map(f=>f.listing_id)); const list=state.listings.filter(l=>ids.has(l.id));return `${pageHead(t('saved'),'',false)}<div class="list">${list.length?list.map(renderListingCard).join(''):`<div class="empty"><h3>${t('noSaved')}</h3><p>Apasă pe inimă la anunțurile pe care vrei să le păstrezi.</p></div>`}</div>`;}
-
-function renderProfile(){
-  const p=state.profile||{}; const own=state.listings.filter(l=>l.owner_id===state.user.id && l.status!=='deleted').length;
-  return `<section class="profile-layout"><div><div class="profile-top"><img class="avatar-lg" src="${esc(profileAvatar(p))}" alt=""><div><h2 class="profile-name">${esc(profileName(p))}</h2><p class="profile-place">${esc([p.city,p.county].filter(Boolean).join(', ') || 'Locație nespecificată')}</p><span class="role-pill">${p.role==='provider'?t('provider'):t('client')}</span></div></div><div class="stats-row"><div class="stat"><b>${own}</b><span>Anunțuri</span></div><div class="stat"><b>${state.favorites.length}</b><span>Salvate</span></div><div class="stat"><b>${state.notifications.filter(n=>!n.is_read).length}</b><span>Noi</span></div></div></div>
-  <div class="menu-list">
-    ${menuItem('editProfile',icons.user,t('editProfile'),'Profil, poză, contact')}
-    ${isProvider()?menuItem('myListings',icons.car,t('myListings'),'Editează sau șterge anunțuri'):''}
-    ${isProvider()?menuItem('publish',icons.plus,t('publish'),'Adaugă serviciu auto'):''}
-    ${menuItem('saved',icons.heart,t('saved'),'Anunțurile tale salvate')}
-    ${menuItem('inbox',icons.message,t('inbox'),'Mesaje între utilizatori')}
-    ${menuItem('settings',icons.settings,t('settings'),'Limbă, temă, notificări')}
-    ${menuItem('feedback',icons.message,t('feedback'),'Spune-ne părerea ta')}
-    ${menuItem('terms',icons.settings,'Termeni și condiții','Reguli aplicație')}
-    <button class="menu-item" data-action="logout"><span class="menu-ico">${icons.close}</span><span class="menu-text"><strong>${t('logout')}</strong><small>Ieși din cont</small></span><span class="chev">${icons.chevron}</span></button>
-  </div></section>`;
-}
-function menuItem(view,icon,title,sub){return `<button class="menu-item" data-view="${view}"><span class="menu-ico">${icon}</span><span class="menu-text"><strong>${esc(title)}</strong><small>${esc(sub)}</small></span><span class="chev">${icons.chevron}</span></button>`;}
-
-function renderEditProfile(){
-  const p=state.profile||{}; const cities=cityOptions(p.county||'',p.city||'');
-  return `${pageHead(t('editProfile'),'Datele de aici se folosesc pentru profil și anunțuri.',true)}<form id="profileForm">
-    <div class="form-card"><h3>Poză / logo</h3><div class="upload-box"><img class="upload-preview" id="profilePreview" src="${esc(profileAvatar(p))}" alt=""><div><input id="profilePhoto" type="file" accept="image/*" class="hidden"><button type="button" class="btn soft small" data-action="select-profile-photo">Schimbă poza</button><p class="hint" style="margin:7px 0 0">Apare în profil și pe cardurile anunțurilor.</p></div></div></div>
-    <div class="form-card"><h3>Cont</h3><div class="field"><label class="label">Tip cont</label><select name="role" class="select"><option value="client" ${p.role==='client'?'selected':''}>Client</option><option value="provider" ${p.role==='provider'?'selected':''}>Prestator</option></select></div><div class="grid2"><div class="field"><label class="label">Nume</label><input class="input" name="full_name" value="${esc(p.full_name||'')}"></div><div class="field"><label class="label">Nume firmă</label><input class="input" name="company_name" value="${esc(p.company_name||'')}"></div></div><div class="field"><label class="label">Descriere firmă</label><textarea class="textarea" name="company_description" maxlength="600">${esc(p.company_description||'')}</textarea></div></div>
-    <div class="form-card"><h3>Contact și locație</h3><div class="grid2"><div class="field"><label class="label">Telefon</label><input class="input" name="phone" value="${esc(p.phone||'')}"></div><div class="field"><label class="label">WhatsApp</label><input class="input" name="whatsapp" value="${esc(p.whatsapp||'')}"></div><div class="field"><label class="label">Email afișat</label><input class="input" name="email_display" value="${esc(p.email_display||state.user.email||'')}"></div><div class="field"><label class="label">Program</label><input class="input" name="schedule" value="${esc(p.schedule||'')}"></div><div class="field"><label class="label">Județ</label><select name="county" id="profileCounty" class="select">${countyOptions(p.county||'')}</select></div><div class="field"><label class="label">Oraș</label><select name="city" id="profileCity" class="select">${cities}</select></div></div><div class="field"><label class="label">Adresă</label><input class="input" name="address" value="${esc(p.address||'')}"></div><div class="field"><label class="label">Preț orientativ</label><input class="input" name="price_hint" value="${esc(p.price_hint||'')}" placeholder="ex: de la 150 lei"></div></div>
-    <button class="btn gold full" type="submit">${t('save')}</button>
-  </form>`;
-}
-
-function renderSettings(){
-  const s=state.settings||{}; const p=state.profile||{};
-  return `${pageHead(t('settings'),'Setările se salvează în Supabase.',true)}<form id="settingsForm">
-    <div class="form-card"><h3>Preferințe</h3><div class="grid2"><div class="field"><label class="label">Limba aplicației</label><select name="language" class="select"><option value="ro" ${s.language==='ro'?'selected':''}>Română</option><option value="en" ${s.language==='en'?'selected':''}>English</option><option value="it" ${s.language==='it'?'selected':''}>Italiano</option></select></div><div class="field"><label class="label">Mod aplicație</label><select name="theme" class="select"><option value="light" ${s.theme==='light'?'selected':''}>Luminos</option><option value="dark" ${s.theme==='dark'?'selected':''}>Întunecat</option><option value="system" ${s.theme==='system'?'selected':''}>Sistem</option></select></div></div></div>
-    <div class="form-card"><h3>Notificări și confidențialitate</h3>${toggleRow('notifications_enabled','Notificări',s.notifications_enabled)}${toggleRow('sound_enabled','Sunete aplicație',s.sound_enabled)}${toggleRow('vibration_enabled','Vibrații',s.vibration_enabled)}${toggleRow('show_phone','Arată telefonul meu',s.show_phone)}${toggleRow('show_city','Arată orașul meu',s.show_city)}${toggleRow('allow_messages','Permite mesaje',s.allow_messages)}</div>
-    <div class="form-card"><h3>Prestator</h3>${toggleRow('is_24_7','Non-stop',p.is_24_7)}${toggleRow('works_at_client_location','Mă deplasez la client',p.works_at_client_location)}<div class="field"><label class="label">Vizibilitate profil</label><select name="profile_visibility" class="select"><option value="public" ${p.profile_visibility==='public'?'selected':''}>Profil public</option><option value="hidden" ${p.profile_visibility==='hidden'?'selected':''}>Profil ascuns temporar</option></select></div></div>
-    <button class="btn gold full" type="submit">${t('save')}</button>
-  </form>`;
-}
-function toggleRow(name,label,on){return `<div class="switch-row"><span>${esc(label)}</span><button type="button" class="toggle ${on?'on':''}" data-action="toggle-setting" data-name="${esc(name)}" aria-label="${esc(label)}"><i></i></button><input type="hidden" name="${esc(name)}" value="${on?'1':'0'}"></div>`;}
-
-function renderFeedback(){return `${pageHead(t('feedback'),'Maximum 500 caractere.',true)}<form id="feedbackForm"><div class="form-card"><div class="field"><label class="label">Despre ce vrei să ne dai feedback?</label><select name="category" class="select" required><option>Problemă tehnică</option><option>Design aplicație</option><option>Anunțuri</option><option>Profil</option><option>Mesaje</option><option>Sugestie nouă</option><option>Altceva</option></select></div><div class="field"><label class="label">Descriere feedback</label><textarea id="feedbackText" name="message" class="textarea" maxlength="500" required></textarea><div class="char-row"><span>Scrie clar problema sau sugestia.</span><span id="feedbackCount">0/500</span></div></div></div><button class="btn gold full" type="submit">Trimite feedback</button></form>`;}
-
-function renderInbox(){return `${pageHead(t('inbox'),'Conversații și mesaje.',true)}<div class="chat-list">${state.conversations.length?state.conversations.map(renderConversation).join(''):`<div class="empty"><h3>${t('noMessages')}</h3><p>Când trimiți sau primești mesaje, conversațiile apar aici.</p></div>`}</div>`;}
-function renderConversation(c){const otherId=c.client_id===state.user.id?c.provider_id:c.client_id; const p=state.profilesById[otherId]||{};return `<button class="conversation" data-action="open-chat" data-id="${esc(c.id)}"><img src="${esc(profileAvatar(p))}" alt=""><span style="min-width:0;flex:1"><strong>${esc(profileName(p))}</strong><p>${esc(c.last_message||'Conversație nouă')}</p></span><small class="hint">${c.last_message_at?formatDate(c.last_message_at):''}</small></button>`;}
-
-function renderChat(){const c=state.activeConversation;if(!c)return renderInbox(); const otherId=c.client_id===state.user.id?c.provider_id:c.client_id; const p=state.profilesById[otherId]||{}; const msgs=state.messagesByConversation[c.id]||[];return `${pageHead(profileName(p),'',true)}<div class="chat-wrap"><div class="chat-messages" id="chatMessages">${msgs.map(m=>`<div class="bubble ${m.sender_id===state.user.id?'me':'other'}">${esc(m.message)}</div>`).join('')}</div><form class="chat-input" id="chatForm"><input class="input" name="message" placeholder="Scrie un mesaj..." autocomplete="off" required><button class="btn gold" type="submit">${t('send')}</button></form></div>`;}
-
-function renderMyListings(){const list=state.listings.filter(l=>l.owner_id===state.user.id && l.status!=='deleted');return `${pageHead(t('myListings'),'Anunțurile publicate de tine.',true)}<div class="list">${list.length?list.map(l=>renderListingCard(l).replace('</article>',`<div class="listing-actions"><button class="btn soft small" data-action="edit-listing" data-id="${esc(l.id)}">Editează</button><button class="btn danger small" data-action="delete-listing" data-id="${esc(l.id)}">Șterge</button><button class="btn gold small" data-action="listing-details" data-id="${esc(l.id)}">Detalii</button></div></article>`)):`<div class="empty"><h3>Nu ai anunțuri.</h3><p>Publică primul serviciu auto.</p><button class="btn gold" data-view="publish">Publică</button></div>`}</div>`;}
-
-function renderPublicProfile(){const p=state.profilesById[state.selectedProfileId]||state.profile; const list=state.listings.filter(l=>l.owner_id===p?.id && l.status==='active');return `${pageHead(profileName(p),'Profil public prestator',true)}<div class="profile-top"><img class="avatar-lg" src="${esc(profileAvatar(p))}" alt=""><div><h2 class="profile-name">${esc(profileName(p))}</h2><p class="profile-place">${esc([p?.city,p?.county].filter(Boolean).join(', ')||'Locație nespecificată')}</p><span class="role-pill">${p?.is_24_7?'Non-stop':'Prestator'}</span></div></div><div class="form-card"><p class="info-line">${esc(p?.company_description||'Prestator AutoRapid RO.')}</p><div class="details-row"><button class="btn soft" data-action="call-profile" data-id="${esc(p?.id||'')}">${t('call')}</button><button class="btn gold" data-action="wa-profile" data-id="${esc(p?.id||'')}">${t('whatsapp')}</button></div></div><div class="page-head"><h2 class="page-title">Anunțuri</h2></div><div class="list">${list.length?list.map(renderListingCard).join(''):`<div class="empty"><h3>Nu are anunțuri active.</h3><p>Revino mai târziu.</p></div>`}</div>`;}
-
-function renderNotifications(){return `${pageHead(t('notifications'),'',true)}<div class="list">${state.notifications.length?state.notifications.map(n=>`<div class="notification-item ${n.is_read?'':'unread'}" data-action="mark-notification" data-id="${esc(n.id)}"><span class="dot"></span><div><h4>${esc(n.title)}</h4><p>${esc(n.message)}</p><small class="hint">${formatDate(n.created_at)}</small></div></div>`).join(''):`<div class="empty"><h3>Nu ai notificări.</h3><p>Aici apar mesajele noi și actualizările.</p></div>`}</div>`;}
-function renderTerms(){return `${pageHead('Termeni și condiții','Reguli simple pentru utilizare.',true)}<div class="form-card"><p class="info-line">AutoRapid RO este un marketplace pentru servicii auto. Utilizatorii sunt responsabili pentru informațiile publicate, conversații și serviciile oferite. Raportează orice anunț suspect.</p></div>`;}
-
-function bindPageAfterRender(){
-  const searchInput=$('#searchInput'); if(searchInput) searchInput.addEventListener('input',e=>{state.query=e.target.value;renderHomeOnly();});
-  const countyFilter=$('#countyFilter'); if(countyFilter) countyFilter.addEventListener('change',e=>{state.filterCounty=e.target.value;state.filterCity='';render();});
-  const cityFilter=$('#cityFilter'); if(cityFilter) cityFilter.addEventListener('change',e=>{state.filterCity=e.target.value;render();});
-  const categoryFilter=$('#categoryFilter'); if(categoryFilter) categoryFilter.addEventListener('change',e=>{state.filterCategory=e.target.value;render();});
-  const profileCounty=$('#profileCounty'); if(profileCounty) profileCounty.addEventListener('change',e=>{$('#profileCity').innerHTML=cityOptions(e.target.value,'');});
-  const feedbackText=$('#feedbackText'); if(feedbackText) feedbackText.addEventListener('input',()=>{$('#feedbackCount').textContent=feedbackText.value.length+'/500';});
-  const chatMessages=$('#chatMessages'); if(chatMessages) chatMessages.scrollTop=chatMessages.scrollHeight;
-}
-function renderHomeOnly(){const list=$('#listingsList'); if(list) list.innerHTML = filteredListings().length?filteredListings().map(renderListingCard).join(''):renderEmpty('emptyListings','emptyListingsSub', isProvider()?t('publish'):'');}
-
-app.addEventListener('click', async e=>{
-  const btn=e.target.closest('button,[data-view],[data-action]'); if(!btn)return;
-  const view=btn.dataset.view; const action=btn.dataset.action;
-  if(view){state.prevView=state.view;state.view=view;render();return;}
-  if(action==='back'){state.view=state.prevView && state.prevView!==state.view ? state.prevView : 'home';render();return;}
-  if(action==='auth-mode'){state.authMode=btn.dataset.mode;renderAuth();return;}
-  if(action==='choose-role')return chooseRole(btn.dataset.role);
-  if(action==='do-search'){state.query=$('#searchInput')?.value||'';render();return;}
-  if(action==='quick-category'){state.filterCategory=state.filterCategory===btn.dataset.category?'':btn.dataset.category;render();return;}
-  if(action==='toggle-favorite')return toggleFavorite(btn.dataset.id);
-  if(action==='listing-details')return openListingDetails(btn.dataset.id);
-  if(action==='call')return callListing(btn.dataset.id);
-  if(action==='wa')return whatsappListing(btn.dataset.id);
-  if(action==='select-profile-photo'){$('#profilePhoto')?.click();return;}
-  if(action==='select-listing-photos'){$('#listingPhotos')?.click();return;}
-  if(action==='toggle-setting')return toggleSetting(btn.dataset.name,btn);
-  if(action==='logout')return logout();
-  if(action==='open-chat')return openChat(btn.dataset.id);
-  if(action==='delete-listing')return deleteListing(btn.dataset.id);
-  if(action==='edit-listing')return editListing(btn.dataset.id);
-  if(action==='mark-notification')return markNotification(btn.dataset.id);
-  if(action==='call-profile')return callProfile(btn.dataset.id);
-  if(action==='wa-profile')return waProfile(btn.dataset.id);
-});
-
-app.addEventListener('change', e=>{
-  if(e.target.id==='profilePhoto') handleProfileFile(e.target.files[0]);
-  if(e.target.id==='listingPhotos') handleListingFiles(e.target.files);
-});
-
-app.addEventListener('submit', async e=>{
-  e.preventDefault();
-  if(e.target.id==='authForm') return submitAuth(e.target);
-  if(e.target.id==='profileForm') return saveProfile(e.target);
-  if(e.target.id==='settingsForm') return saveSettings(e.target);
-  if(e.target.id==='feedbackForm') return saveFeedback(e.target);
-  if(e.target.id==='publishForm') return publishListing(e.target);
-  if(e.target.id==='chatForm') return sendMessage(e.target);
-});
-
-async function submitAuth(form){
-  const fd=new FormData(form); const email=fd.get('email'); const password=fd.get('password');
-  form.querySelector('button[type="submit"]').disabled=true;
-  let res;
-  if(state.authMode==='register') res=await sb.auth.signUp({email,password,options:{data:{full_name:email.split('@')[0]}}});
-  else res=await sb.auth.signInWithPassword({email,password});
-  form.querySelector('button[type="submit"]').disabled=false;
-  if(res.error){toast(res.error.message,'error');return;}
-  if(state.authMode==='register' && !res.data.session){await sb.auth.signInWithPassword({email,password});}
-  toast(state.authMode==='register'?'Cont creat.':'Bine ai revenit.','success');
-}
-async function chooseRole(role){
-  const {data,error}=await sb.from('profiles').upsert({id:state.user.id,role,email_display:state.user.email},{onConflict:'id'}).select().single();
-  if(error){console.warn(error);toast('Nu am putut salva rolul.','error');return;}
-  state.profile=data;
-  localStorage.setItem('autorapid_role_chosen_'+state.user.id,'1');
-  state.roleChosen=true;
-  state.view = role === 'provider' ? 'editProfile' : 'home';
-  toast(role === 'provider' ? 'Completează profilul de prestator.' : 'Cont client activ.','success');
-  render();
-}
-async function logout(){await sb.auth.signOut();localStorage.removeItem('autorapid_role_chosen_'+state.user?.id);}
-
-async function uploadFile(file,path){
-  const {error}=await sb.storage.from(STORAGE_BUCKET).upload(path,file,{cacheControl:'3600',upsert:true});
-  if(error) throw error;
-  const {data}=sb.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
-}
-function handleProfileFile(file){if(!file)return; state.profileFile=file; const url=URL.createObjectURL(file); $('#profilePreview').src=url;}
-function handleListingFiles(files){state.publishFiles=Array.from(files||[]).slice(0,3); const wrap=$('#photosPreview'); if(!wrap)return; wrap.innerHTML=[0,1,2].map(i=>state.publishFiles[i]?`<button type="button" class="photo-slot" data-action="select-listing-photos"><img src="${esc(URL.createObjectURL(state.publishFiles[i]))}" alt=""></button>`:`<button type="button" class="photo-slot" data-action="select-listing-photos"><small>Poza ${i+1}</small></button>`).join('');}
-
-async function saveProfile(form){
-  const fd=new FormData(form);
-  const submitBtn=form.querySelector('button[type="submit"]');
-  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Se salvează...';}
-  const payload={
-    id:state.user.id,
-    role:fd.get('role') || state.profile?.role || 'client',
-    full_name:fd.get('full_name')||null,
-    company_name:fd.get('company_name')||null,
-    company_description:fd.get('company_description')||null,
-    phone:fd.get('phone')||null,
-    whatsapp:fd.get('whatsapp')||null,
-    email_display:fd.get('email_display')||state.user.email||null,
-    schedule:fd.get('schedule')||null,
-    county:fd.get('county')||null,
-    city:fd.get('city')||null,
-    address:fd.get('address')||null,
-    price_hint:fd.get('price_hint')||null
-  };
-  try{
-    if(state.profileFile){
-      const ext=(state.profileFile.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
-      const url=await uploadFile(state.profileFile,`${state.user.id}/profile/avatar.${ext}`);
-      payload.avatar_url=url;
-      payload.logo_url=url;
-    }
-    const {data,error}=await sb.from('profiles').upsert(payload,{onConflict:'id'}).select().single();
-    if(error)throw error;
-    state.profile=data;
-    state.profileFile=null;
-    localStorage.setItem('autorapid_role_chosen_'+state.user.id,'1');
-    await loadListings();
-    toast('Profil salvat.','success');
-    state.view='profile';
-    render();
-  }catch(err){
-    console.warn('Eroare salvare profil:',err);
-    toast(err.message || 'Nu am putut salva profilul.','error');
-  }finally{
-    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=t('save');}
-  }
-}
-async function saveSettings(form){
-  const fd=new FormData(form);
-  const submitBtn=form.querySelector('button[type="submit"]');
-  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Se salvează...';}
-  const settings={
-    user_id:state.user.id,
-    language:fd.get('language') || 'ro',
-    theme:fd.get('theme') || 'light',
-    notifications_enabled:fd.get('notifications_enabled')==='1',
-    sound_enabled:fd.get('sound_enabled')==='1',
-    vibration_enabled:fd.get('vibration_enabled')==='1',
-    show_phone:fd.get('show_phone')==='1',
-    show_city:fd.get('show_city')==='1',
-    allow_messages:fd.get('allow_messages')==='1'
-  };
-  const profile={
-    id:state.user.id,
-    profile_visibility:fd.get('profile_visibility') || 'public',
-    is_24_7:fd.get('is_24_7')==='1',
-    works_at_client_location:fd.get('works_at_client_location')==='1'
-  };
-  const [sRes,pRes]=await Promise.all([
-    sb.from('user_settings').upsert(settings,{onConflict:'user_id'}).select().single(),
-    sb.from('profiles').upsert(profile,{onConflict:'id'}).select().single()
-  ]);
-  if(sRes.error||pRes.error){
-    console.warn('Eroare setări:',sRes.error||pRes.error);
-    toast((sRes.error||pRes.error).message || 'Nu am putut salva setările.','error');
-    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=t('save');}
-    return;
-  }
-  state.settings=sRes.data;
-  state.profile={...(state.profile||{}),...pRes.data};
-  applyTheme();
-  toast('Setări salvate.','success');
-  if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=t('save');}
-  render();
-}
-function toggleSetting(name,btn){const input=document.querySelector(`input[name="${CSS.escape(name)}"]`); const on=input.value!=='1'; input.value=on?'1':'0'; btn.classList.toggle('on',on);}
-async function saveFeedback(form){const fd=new FormData(form); const {error}=await sb.from('feedback').insert({user_id:state.user.id,category:fd.get('category'),message:fd.get('message')}); if(error){toast('Nu am putut trimite feedback.','error');return;} form.reset(); toast('Feedback trimis.','success'); state.view='profile'; render();}
-
-async function publishListing(form){
-  if(!isProvider()){toast('Doar conturile de prestator pot publica anunțuri.','error');state.view='profile';render();return;}
-  if(!providerProfileComplete()){
-    toast(t('completeProfile'),'error');
-    state.view='editProfile';
-    render();
-    return;
-  }
-
-  const submitBtn=form.querySelector('button[type="submit"]');
-  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Se publică...';}
-
-  const fd=new FormData(form);
-  const p=state.profile;
-  const category=String(fd.get('category')||'').trim();
-  const description=String(fd.get('description')||'').trim();
-  if(!category || !description){
-    toast('Alege categoria și scrie descrierea.','error');
-    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='Publică anunț';}
-    return;
-  }
-
-  const payload={
-    owner_id:state.user.id,
-    title:`${category} - ${profileName(p)}`,
-    category,
-    description,
-    county:p.county||null,
-    city:p.city||null,
-    address:p.address||null,
-    phone:p.phone||null,
-    whatsapp:p.whatsapp||p.phone||null,
-    schedule:p.schedule||null,
-    price_hint:p.price_hint||null,
-    promotion_type:fd.get('promotion_type')||'free',
-    status:'active'
-  };
-
-  try{
-    const {data,error}=await sb.from('listings').insert(payload).select().single();
-    if(error)throw error;
-
-    let photoErrors=0;
-    const files=state.publishFiles.slice(0,3);
-    for(let i=0;i<files.length;i++){
-      try{
-        const file=files[i];
-        const safeExt=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
-        const path=`${state.user.id}/listings/${data.id}/${Date.now()}-${i+1}.${safeExt}`;
-        const url=await uploadFile(file,path);
-        const imgRes=await sb.from('listing_images').insert({listing_id:data.id,user_id:state.user.id,image_url:url,storage_path:path,position:i+1});
-        if(imgRes.error)throw imgRes.error;
-      }catch(photoErr){
-        photoErrors++;
-        console.warn('Eroare la poza anunțului:', photoErr);
-      }
-    }
-
-    state.publishFiles=[];
-    await loadListings();
-    toast(photoErrors ? 'Anunț publicat, dar unele poze nu s-au încărcat.' : 'Anunț publicat.','success');
-    state.view='myListings';
-    render();
-  }catch(err){
-    console.warn('Eroare publicare:', err);
-    toast(err.message || 'Nu am putut publica anunțul. Verifică profilul și baza de date.','error');
-    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='Publică anunț';}
-  }
-}
-async function deleteListing(id){if(!confirm('Ștergi anunțul?'))return; const {error}=await sb.from('listings').update({status:'deleted'}).eq('id',id).eq('owner_id',state.user.id); if(error){toast('Nu am putut șterge.','error');return;} await loadListings(); toast('Anunț șters.','success'); render();}
-function editListing(id){const l=state.listings.find(x=>x.id===id); if(!l)return; showEditListing(l);}
-
+async function refreshAndRender(){ await Promise.all([loadListings(), loadFavorites(), loadConversations(), loadNotifications()]); await loadOwnerProfiles(); render(); }
+async function openListing(id){ const l=listings.find(x=>x.id===id); if(!l) return; selectedListing=l; const p=ownerProfile(l.owner_id)||{}; const imgs=listingImages.filter(i=>i.listing_id===id); modal.className='modal open'; modal.innerHTML=`<div class="modal-card"><div class="modal-top"><div><h2 class="page-title">${esc(l.title||p.company_name||l.category)}</h2><p class="page-sub">${esc(l.category)} • ${esc([l.city,l.county].filter(Boolean).join(', '))}</p></div><button class="close" onclick="closeModal()">${icon('x')}</button></div>${imgs.length?`<div class="preview-row">${imgs.map(i=>`<img class="preview-img" style="width:31%;height:130px" src="${esc(i.image_url)}">`).join('')}</div>`:`<img class="thumb" style="width:100%;height:190px;border-radius:20px" src="${esc(p.logo_url||p.avatar_url||defaultAvatar(p.company_name||l.category))}">`}<div class="sheet" style="margin-top:12px"><p>${esc(l.description)}</p><div class="meta"><span>${esc(l.schedule||'Program necompletat')}</span><span class="dot"></span><span>${esc(l.price_hint||'Preț la cerere')}</span></div><div class="divider"></div><div class="card-actions"><button class="btn btn-soft" onclick="callListing('${l.id}')">${t('call')}</button><button class="btn btn-soft" onclick="whatsappListing('${l.id}')">${t('whatsapp')}</button><button class="btn btn-primary" onclick="openConversationForListing('${l.id}')">${t('sendMessage')}</button><button class="btn btn-soft" onclick="toggleFavorite('${l.id}')">${favorites.has(l.id)?t('unsave'):t('save')}</button></div></div><button class="btn btn-full btn-soft" onclick="openPublicProfile('${l.owner_id}')">${t('viewProfile')}</button><button class="btn btn-full btn-danger" style="margin-top:8px" onclick="reportListing('${l.id}')">${t('report')}</button></div>`; }
+function closeModal(){ modal.className='modal'; modal.innerHTML=''; }
+function callListing(id){ const l=listings.find(x=>x.id===id); if(!l?.phone){toast('Telefon lipsă.','error');return;} window.location.href='tel:'+l.phone.replace(/\s/g,''); sb.from('listings').update({phone_clicks_count:(l.phone_clicks_count||0)+1}).eq('id',id).then(()=>{}); }
+function whatsappListing(id){ const l=listings.find(x=>x.id===id); const nr=(l?.whatsapp||l?.phone||'').replace(/\D/g,''); if(!nr){toast('WhatsApp lipsă.','error');return;} window.open('https://wa.me/'+nr,'_blank'); sb.from('listings').update({whatsapp_clicks_count:(l.whatsapp_clicks_count||0)+1}).eq('id',id).then(()=>{}); }
 async function toggleFavorite(id){
-  if(!state.user){toast('Intră în cont ca să salvezi anunțuri.','error');return;}
-  if(!id){toast('Anunț invalid.','error');return;}
-  const wasSaved=isSaved(id);
-  const previous=[...state.favorites];
-
-  // actualizare instant în UI
-  if(wasSaved) state.favorites=state.favorites.filter(f=>f.listing_id!==id);
-  else state.favorites=[...state.favorites,{id:'local-'+id,user_id:state.user.id,listing_id:id,created_at:new Date().toISOString()}];
+  if(favorites.has(id)){ const {error}=await sb.from('favorites').delete().eq('user_id',currentUser.id).eq('listing_id',id); if(error){toast(error.message,'error');return;} favorites.delete(id); }
+  else { const {error}=await sb.from('favorites').insert({user_id:currentUser.id, listing_id:id}); if(error && !String(error.message).includes('duplicate')){toast(error.message,'error');return;} favorites.add(id); }
   render();
-
+}
+function renderSaved(){ const items=listings.filter(l=>favorites.has(l.id)); return `<div class="page-head"><div><h1 class="page-title">${t('saved')}</h1><p class="page-sub">Anunțurile salvate de tine.</p></div></div>${items.length?`<div class="list">${items.map(renderListingCard).join('')}</div>`:`<div class="empty"><h3>Nu ai salvate</h3><p>Apasă pe inimă la anunțurile care te interesează.</p></div>`}`; }
+function renderPublish(){
+  if(profile.role!=='provider') return `<div class="empty"><h3>Publicarea este pentru prestatori</h3><p>Schimbă contul în prestator ca să poți publica servicii auto.</p><button class="btn btn-gold" style="margin-top:12px" onclick="setRole('provider')">Devino prestator</button></div>`;
+  const complete = profile.company_name && profile.phone && profile.county && profile.city;
+  if(!complete) return `<div class="empty"><h3>${t('completeProfile')}</h3><p>Completează nume firmă, telefon, județ și oraș înainte să publici.</p><button class="btn btn-gold" style="margin-top:12px" onclick="go('editProfile')">${t('editProfile')}</button></div>`;
+  const mine = listings.filter(l=>l.owner_id===currentUser.id && l.status==='active');
+  const paidNeeded = mine.length >= 1;
+  return `<button class="back" onclick="go('profile')">‹ Înapoi</button><div class="page-head"><div><h1 class="page-title">${t('publish')}</h1><p class="page-sub">${paidNeeded?t('paidNext'):t('firstFree')}</p></div></div><form id="publishForm" class="sheet"><div class="field"><label>${t('category')}</label><select class="select" name="category" required><option value="">Alege categoria</option>${CATEGORIES.map(c=>`<option>${esc(c)}</option>`).join('')}</select></div><div class="field"><label>Titlu scurt</label><input class="input" name="title" placeholder="Ex: Vulcanizare mobilă Brașov" maxlength="70"></div><div class="field"><label>Descriere</label><textarea class="textarea" name="description" placeholder="Descrie serviciul, zona, disponibilitatea..." required maxlength="800"></textarea></div><div class="field"><label>Poze anunț - maxim 3</label><input id="listingFiles" class="hidden-file" type="file" accept="image/*" multiple><button type="button" class="btn btn-soft" onclick="byId('listingFiles').click()">Adaugă poze</button><div id="listingPreview" class="preview-row"></div></div>${paidNeeded?`<div class="pay-box"><h3>${t('paidNext')}</h3><p>${t('notRealPay')}</p><label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" name="paidConfirm" required> Confirm publicarea test cu 5 lei / 10 zile</label></div>`:''}<button class="btn btn-primary btn-full" type="submit">${t('publishNow')}</button></form>`;
+}
+function handleListingFiles(e){ publishFiles = Array.from(e.target.files||[]).slice(0,3); if((e.target.files||[]).length>3) toast('Maxim 3 poze.','error'); byId('listingPreview').innerHTML = publishFiles.map(f=>`<img class="preview-img" src="${URL.createObjectURL(f)}">`).join(''); }
+async function submitListing(e){
+  e.preventDefault(); const fd=new FormData(e.target); const mine=listings.filter(l=>l.owner_id===currentUser.id && l.status==='active'); const paidNeeded=mine.length>=1;
+  const listing = {owner_id:currentUser.id, title:fd.get('title')||`${fd.get('category')} ${profile.city||''}`, category:fd.get('category'), description:fd.get('description'), county:profile.county, city:profile.city, address:profile.address, phone:profile.phone, whatsapp:profile.whatsapp||profile.phone, schedule:profile.schedule, price_hint:profile.price_hint, promotion_type:'free', status:'active'};
+  if(paidNeeded){ listing.is_paid_listing=true; listing.plan_type='paid_10_days'; listing.payment_status='demo_paid'; listing.amount_ron=5; listing.expires_at=nowIsoPlusDays(10); }
+  let res = await sb.from('listings').insert(listing).select('*').single();
+  if(res.error && String(res.error.message).includes('column')){ delete listing.is_paid_listing; delete listing.plan_type; delete listing.payment_status; delete listing.amount_ron; delete listing.expires_at; res = await sb.from('listings').insert(listing).select('*').single(); }
+  if(res.error){ toast(res.error.message,'error'); return; }
+  const created = res.data;
+  for(let i=0;i<publishFiles.length;i++){ await uploadListingImage(created.id, publishFiles[i], i+1); }
+  toast('Anunț publicat.'); publishFiles=[]; await refreshAndRender(); go('myListings');
+}
+async function uploadListingImage(listingId,file,pos){
   try{
-    if(wasSaved){
-      const {error}=await sb.from('favorites').delete().eq('user_id',state.user.id).eq('listing_id',id);
-      if(error)throw error;
-      toast('Eliminat din salvate.','success');
-    }else{
-      const {error}=await sb.from('favorites').upsert({user_id:state.user.id,listing_id:id},{onConflict:'user_id,listing_id'});
-      if(error)throw error;
-      toast('Anunț salvat.','success');
-    }
-    await loadFavorites();
-    render();
-  }catch(err){
-    console.warn('Eroare favorite:',err);
-    state.favorites=previous;
-    render();
-    toast(err.message || 'Nu am putut salva anunțul. Verifică tabela favorites / RLS.','error');
-  }
+    const path = `listings/${currentUser.id}/${listingId}-${pos}-${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi,'_')}`;
+    const up = await sb.storage.from(BUCKET).upload(path,file,{upsert:true});
+    if(up.error) throw up.error;
+    const pub = sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    await sb.from('listing_images').insert({listing_id:listingId,user_id:currentUser.id,image_url:pub,storage_path:path,position:pos});
+  }catch(err){ console.warn('image upload failed',err); }
 }
-function callListing(id){const l=state.listings.find(x=>x.id===id); if(l?.phone){sb.from('listings').update({phone_clicks_count:(l.phone_clicks_count||0)+1}).eq('id',id).then(()=>{}); location.href=`tel:${l.phone.replace(/\s/g,'')}`;}else toast('Telefon indisponibil.');}
-function whatsappListing(id){const l=state.listings.find(x=>x.id===id); const nr=(l?.whatsapp||l?.phone||'').replace(/\D/g,''); if(nr){sb.from('listings').update({whatsapp_clicks_count:(l.whatsapp_clicks_count||0)+1}).eq('id',id).then(()=>{}); window.open(`https://wa.me/${nr.startsWith('40')?nr:'40'+nr}?text=${encodeURIComponent('Salut! Am găsit anunțul tău pe AutoRapid RO.')}`,'_blank');}else toast('WhatsApp indisponibil.');}
-function callProfile(id){const p=state.profilesById[id]||state.profile;if(p?.phone)location.href=`tel:${p.phone.replace(/\s/g,'')}`;}
-function waProfile(id){const p=state.profilesById[id]||state.profile;const nr=(p?.whatsapp||p?.phone||'').replace(/\D/g,'');if(nr)window.open(`https://wa.me/${nr.startsWith('40')?nr:'40'+nr}`,'_blank');}
-
-function openListingDetails(id){const l=state.listings.find(x=>x.id===id); if(!l)return; state.selectedListing=l; const p=state.profilesById[l.owner_id]||{}; sb.from('listings').update({views_count:(l.views_count||0)+1}).eq('id',id).then(()=>{});
-  const saved=isSaved(l.id);
-  modal.innerHTML=`<div class="sheet"><div class="sheet-head"><h3 class="sheet-title">${esc(l.category)}</h3><button class="close" data-modal-close>${icons.close}</button></div><img class="details-img" src="${esc(firstImage(l))}" alt=""><h2 class="profile-name">${esc(profileName(p))}</h2><p class="info-line">${esc(l.description)}</p><div class="details-row"><div class="info-line"><b>Locație</b><br>${esc([l.city,l.county].filter(Boolean).join(', ')||'-')}</div><div class="info-line"><b>Program</b><br>${esc(l.schedule||'-')}</div><div class="info-line"><b>Preț</b><br>${esc(l.price_hint||'-')}</div><div class="info-line"><b>Adresă</b><br>${esc(l.address||'-')}</div></div><div class="details-row"><button class="btn soft" data-action="modal-call" data-id="${esc(l.id)}">${t('call')}</button><button class="btn gold" data-action="modal-wa" data-id="${esc(l.id)}">${t('whatsapp')}</button><button class="btn soft" data-action="modal-message" data-id="${esc(l.id)}">${t('message')}</button><button class="btn soft" data-action="modal-profile" data-id="${esc(l.owner_id)}">${t('viewProfile')}</button></div><button class="btn ${saved?'soft':'gold'} full" data-action="modal-favorite" data-id="${esc(l.id)}">${saved?'Elimină din salvate':'Salvează anunț'}</button><button class="btn ghost full" data-action="modal-report" data-id="${esc(l.id)}">${t('report')}</button></div>`;
-  modal.classList.add('show');
+function renderProfile(){
+  const role = profile.role==='provider'?t('provider'):t('client');
+  const clientItems = [['editProfile',t('editProfile'),'Profil, telefon, oraș'],['saved',t('saved'),'Anunțuri salvate'],['inbox',t('inbox'),'Mesaje și conversații'],['settings',t('settings'),'Limbă, temă, confidențialitate'],['feedback',t('feedback'),'Spune-ne părerea ta']];
+  const providerItems = [['editProfile',t('editProfile'),'Date firmă și contact'],['publish',t('publish'),'Publică un serviciu'],['myListings',t('myListings'),'Gestionează anunțurile'],['inbox',t('inbox'),'Mesaje de la clienți'],['settings',t('settings'),'Preferințe și vizibilitate'],['feedback',t('feedback'),'Spune-ne părerea ta']];
+  const items = profile.role==='provider'?providerItems:clientItems;
+  return `<div class="profile-grid"><div><div class="profile-top"><img class="avatar" src="${esc(profileImage())}"><div><h1 class="profile-name">${esc(displayName())}</h1><div class="profile-role">${esc(role)} • ${esc(locationName())}</div><div style="margin-top:8px"><span class="tag ${profile.role==='provider'?'gold':'green'}">${esc(role)}</span></div></div></div><div class="menu-list">${items.map(([v,title,sub])=>menuItem(v,title,sub)).join('')}<button class="menu-item" onclick="logout()"><div class="menu-left"><span class="menu-ico">${icon('user')}</span><div><div class="menu-title">${t('logout')}</div><div class="menu-sub">Ieși din cont</div></div></div><span class="chev">›</span></button></div></div><div class="sheet"><h2 class="page-title" style="font-size:17px">Cont</h2><p class="page-sub">Profilul tău este păstrat simplu. Setările, feedback-ul și inbox-ul sunt pagini separate.</p><div class="divider"></div><button class="btn btn-soft btn-full" onclick="setRole(profile.role==='provider'?'client':'provider')">Schimbă în ${profile.role==='provider'?'Client':'Prestator'}</button></div></div>`;
 }
-modal.addEventListener('click', async e=>{
-  if(e.target===modal || e.target.closest('[data-modal-close]')){modal.classList.remove('show');return;}
-  const btn=e.target.closest('button[data-action]'); if(!btn)return;
-  const id=btn.dataset.id; const action=btn.dataset.action;
-  if(action==='modal-call')callListing(id);
-  if(action==='modal-wa')whatsappListing(id);
-  if(action==='modal-profile'){modal.classList.remove('show');state.selectedProfileId=id;state.prevView=state.view;state.view='publicProfile';render();}
-  if(action==='modal-message'){modal.classList.remove('show');await startConversation(id);}
-  if(action==='modal-favorite'){await toggleFavorite(id); openListingDetails(id);}
-  if(action==='modal-report')showReport(id);
-});
-function showReport(id){modal.innerHTML=`<div class="sheet"><div class="sheet-head"><h3 class="sheet-title">Raportează anunț</h3><button class="close" data-modal-close>${icons.close}</button></div><form id="reportForm"><input type="hidden" name="listing_id" value="${esc(id)}"><div class="field"><label class="label">Motiv</label><select name="reason" class="select"><option>Informații false</option><option>Spam</option><option>Conținut nepotrivit</option><option>Altceva</option></select></div><div class="field"><label class="label">Detalii</label><textarea class="textarea" name="message"></textarea></div><button class="btn gold full" type="submit">Trimite raport</button></form></div>`;}
-modal.addEventListener('submit', async e=>{if(e.target.id==='reportForm'){e.preventDefault();const fd=new FormData(e.target);const {error}=await sb.from('reports').insert({listing_id:fd.get('listing_id'),user_id:state.user.id,reason:fd.get('reason'),message:fd.get('message')});if(error){toast('Nu am putut trimite raportul.','error');return;}modal.classList.remove('show');toast('Raport trimis.','success');}});
-function showEditListing(l){modal.innerHTML=`<div class="sheet"><div class="sheet-head"><h3 class="sheet-title">Editează anunț</h3><button class="close" data-modal-close>${icons.close}</button></div><form id="editListingForm"><input type="hidden" name="id" value="${esc(l.id)}"><div class="field"><label class="label">Categorie</label><select name="category" class="select">${categoryOptions(l.category)}</select></div><div class="field"><label class="label">Descriere</label><textarea name="description" class="textarea" required>${esc(l.description)}</textarea></div><div class="field"><label class="label">Status</label><select name="status" class="select"><option value="active" ${l.status==='active'?'selected':''}>Activ</option><option value="inactive" ${l.status==='inactive'?'selected':''}>Inactiv</option></select></div><button class="btn gold full" type="submit">Salvează modificările</button></form></div>`;modal.classList.add('show');}
-modal.addEventListener('submit',async e=>{if(e.target.id==='editListingForm'){e.preventDefault();const fd=new FormData(e.target);const {error}=await sb.from('listings').update({category:fd.get('category'),description:fd.get('description'),status:fd.get('status')}).eq('id',fd.get('id')).eq('owner_id',state.user.id);if(error){toast('Nu am putut salva anunțul.','error');return;}modal.classList.remove('show');await loadListings();toast('Anunț actualizat.','success');render();}});
-
-async function startConversation(listingId){
-  const l=state.listings.find(x=>x.id===listingId); if(!l)return; if(l.owner_id===state.user.id){toast('Acesta este anunțul tău.');return;}
-  const client_id=state.user.id, provider_id=l.owner_id;
-  let {data,error}=await sb.from('conversations').select('*').eq('listing_id',listingId).eq('client_id',client_id).eq('provider_id',provider_id).maybeSingle();
-  if(error && error.code!=='PGRST116'){toast('Nu am putut deschide conversația.','error');return;}
-  if(!data){const res=await sb.from('conversations').insert({listing_id:listingId,client_id,provider_id,last_message:'',last_message_at:new Date().toISOString()}).select().single(); if(res.error){toast('Nu am putut crea conversația.','error');return;} data=res.data;}
-  state.activeConversation=data; await loadConversations(); await loadMessages(data.id); state.prevView=state.view; state.view='chat'; render();
+function menuItem(v,title,sub){ return `<button class="menu-item" onclick="go('${v}')"><div class="menu-left"><span class="menu-ico">${icon(v==='inbox'?'msg':v==='settings'?'settings':v==='publish'?'plus':v==='saved'?'heart':'user')}</span><div><div class="menu-title">${esc(title)}</div><div class="menu-sub">${esc(sub)}</div></div></div><span class="chev">›</span></button>`; }
+function renderEditProfile(){
+  const cities = profile.county ? LOCATIONS[profile.county] || [] : [];
+  return `<button class="back" onclick="go('profile')">‹ Înapoi</button><div class="page-head"><div><h1 class="page-title">${t('editProfile')}</h1><p class="page-sub">Datele se salvează în Supabase.</p></div></div><form id="editProfileForm" class="sheet"><div class="photo-upload"><img id="avatarPreview" class="photo-preview" src="${esc(profileImage())}"><input id="avatarFile" class="hidden-file" type="file" accept="image/*"><button type="button" class="btn btn-soft" onclick="byId('avatarFile').click()">${t('changePhoto')}</button></div><div class="divider"></div><div class="grid2"><div class="field"><label>Nume</label><input class="input" name="full_name" value="${esc(profile.full_name||'')}"></div><div class="field"><label>Nume firmă</label><input class="input" name="company_name" value="${esc(profile.company_name||'')}"></div><div class="field"><label>Telefon</label><input class="input" name="phone" value="${esc(profile.phone||'')}"></div><div class="field"><label>WhatsApp</label><input class="input" name="whatsapp" value="${esc(profile.whatsapp||'')}"></div><div class="field"><label>${t('county')}</label><select class="select" name="county" id="editCounty"><option value="">Alege județ</option>${COUNTY_LIST.map(c=>`<option ${profile.county===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div><div class="field"><label>${t('city')}</label><select class="select" name="city" id="editCity"><option value="">Alege oraș</option>${cities.map(c=>`<option ${profile.city===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div><div class="field"><label>Adresă</label><input class="input" name="address" value="${esc(profile.address||'')}"></div><div class="field"><label>Program</label><input class="input" name="schedule" value="${esc(profile.schedule||'')}"></div><div class="field"><label>Preț orientativ</label><input class="input" name="price_hint" value="${esc(profile.price_hint||'')}"></div></div><div class="field"><label>Descriere firmă</label><textarea class="textarea" name="company_description">${esc(profile.company_description||'')}</textarea></div><button class="btn btn-primary btn-full" type="submit">${t('save')}</button></form>`;
 }
-async function openChat(id){const c=state.conversations.find(x=>x.id===id); if(!c)return; state.activeConversation=c; await loadMessages(id); state.prevView=state.view; state.view='chat'; render();}
-async function loadMessages(conversationId){const {data,error}=await sb.from('messages').select('*').eq('conversation_id',conversationId).order('created_at',{ascending:true}); if(!error)state.messagesByConversation[conversationId]=data||[]; await sb.from('messages').update({is_read:true}).eq('conversation_id',conversationId).eq('receiver_id',state.user.id);}
-async function sendMessage(form){const msg=new FormData(form).get('message').trim(); if(!msg||!state.activeConversation)return; const c=state.activeConversation; const receiver=c.client_id===state.user.id?c.provider_id:c.client_id; const payload={conversation_id:c.id,sender_id:state.user.id,receiver_id:receiver,message:msg}; const {data,error}=await sb.from('messages').insert(payload).select().single(); if(error){toast('Mesajul nu a fost trimis.','error');return;} if(!state.messagesByConversation[c.id])state.messagesByConversation[c.id]=[]; state.messagesByConversation[c.id].push(data); await sb.from('conversations').update({last_message:msg,last_message_at:new Date().toISOString()}).eq('id',c.id); await sb.from('notifications').insert({user_id:receiver,type:'message',title:'Mesaj nou',message:msg,related_conversation_id:c.id,related_listing_id:c.listing_id}); form.reset(); await loadConversations(); render();}
-async function markNotification(id){await sb.from('notifications').update({is_read:true}).eq('id',id).eq('user_id',state.user.id); await loadNotifications(); render();}
+async function handleAvatarFile(e){
+  const file=e.target.files?.[0]; if(!file) return; byId('avatarPreview').src=URL.createObjectURL(file);
+  try{ const path=`profiles/${currentUser.id}/${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi,'_')}`; const up=await sb.storage.from(BUCKET).upload(path,file,{upsert:true}); if(up.error) throw up.error; const url=sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl; profile.avatar_url=url; profile.logo_url=url; await sb.from('profiles').update({avatar_url:url,logo_url:url}).eq('id',currentUser.id); toast('Poza salvată.'); }catch(err){ toast(err.message||'Poza nu s-a salvat.','error'); }
+}
+async function saveProfile(e){
+  e.preventDefault(); const fd=new FormData(e.target); const obj={id:currentUser.id, full_name:fd.get('full_name'), company_name:fd.get('company_name'), phone:fd.get('phone'), whatsapp:fd.get('whatsapp'), county:fd.get('county'), city:fd.get('city'), address:fd.get('address'), schedule:fd.get('schedule'), price_hint:fd.get('price_hint'), company_description:fd.get('company_description'), email_display:currentUser.email};
+  const {data,error}=await sb.from('profiles').upsert(obj,{onConflict:'id'}).select('*').single(); if(error){toast(error.message,'error');return;} profile=data; toast('Profil salvat.'); render();
+}
+function renderSettings(){
+  return `<button class="back" onclick="go('profile')">‹ Înapoi</button><div class="page-head"><div><h1 class="page-title">${t('settings')}</h1><p class="page-sub">Preferințele se salvează în Supabase.</p></div></div><form id="settingsForm" class="sheet"><div class="field"><label>Limbă</label><select class="select" name="language"><option value="ro" ${settings.language==='ro'?'selected':''}>Română</option><option value="en" ${settings.language==='en'?'selected':''}>English</option><option value="it" ${settings.language==='it'?'selected':''}>Italiano</option></select></div><div class="field"><label>Temă</label><select class="select" name="theme"><option value="light" ${settings.theme==='light'?'selected':''}>Luminos</option><option value="dark" ${settings.theme==='dark'?'selected':''}>Întunecat</option><option value="system" ${settings.theme==='system'?'selected':''}>Sistem</option></select></div><label class="menu-item"><span class="menu-title">Notificări în aplicație</span><input type="checkbox" name="notifications_enabled" ${settings.notifications_enabled?'checked':''}></label><label class="menu-item"><span class="menu-title">Arată telefonul</span><input type="checkbox" name="show_phone" ${settings.show_phone?'checked':''}></label><label class="menu-item"><span class="menu-title">Permite mesaje</span><input type="checkbox" name="allow_messages" ${settings.allow_messages?'checked':''}></label><button class="btn btn-primary btn-full" type="submit">${t('save')}</button></form>`;
+}
+async function saveSettings(e){ e.preventDefault(); const fd=new FormData(e.target); const obj={user_id:currentUser.id, language:fd.get('language'), theme:fd.get('theme'), notifications_enabled:fd.get('notifications_enabled')==='on', show_phone:fd.get('show_phone')==='on', allow_messages:fd.get('allow_messages')==='on'}; const {data,error}=await sb.from('user_settings').upsert(obj,{onConflict:'user_id'}).select('*').single(); if(error){toast(error.message,'error');return;} settings=data; localStorage.setItem('autorapid_lang',settings.language); document.documentElement.dataset.theme=settings.theme==='dark'?'dark':'light'; toast('Setări salvate.'); render(); }
+function renderFeedback(){ return `<button class="back" onclick="go('profile')">‹ Înapoi</button><div class="page-head"><div><h1 class="page-title">${t('feedback')}</h1><p class="page-sub">Maxim 500 caractere.</p></div></div><form id="feedbackForm" class="sheet"><div class="field"><label>Categorie</label><select class="select" name="category"><option>Problemă tehnică</option><option>Design aplicație</option><option>Anunțuri</option><option>Profil</option><option>Mesaje</option><option>Sugestie nouă</option><option>Altceva</option></select></div><div class="field"><label>Mesaj</label><textarea class="textarea" name="message" maxlength="500" required oninput="byId('fbCount').textContent=this.value.length+'/500'"></textarea><small id="fbCount" class="small-note">0/500</small></div><button class="btn btn-primary btn-full" type="submit">Trimite feedback</button></form>`; }
+async function submitFeedback(e){ e.preventDefault(); const fd=new FormData(e.target); const {error}=await sb.from('feedback').insert({user_id:currentUser.id,category:fd.get('category'),message:fd.get('message')}); if(error){toast(error.message,'error');return;} toast('Feedback trimis.'); e.target.reset(); }
+function renderMyListings(){ const mine=listings.filter(l=>l.owner_id===currentUser.id); return `<button class="back" onclick="go('profile')">‹ Înapoi</button><div class="page-head"><div><h1 class="page-title">${t('myListings')}</h1><p class="page-sub">Aici vezi doar anunțurile tale, nu în profilul principal.</p></div><button class="btn btn-gold btn-small" onclick="go('publish')">${t('publish')}</button></div>${mine.length?`<div class="list">${mine.map(l=>renderListingCard(l)+`<button class="btn btn-danger btn-small" onclick="deleteListing('${l.id}')">${t('delete')}</button>`).join('')}</div>`:`<div class="empty"><h3>Nu ai anunțuri</h3><p>Primul anunț este gratuit.</p></div>`}`; }
+async function deleteListing(id){ if(!confirm('Ștergi anunțul?')) return; const {error}=await sb.from('listings').update({status:'deleted'}).eq('id',id).eq('owner_id',currentUser.id); if(error){toast(error.message,'error');return;} toast('Anunț șters.'); await refreshAndRender(); }
+function renderInbox(){
+  return `<button class="back" onclick="go('profile')">‹ Înapoi</button><div class="page-head"><div><h1 class="page-title">${t('inbox')}</h1><p class="page-sub">Mesaje între clienți și prestatori.</p></div></div><div class="chat-layout"><div class="conv-list">${conversations.length?conversations.map(renderConversationItem).join(''):`<div class="empty" style="margin:10px"><h3>${t('noMessages')}</h3><p>Mesajele apar aici.</p></div>`}</div><div class="chat-panel">${selectedConversationId?renderChatPanel():`<div class="empty" style="margin:14px"><h3>Alege o conversație</h3><p>Chatul este compact, ca într-o aplicație.</p></div>`}</div></div>`;
+}
+function renderConversationItem(c){ const otherId=c.client_id===currentUser.id?c.provider_id:c.client_id; const p=ownerProfile(otherId)||{}; return `<button class="conv-item ${selectedConversationId===c.id?'active':''}" onclick="selectConversation('${c.id}')"><img class="conv-avatar" src="${esc(p.avatar_url||p.logo_url||defaultAvatar(displayName(p)))}"><div style="min-width:0"><div class="conv-title">${esc(displayName(p))}</div><div class="conv-last">${esc(c.last_message||'Conversație nouă')}</div></div></button>`; }
+function renderChatPanel(){ const c=conversations.find(x=>x.id===selectedConversationId); const otherId=c?.client_id===currentUser.id?c.provider_id:c?.client_id; const p=ownerProfile(otherId)||{}; return `<div class="chat-head"><img class="conv-avatar" src="${esc(p.avatar_url||p.logo_url||defaultAvatar(displayName(p)))}"><div><div class="conv-title">${esc(displayName(p))}</div><div class="menu-sub">${esc(locationName(p))}</div></div></div><div id="chatBody" class="chat-body">${messages.map(m=>`<div class="bubble-row ${m.sender_id===currentUser.id?'me':'them'}"><div class="bubble">${esc(m.message)}<div class="bubble-time">${new Date(m.created_at).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'})}</div></div></div>`).join('')}</div><form id="messageForm" class="chat-form"><input class="chat-input" name="message" placeholder="${t('typeMessage')}" autocomplete="off" required><button class="chat-send" type="submit">${icon('send')}</button></form>`; }
+async function selectConversation(id){ selectedConversationId=id; await loadMessages(id); render(); setTimeout(scrollChat,80); }
+function scrollChat(){ const el=byId('chatBody'); if(el) el.scrollTop=el.scrollHeight; }
+async function openConversationForListing(id){
+  const l=listings.find(x=>x.id===id); if(!l) return; if(l.owner_id===currentUser.id){ toast('Este anunțul tău.','error'); return; }
+  let c = conversations.find(x=>x.listing_id===id && x.client_id===currentUser.id && x.provider_id===l.owner_id);
+  if(!c){ const {data,error}=await sb.from('conversations').insert({listing_id:id, client_id:currentUser.id, provider_id:l.owner_id, last_message:'', last_message_at:new Date().toISOString()}).select('*').single(); if(error){toast(error.message,'error');return;} c=data; conversations.unshift(c); }
+  closeModal(); view='inbox'; selectedConversationId=c.id; await loadMessages(c.id); render(); setTimeout(scrollChat,80);
+}
+async function sendMessage(e){
+  e.preventDefault(); const text=new FormData(e.target).get('message').trim(); if(!text) return; const c=conversations.find(x=>x.id===selectedConversationId); if(!c) return; const receiver=c.client_id===currentUser.id?c.provider_id:c.client_id;
+  const {data,error}=await sb.from('messages').insert({conversation_id:c.id,sender_id:currentUser.id,receiver_id:receiver,message:text}).select('*').single(); if(error){toast(error.message,'error');return;}
+  messages.push(data); e.target.reset(); await sb.from('conversations').update({last_message:text,last_message_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',c.id);
+  await sb.from('notifications').insert({user_id:receiver,type:'message',title:'Mesaj nou',message:text,related_conversation_id:c.id,related_listing_id:c.listing_id});
+  await loadConversations(); render(); setTimeout(scrollChat,50);
+}
+function renderNotifications(){ return `<button class="back" onclick="go('home')">‹ Înapoi</button><div class="page-head"><div><h1 class="page-title">${t('notifications')}</h1><p class="page-sub">Notificări în aplicație.</p></div><button class="btn btn-small btn-soft" onclick="markNotificationsRead()">Marchează citite</button></div>${notifications.length?`<div class="menu-list">${notifications.map(n=>`<button class="menu-item" onclick="${n.related_conversation_id?`selectNotifConv('${n.related_conversation_id}')`:''}"><div class="menu-left"><span class="menu-ico">${icon('bell')}</span><div><div class="menu-title">${esc(n.title)}</div><div class="menu-sub">${esc(n.message)} • ${formatDate(n.created_at)}</div></div></div>${!n.is_read?'<span class="badge" style="position:static;border:0">1</span>':''}</button>`).join('')}</div>`:`<div class="empty"><h3>Nu ai notificări</h3><p>Notificările de mesaj apar aici.</p></div>`}<p class="small-note">Notificările push când aplicația este închisă cer backend/serviciu push separat. Aici sunt notificări în aplicație și browser notification când site-ul este deschis.</p>`; }
+async function markNotificationsRead(){ await sb.from('notifications').update({is_read:true}).eq('user_id',currentUser.id); await loadNotifications(); render(); }
+async function selectNotifConv(id){ view='inbox'; selectedConversationId=id; await loadMessages(id); render(); }
+async function notifyBrowser(title,body){ if(!settings?.notifications_enabled) return; if(!('Notification' in window)) return; if(Notification.permission==='default') await Notification.requestPermission(); if(Notification.permission==='granted') new Notification(title,{body}); }
+async function reportListing(id){ const reason=prompt('Motiv raportare:'); if(!reason) return; const {error}=await sb.from('reports').insert({listing_id:id,user_id:currentUser.id,reason,message:reason}); if(error){toast(error.message,'error');return;} toast('Raport trimis.'); }
+async function openPublicProfile(ownerId){ const {data:p}=await sb.from('profiles').select('*').eq('id',ownerId).maybeSingle(); const items=listings.filter(l=>l.owner_id===ownerId); modal.className='modal open'; modal.innerHTML=`<div class="modal-card"><div class="modal-top"><div><h2 class="page-title">${esc(displayName(p))}</h2><p class="page-sub">${esc(locationName(p))}</p></div><button class="close" onclick="closeModal()">${icon('x')}</button></div><div class="profile-top"><img class="avatar" src="${esc(p?.logo_url||p?.avatar_url||defaultAvatar(displayName(p)))}"><div><h3 class="profile-name">${esc(displayName(p))}</h3><p class="page-sub">${esc(p?.company_description||'Profil public prestator')}</p></div></div><div class="card-actions"><a class="btn btn-soft" href="tel:${esc((p?.phone||'').replace(/\s/g,''))}">${t('call')}</a><a class="btn btn-soft" target="_blank" href="https://wa.me/${esc((p?.whatsapp||p?.phone||'').replace(/\D/g,''))}">${t('whatsapp')}</a></div><div class="divider"></div><h3 class="page-title" style="font-size:16px">Anunțuri publicate</h3><div class="list" style="display:flex;margin-top:10px">${items.length?items.map(renderListingCard).join(''):'<div class="empty"><p>Nu are anunțuri active.</p></div>'}</div></div>`; }
+async function installApp(){ if(!deferredPrompt) return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; render(); }
+async function logout(){ await sb.auth.signOut(); currentUser=null; profile=null; settings=null; render(); }
 
-function showInstallBanner(){const b=$('#installBanner'); if(b)b.classList.add('show');}
-function hideInstallBanner(){const b=$('#installBanner'); if(b)b.classList.remove('show');}
-
-init().catch(err=>{console.error(err);setLoading(false);toast('Aplicația nu a pornit corect.','error');});
+(async()=>{ await start(); await loadOwnerProfiles(); render(); })();
 </script>
 </body>
 </html>
