@@ -290,9 +290,77 @@
     .auth-required.show{display:block}
     [data-theme="dark"] .auth-required{background:rgba(255,215,0,.10);color:#ffe783}
     @media (max-width:760px){.hero-search-wrap{padding:10px;border-radius:26px}.hero h1{font-weight:600}.auth-hint{font-size:12.5px}.modal{box-shadow:0 -18px 60px rgba(0,0,0,.22)}}
+
+
+    /* FINAL PREMIUM UI - curat, fără bolduri grele */
+    .boot-loader{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%, rgba(255,215,0,.22), transparent 34%),linear-gradient(180deg,#fffdf7,#fbfaf6);transition:opacity .34s ease,visibility .34s ease}
+    [data-theme="dark"] .boot-loader{background:radial-gradient(circle at 50% 35%, rgba(255,215,0,.16), transparent 34%),linear-gradient(180deg,#111,#0e0e0e)}
+    .boot-loader.hide{opacity:0;visibility:hidden;pointer-events:none}
+    .boot-card{width:min(320px,calc(100% - 36px));display:grid;justify-items:center;text-align:center;gap:10px;padding:28px 22px;border-radius:34px;background:rgba(255,255,255,.74);border:1px solid rgba(255,215,0,.22);box-shadow:0 24px 70px rgba(24,24,24,.10);backdrop-filter:blur(20px)}
+    [data-theme="dark"] .boot-card{background:rgba(23,23,23,.78)}
+    .boot-logo{width:64px;height:64px;border-radius:24px;display:grid;place-items:center;background:linear-gradient(145deg,#121212 0%,#262008 42%,#ffd700 100%);color:#fff;box-shadow:0 16px 34px rgba(255,215,0,.22)}
+    .boot-logo .icon{width:30px;height:30px}
+    .boot-title{font-size:22px;font-weight:520;letter-spacing:-.04em}
+    .boot-subtitle{font-size:13px;color:var(--muted)}
+    .boot-progress{width:172px;height:6px;border-radius:999px;overflow:hidden;background:rgba(0,0,0,.08);margin-top:6px}
+    .boot-progress span{display:block;height:100%;width:45%;border-radius:inherit;background:linear-gradient(90deg,#111,#ffd700,#fff2a4);animation:bootMove 1s ease-in-out infinite alternate}
+    @keyframes bootMove{from{transform:translateX(-70%)}to{transform:translateX(150%)}}
+
+    body{background:radial-gradient(circle at 50% 0%, rgba(255,215,0,.20), transparent 30%),linear-gradient(180deg,#fffdf8 0%,#fbfaf6 46%,#fff 100%);font-weight:390;letter-spacing:-.012em}
+    .topbar{background:rgba(255,255,255,.82);border-bottom:1px solid rgba(231,224,205,.75)}
+    .brand-name,.section-title,.profile-name,.card-title,.modal-title,.detail-content h2{font-weight:520!important}
+    .brand-sub,.section-desc,.card-meta,.mini-note,.profile-email{font-weight:390!important}
+    .hero{padding:56px 0 24px}
+    .hero:before{top:0;height:430px;width:min(880px,96vw);filter:blur(24px);background:radial-gradient(circle, rgba(255,215,0,.48), rgba(255,244,155,.26) 37%, rgba(255,255,255,0) 72%)}
+    .hero-badge{font-weight:430;background:rgba(255,255,255,.58);box-shadow:0 12px 40px rgba(255,215,0,.08)}
+    .hero h1{font-weight:520!important;letter-spacing:-.065em;max-width:760px}
+    .hero p{font-size:15.5px;line-height:1.7;max-width:620px}
+    .hero-search-wrap{background:linear-gradient(135deg,rgba(255,215,0,.30),rgba(255,248,197,.16) 36%,rgba(255,255,255,.68));border:1px solid rgba(255,215,0,.22);box-shadow:0 22px 70px rgba(145,111,0,.09);border-radius:36px}
+    .search-panel,.form-card,.content-card,.profile-card,.listing-card,.filter-aside{background:rgba(255,255,255,.82);border-color:rgba(230,222,202,.92);box-shadow:0 12px 34px rgba(20,20,20,.045);backdrop-filter:blur(14px)}
+    .listing-card{border-radius:26px}
+    .listing-card:hover{transform:translateY(-2px);box-shadow:0 18px 44px rgba(20,20,20,.07)}
+    .card-img{background:linear-gradient(135deg,#171717 0%,#4f4316 48%,#ffd700 100%)}
+    .gold-pill{font-weight:470;background:linear-gradient(135deg,#fff0a8 0%,#ffd700 45%,#e4aa00 100%);box-shadow:0 14px 30px rgba(255,215,0,.22)}
+    .black-pill{font-weight:470;background:#121212;box-shadow:0 14px 28px rgba(0,0,0,.13)}
+    .ghost-pill,.clear-btn,.small-btn,.nav-btn,.mobile-nav-btn,.auth-tab,.cat-chip{font-weight:430!important}
+    .label{font-weight:450!important;color:#48433a}
+    .section-kicker{font-weight:450!important;color:#a48200}
+    strong{font-weight:500!important}
+    .profile-avatar-btn{margin-top:12px;width:100%;height:42px}
+    .profile-main-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+    .profile-main-actions .ghost-pill,.profile-main-actions .gold-pill{height:42px;padding:0 10px;font-size:13px}
+    .auth-layout{display:block}
+    #authModal .modal{width:min(430px,calc(100% - 24px))!important;border-radius:32px;overflow:hidden;background:rgba(255,255,255,.92)}
+    [data-theme="dark"] #authModal .modal{background:rgba(23,23,23,.96)}
+    #authModal .modal-head{justify-content:center;position:relative;border-bottom:0;padding:20px 18px 6px}
+    #authModal .modal-title{font-size:22px}
+    #authModal #closeAuth{position:absolute;right:14px;top:14px}
+    .auth-panel{padding:12px 18px 20px}
+    .auth-tabs{margin-bottom:14px;background:rgba(246,243,233,.9)}
+    .auth-tab.active{background:#111;color:#fff}
+    #loginForm .submit-row,#signupForm .submit-row{margin-top:14px}
+    #loginForm .gold-pill,#signupForm .gold-pill{width:100%;height:48px}
+    .auth-clean-note{margin:0 0 14px;text-align:center;color:var(--muted);font-size:13px;line-height:1.45}
+    .empty-state h3{font-weight:510!important}
+    .toggle-row strong{font-weight:480!important}
+    .modal-backdrop.show{backdrop-filter:blur(16px)}
+    [data-theme="dark"] body{background:radial-gradient(circle at 50% 0%, rgba(255,215,0,.10), transparent 30%),linear-gradient(180deg,#101010,#0c0c0c)}
+    [data-theme="dark"] .search-panel,[data-theme="dark"] .form-card,[data-theme="dark"] .content-card,[data-theme="dark"] .profile-card,[data-theme="dark"] .listing-card,[data-theme="dark"] .filter-aside{background:rgba(23,23,23,.86);border-color:#2b2616}
+    @media (max-width:760px){.hero{padding:36px 0 16px}.hero h1{font-size:39px;font-weight:510!important}.hero p{font-size:14px}.hero-search-wrap{border-radius:28px}.search-panel,.form-card,.content-card,.profile-card{backdrop-filter:none}.profile-main-actions{grid-template-columns:1fr}.boot-card{border-radius:28px}#authModal .modal{width:100%!important;border-radius:30px 30px 0 0}.auth-panel{padding:10px 16px 18px}}
+
   </style>
 </head>
 <body>
+  <div id="bootLoader" class="boot-loader" aria-label="Se încarcă aplicația">
+    <div class="boot-card">
+      <div class="boot-logo">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M5 16h14"/><path d="M7 16l1.5-5h7L17 16"/><path d="M8 18h.01"/><path d="M16 18h.01"/><path d="M9 11l1-3h4l1 3"/></svg>
+      </div>
+      <div class="boot-title">AutoRapid RO</div>
+      <div class="boot-subtitle">Se pregătește marketplace-ul auto</div>
+      <div class="boot-progress"><span></span></div>
+    </div>
+  </div>
   <div id="loadingLine" class="loading-line"></div>
   <div class="app-shell">
     <header class="topbar">
@@ -416,13 +484,15 @@
 
       <section id="profile" class="section">
         <div class="container">
-          <div class="section-head"><div><p class="section-kicker">Profil</p><h2 class="section-title">Contul tău</h2><p class="section-desc">Profil ordonat pe carduri, fără secțiuni amestecate.</p></div></div>
+          <div class="section-head"><div><p class="section-kicker">Profil</p><h2 class="section-title">Contul tău</h2><p class="section-desc">Datele contului, anunțurile și setările sunt separate clar.</p></div></div>
           <div class="profile-layout">
             <aside class="profile-card profile-top">
               <div id="profileAvatar" class="avatar-wrap"><span class="avatar-initials">AR</span></div>
               <h3 id="profileName" class="profile-name">Vizitator</h3>
               <p id="profileEmail" class="profile-email">Intră în cont pentru funcții complete</p>
               <div class="stat-grid"><div class="stat-box"><span id="myListingsCount" class="stat-num">0</span><span class="stat-label">Anunțuri</span></div><div class="stat-box"><span id="savedCount" class="stat-num">0</span><span class="stat-label">Salvate</span></div><div class="stat-box"><span id="inboxCount" class="stat-num">0</span><span class="stat-label">Inbox</span></div></div>
+              <label class="ghost-pill profile-avatar-btn" for="quickAvatarFile">Schimbă poza</label><input id="quickAvatarFile" type="file" accept="image/*" hidden />
+              <div class="profile-main-actions"><button class="gold-pill" data-route="settings" type="button">Editează profilul</button><button class="ghost-pill" data-route="publish" type="button">Publică firmă</button></div>
               <div class="profile-menu">
                 <button class="menu-item" data-route="publish"><span class="menu-left"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg><span>Anunțurile mele</span></span><span>›</span></button>
                 <button class="menu-item" data-route="saved"><span class="menu-left"><svg class="icon" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>Anunțuri salvate</span></span><span>›</span></button>
@@ -433,7 +503,7 @@
               </div>
             </aside>
             <div class="content-card">
-              <h3 style="margin:0 0 10px;font-size:18px;font-weight:560">Activitate recentă</h3>
+              <h3 style="margin:0 0 10px;font-size:18px;font-weight:500">Activitate recentă</h3>
               <div id="profileActivity" class="message-list"></div>
             </div>
           </div>
@@ -447,14 +517,14 @@
             <div class="settings-grid">
               <div><label class="label" for="setName">Schimbare nume</label><input id="setName" maxlength="70" placeholder="Numele tău" /></div>
               <div><label class="label" for="setPhone">Schimbare telefon</label><input id="setPhone" maxlength="20" inputmode="tel" placeholder="07xx xxx xxx" /></div>
-              <div><label class="label" for="setEmail">Email</label><input id="setEmail" disabled /></div>
+              <div><label class="label" for="setEmail">Email profil</label><input id="setEmail" type="email" placeholder="email@exemplu.ro" /></div>
               <div><label class="label" for="setCity">Oraș</label><input id="setCity" maxlength="60" placeholder="Orașul tău" /></div>
               <div><label class="label" for="setLang">Limba aplicației</label><select id="setLang"><option>Română</option><option>English</option><option>Italiană</option></select></div>
               <div><label class="label" for="setAvatarFile">Schimbare poză profil</label><input id="setAvatarFile" type="file" accept="image/*" /></div>
-              <div class="toggle-row"><div><strong style="font-weight:600">Mod întunecat</strong><p class="mini-note">Schimbă tema aplicației.</p></div><label class="switch"><input id="darkToggle" type="checkbox" /><span></span></label></div>
-              <div class="toggle-row"><div><strong style="font-weight:600">Notificări</strong><p class="mini-note">Demo pentru notificări de aplicație.</p></div><label class="switch"><input id="notifyToggle" type="checkbox" checked /><span></span></label></div>
-              <div class="toggle-row"><div><strong style="font-weight:600">Confidențialitate</strong><p class="mini-note">Afișează doar datele necesare.</p></div><label class="switch"><input id="privacyToggle" type="checkbox" checked /><span></span></label></div>
-              <div class="toggle-row"><div><strong style="font-weight:600;color:var(--danger)">Ștergere cont</strong><p class="mini-note">Pentru ștergere definitivă, contactează administratorul.</p></div><button id="deleteAccountBtn" type="button" class="small-btn">Solicită</button></div>
+              <div class="toggle-row"><div><strong>Mod întunecat</strong><p class="mini-note">Schimbă tema aplicației.</p></div><label class="switch"><input id="darkToggle" type="checkbox" /><span></span></label></div>
+              <div class="toggle-row"><div><strong>Notificări</strong><p class="mini-note">Demo pentru notificări de aplicație.</p></div><label class="switch"><input id="notifyToggle" type="checkbox" checked /><span></span></label></div>
+              <div class="toggle-row"><div><strong>Confidențialitate</strong><p class="mini-note">Afișează doar datele necesare.</p></div><label class="switch"><input id="privacyToggle" type="checkbox" checked /><span></span></label></div>
+              <div class="toggle-row"><div><strong style="color:var(--danger)">Ștergere cont</strong><p class="mini-note">Pentru ștergere definitivă, contactează administratorul.</p></div><button id="deleteAccountBtn" type="button" class="small-btn">Solicită</button></div>
             </div>
             <div class="submit-row"><button class="gold-pill" type="submit">Salvează setările</button></div>
           </form>
@@ -501,22 +571,30 @@
   </div>
 
   <div id="authModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="Autentificare">
-    <div class="modal" style="width:min(780px,100%)">
-      <div class="modal-head"><h3 class="modal-title">Cont AutoRapid RO</h3><button id="closeAuth" class="close-btn" aria-label="Închide"><svg class="icon" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-      <div style="padding:18px">
-        <div class="auth-layout">
-          <div>
-            <h2 style="margin:0 0 8px;font-size:30px;font-weight:680;letter-spacing:-.05em">Intră simplu în aplicație</h2>
-            <p class="section-desc">Alege email + parolă. Contul se salvează în Supabase, iar sesiunea rămâne în browser.</p>
-            <div class="empty-state" style="margin-top:14px;padding:22px"><svg class="icon" viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M5 8h14"/><path d="M5 16h14"/><path d="M17 3a20 20 0 0 1 0 18"/><path d="M7 3a20 20 0 0 0 0 18"/></svg><h3>Funcțional pentru public</h3><p>Nu ai nevoie de cod pe email, Resend sau Google Cloud. Prietenii își pot crea cont cu email și parolă.</p></div>
-          </div>
-          <div>
-            <div class="auth-tabs"><button id="loginTab" class="auth-tab active" type="button">Login</button><button id="signupTab" class="auth-tab" type="button">Cont nou</button></div>
-            <form id="loginForm" class="auth-box active" novalidate><label class="label" for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="email@exemplu.ro" /><br/><br/><label class="label" for="loginPassword">Parolă</label><input id="loginPassword" type="password" autocomplete="current-password" required minlength="6" placeholder="Minimum 6 caractere" /><div class="submit-row"><button class="gold-pill" type="submit">Intră în cont</button></div></form>
-            <form id="signupForm" class="auth-box" novalidate><label class="label" for="signupName">Nume</label><input id="signupName" required maxlength="70" placeholder="Numele tău" /><br/><br/><label class="label" for="signupEmail">Email</label><input id="signupEmail" type="email" autocomplete="email" required placeholder="email@exemplu.ro" /><br/><br/><label class="label" for="signupPassword">Parolă</label><input id="signupPassword" type="password" autocomplete="new-password" required minlength="6" placeholder="Minimum 6 caractere" /><div class="submit-row"><button class="gold-pill" type="submit">Creează cont</button></div></form>
-            <p class="mini-note">În Supabase trebuie: Email enabled, Allow signups ON, Confirm email OFF.</p>
-          </div>
-        </div>
+    <div class="modal">
+      <div class="modal-head"><h3 class="modal-title">AutoRapid RO</h3><button id="closeAuth" class="close-btn" aria-label="Închide"><svg class="icon" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+      <div class="auth-panel">
+        <p class="auth-clean-note">Intră în cont sau creează unul nou.</p>
+        <div class="auth-tabs"><button id="loginTab" class="auth-tab active" type="button">Login</button><button id="signupTab" class="auth-tab" type="button">Cont nou</button></div>
+        <form id="loginForm" class="auth-box active" novalidate>
+          <label class="label" for="loginEmail">Email</label>
+          <input id="loginEmail" type="email" autocomplete="email" required placeholder="email@exemplu.ro" />
+          <br/><br/>
+          <label class="label" for="loginPassword">Parolă</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" required minlength="6" placeholder="Minimum 6 caractere" />
+          <div class="submit-row"><button class="gold-pill" type="submit">Intră în cont</button></div>
+        </form>
+        <form id="signupForm" class="auth-box" novalidate>
+          <label class="label" for="signupName">Nume</label>
+          <input id="signupName" required maxlength="70" placeholder="Numele tău" />
+          <br/><br/>
+          <label class="label" for="signupEmail">Email</label>
+          <input id="signupEmail" type="email" autocomplete="email" required placeholder="email@exemplu.ro" />
+          <br/><br/>
+          <label class="label" for="signupPassword">Parolă</label>
+          <input id="signupPassword" type="password" autocomplete="new-password" required minlength="6" placeholder="Minimum 6 caractere" />
+          <div class="submit-row"><button class="gold-pill" type="submit">Creează cont</button></div>
+        </form>
       </div>
     </div>
   </div>
@@ -685,7 +763,9 @@
 
     $('publishCounty').addEventListener('change', e=>{ $('publishCity').innerHTML = cityOptions(e.target.value, false); });
     $('logoUpload').addEventListener('change', async e=>{ state.logoData = await fileToDataUrl(e.target.files[0], 900); if(state.logoData) toast('Poza anunțului a fost încărcată.'); });
-    $('setAvatarFile').addEventListener('change', async e=>{ const data = await fileToDataUrl(e.target.files[0], 500); if(data){ state.avatarData=data; await saveProfile({avatar_data:data}); renderProfile(); toast('Poza de profil a fost schimbată.'); } });
+    const saveAvatarFromInput = async (input) => { const data = await fileToDataUrl(input.files[0], 500); if(data){ state.avatarData=data; await saveProfile({avatar_data:data}); renderProfile(); renderSettings(); toast('Poza de profil a fost schimbată.'); } };
+    $('setAvatarFile').addEventListener('change', e=>saveAvatarFromInput(e.target));
+    $('quickAvatarFile').addEventListener('change', e=>saveAvatarFromInput(e.target));
 
     $('publishForm').addEventListener('submit', submitListing);
     $('feedbackForm').addEventListener('submit', submitFeedback);
@@ -872,7 +952,7 @@
     state.profile = {...(state.profile || {}), ...patch, email: state.user?.email || patch.email || ''};
     store.set(`profile_${id}`, state.profile);
     if(state.user && state.supabase){
-      const row = {id:state.user.id, email:state.user.email, full_name:state.profile.full_name || '', phone:state.profile.phone || '', city:state.profile.city || '', avatar_data:state.profile.avatar_data || '', updated_at:new Date().toISOString()};
+      const row = {id:state.user.id, email:state.profile.email || state.user.email, full_name:state.profile.full_name || '', phone:state.profile.phone || '', city:state.profile.city || '', avatar_data:state.profile.avatar_data || '', updated_at:new Date().toISOString()};
       await state.supabase.from('profiles').upsert(row, {onConflict:'id'});
     }
   }
@@ -964,15 +1044,15 @@
 
   async function submitSettings(e){
     e.preventDefault();
-    await saveProfile({full_name:$('setName').value.trim(), phone:$('setPhone').value.trim(), city:$('setCity').value.trim(), language:$('setLang').value, notifications:$('notifyToggle').checked, privacy:$('privacyToggle').checked, avatar_data:state.avatarData || state.profile?.avatar_data || ''});
+    await saveProfile({full_name:$('setName').value.trim(), phone:$('setPhone').value.trim(), email:$('setEmail').value.trim() || state.user?.email || '', city:$('setCity').value.trim(), language:$('setLang').value, notifications:$('notifyToggle').checked, privacy:$('privacyToggle').checked, avatar_data:state.avatarData || state.profile?.avatar_data || ''});
     renderProfile(); toast('Setările au fost salvate.'); showPage('profile');
   }
   function renderSettings(){
-    const p=state.profile || {}; $('setName').value=p.full_name || state.user?.user_metadata?.full_name || ''; $('setPhone').value=p.phone || ''; $('setEmail').value=state.user?.email || p.email || ''; $('setCity').value=p.city || ''; $('setLang').value=p.language || 'Română'; $('notifyToggle').checked=p.notifications !== false; $('privacyToggle').checked=p.privacy !== false; $('darkToggle').checked=document.documentElement.dataset.theme==='dark';
+    const p=state.profile || {}; $('setName').value=p.full_name || state.user?.user_metadata?.full_name || ''; $('setPhone').value=p.phone || ''; $('setEmail').value=p.email || state.user?.email || ''; $('setCity').value=p.city || ''; $('setLang').value=p.language || 'Română'; $('notifyToggle').checked=p.notifications !== false; $('privacyToggle').checked=p.privacy !== false; $('darkToggle').checked=document.documentElement.dataset.theme==='dark';
   }
 
   function renderProfile(){
-    const p=state.profile || {}; const name=p.full_name || state.user?.user_metadata?.full_name || (state.user ? 'Utilizator AutoRapid':'Vizitator'); const email=state.user?.email || p.email || 'Intră în cont pentru funcții complete'; const avatar=p.avatar_data || state.avatarData;
+    const p=state.profile || {}; const name=p.full_name || state.user?.user_metadata?.full_name || (state.user ? 'Utilizator AutoRapid':'Vizitator'); const email=p.email || state.user?.email || 'Intră în cont pentru funcții complete'; const avatar=p.avatar_data || state.avatarData;
     $('profileName').textContent=name; $('profileEmail').textContent=email;
     $('profileAvatar').innerHTML = avatar ? `<img src="${safeText(avatar)}" alt="Poză profil">` : `<span class="avatar-initials">${safeText(initials(name,email))}</span>`;
     renderProfileStats(); renderProfileActivity();
@@ -1022,15 +1102,17 @@
     });
   }
 
+  function hideBootLoader(){ const el=$('bootLoader'); if(el) el.classList.add('hide'); }
   async function boot(){
     setTheme(store.get('theme','light'));
     setupControls(); bindEvents(); initSupabase(); showLoading(true);
     await loadAuth(); await afterAuthChange();
     showLoading(false);
-    if(!state.user) setTimeout(()=>openAuth(), 350);
+    setTimeout(hideBootLoader, 650);
+    if(!state.user) setTimeout(()=>openAuth(), 850);
   }
 
-  boot().catch(err=>{ console.error(err); toast('A apărut o eroare la încărcare, dar aplicația rămâne funcțională local.'); showLoading(false); });
+  boot().catch(err=>{ console.error(err); toast('A apărut o eroare la încărcare, dar aplicația rămâne funcțională local.'); showLoading(false); setTimeout(()=>{ const el=$('bootLoader'); if(el) el.classList.add('hide'); }, 700); });
 })();
 </script>
 </body>
